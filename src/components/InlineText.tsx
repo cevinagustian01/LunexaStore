@@ -96,11 +96,11 @@ export default function InlineText({
         outline: "2px dashed transparent",
         transition: "outline 0.2s",
       }}
-      onMouseEnter={(e: React.MouseEvent<HTMLElement>) => {
+      onMouseEnter={(e: any) => {
         e.currentTarget.style.outline = "2px dashed #ec4899";
         e.currentTarget.style.outlineOffset = "4px";
       }}
-      onMouseLeave={(e: React.MouseEvent<HTMLElement>) => {
+      onMouseLeave={(e: any) => {
         e.currentTarget.style.outline = "2px dashed transparent";
         e.currentTarget.style.outlineOffset = "0px";
       }}
