@@ -1,0 +1,94 @@
+{
+  "products": [
+    {
+      "id": "p1",
+      "nama": "Netflix Premium",
+      "harga": 35000,
+      "gambar": "🍿",
+      "stok": 100,
+      "created_at": "2024-01-01T00:00:00Z"
+    },
+    {
+      "id": "p2",
+      "nama": "Viu Premium",
+      "harga": 15000,
+      "gambar": "🧋",
+      "stok": 50,
+      "created_at": "2024-01-02T00:00:00Z"
+    },
+    {
+      "id": "p3",
+      "nama": "Vidio Platinum",
+      "harga": 25000,
+      "gambar": "⚽",
+      "stok": 75,
+      "created_at": "2024-01-03T00:00:00Z"
+    },
+    {
+      "id": "p4",
+      "nama": "Spotify Premium",
+      "harga": 20000,
+      "gambar": "🎧",
+      "stok": 200,
+      "created_at": "2024-01-04T00:00:00Z"
+    }
+  ],
+  "testimonials": [
+    {
+      "id": "t1",
+      "username": "@kpopers_sejati",
+      "avatar": "🌸",
+      "rating": 5,
+      "komen": "Gilaaa adminnya fast respon banget! 5 menit doang langsung aktif Netflix-nya, bisa lanjut drakoran deh~",
+      "created_at": "2024-01-05T00:00:00Z"
+    },
+    {
+      "id": "t2",
+      "username": "@anak_bola",
+      "avatar": "⚽",
+      "rating": 5,
+      "komen": "Beli Vidio di sini mantap, no ngelag, harganya pas di kantong pelajar.",
+      "created_at": "2024-01-06T00:00:00Z"
+    },
+    {
+      "id": "t3",
+      "username": "@Syahrari",
+      "avatar": "🎵",
+      "rating": 5,
+      "komen": "Neflixnya anti limit bjirr, garansi 7 hari juga",
+      "created_at": "2024-01-07T00:00:00Z"
+    }
+  ],
+  "site_content": [
+    {
+      "id": "hero_title_1",
+      "section": "hero",
+      "value": "Nonton"
+    },
+    {
+      "id": "hero_title_2",
+      "section": "hero",
+      "value": "Sepuasnya"
+    },
+    {
+      "id": "hero_title_3",
+      "section": "hero",
+      "value": "Tanpa Iklan!"
+    },
+    {
+      "id": "hero_subtitle",
+      "section": "hero",
+      "value": "Akses Netflix, Viu, Vidio, Spotify & Aplikasi Premium lainnya dengan harga yang bikin senyum lebar~🎉"
+    },
+    {
+      "id": "hero_ticker",
+      "section": "hero",
+      "value": "LUNEXA STORE · NONTON SEPUASNYA · AKTIF INSTAN · GARANSI PENUH · NETFLIX · VIU · VIDIO · SPOTIFY ·"
+    },
+    {
+      "id": "faq_title",
+      "section": "faq",
+      "value": "FAQ~ 🌸"
+    }
+  ]
+}
