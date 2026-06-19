@@ -41,7 +41,7 @@ export default async function Home() {
         <Testimonials dbTestimonials={dbTestimonials} />
         {/* AIDA: Action */}
         <FAQ />
-        <Footer dbProducts={dbProducts} />
+        <Footer />
       </main>
     </SiteContentProvider>
   );
