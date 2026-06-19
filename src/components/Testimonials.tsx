@@ -135,6 +135,7 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
           stars: t.rating,
           review: t.komen,
           product: "Pelanggan Setia",
+          productColor: "#f472b6",
           bg: c.bg,
           border: c.border,
           rotate: i % 2 === 0 ? "-2deg" : "3deg",
