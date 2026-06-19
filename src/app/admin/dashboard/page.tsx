@@ -275,7 +275,7 @@ export default function AdminDashboard() {
 
   const saveProduct_ = async () => {
     if (!prodForm.nama.trim()) return toast("Nama produk wajib diisi!", "error");
-    if (prodForm.harga < 0)    return toast("Harga tidak boleh negatif!", "error");
+    if (prodForm.harga !== undefined && prodForm.harga < 0) return toast("Harga tidak boleh negatif!", "error");
     setProdSaving(true);
     try {
       if (prodModal === "add") {
