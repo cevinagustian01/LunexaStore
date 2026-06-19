@@ -135,10 +135,9 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
           stars: t.rating,
           review: t.komen,
           product: "Pelanggan Setia",
-          productColor: "#1e293b",
           bg: c.bg,
           border: c.border,
-          rotate: i % 2 === 0 ? "-1.5deg" : "2deg",
+          rotate: i % 2 === 0 ? "-2deg" : "3deg",
           tape: c.tape,
           tapeLeft: i % 2 === 0,
         };
@@ -148,38 +147,21 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
   return (
     <section
       id="testimonials"
-      style={{
-        padding: "90px 0",
-        position: "relative",
-        overflow: "hidden",
-        background: "linear-gradient(135deg, #FFD6E7 0%, #E8D5F5 35%, #D0E8FF 65%, #FFF3C4 100%)",
-      }}
+      style={{ padding: "80px 0", position: "relative" }}
     >
-      {/* Blobs */}
-      <div style={{ position:"absolute", top:0, left:0, width:300, height:300, borderRadius:"50%", background:"rgba(255,255,255,0.25)", filter:"blur(50px)", transform:"translate(-30%,-30%)", pointerEvents:"none" }} />
-      <div style={{ position:"absolute", bottom:0, right:0, width:300, height:300, borderRadius:"50%", background:"rgba(255,255,255,0.25)", filter:"blur(50px)", transform:"translate(30%,30%)", pointerEvents:"none" }} />
-
-      {/* Floating decor */}
-      <div className="k-float" style={{ position:"absolute", top:24, right:32, fontSize:30, opacity:0.5 }}>💌</div>
-      <div className="k-sparkle" style={{ position:"absolute", top:80, left:16, fontSize:24, opacity:0.4 }}>⭐</div>
-      <div className="k-wiggle" style={{ position:"absolute", bottom:40, right:20, fontSize:28, opacity:0.5 }}>🎀</div>
-      <div className="k-bounce" style={{ position:"absolute", bottom:20, left:16, fontSize:30, opacity:0.4 }}>💬</div>
-
-      <div className="k-container" style={{ position: "relative", zIndex: 5 }}>
+      <div className="k-container">
+        <div className="pb-lined" style={{ padding: "60px 24px" }}>
         {/* Header */}
         <div style={{ textAlign: "center", marginBottom: 56 }}>
           <div style={{ display:"inline-flex", alignItems:"center", gap:8, marginBottom:12 }}>
-            <div style={{ width:40, height:1, background:"linear-gradient(90deg, transparent, #FFB3D1)" }} />
-            <InlineText id="testi_label" fallback="～ kata mereka ～" as="span" className="k-font-quicksand" style={{ fontSize:13, fontWeight:700, color:"#ec4899" }} />
-            <div style={{ width:40, height:1, background:"linear-gradient(90deg, #FFB3D1, transparent)" }} />
+            <InlineText id="testi_label" fallback="Testimoni" as="span" className="k-font-quicksand" style={{ fontSize:14, fontWeight:700, color:"#ec4899", letterSpacing:"0.05em", textTransform:"uppercase" }} />
           </div>
-          <h2 className="k-font-bubble" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", margin: "0 0 12px" }}>
-            <InlineText id="testi_title" fallback="Testimoni Pelanggan 🥰" as="span" style={{
-              background: "linear-gradient(90deg, #ec4899, #a855f7)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
+          <h2 className="k-font-quicksand" style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)", margin: "0 0 12px", fontWeight: 800 }}>
+            <InlineText id="testi_title" fallback="Kata Mereka" as="span" style={{
+              color: "var(--color-primary)"
             }} />
           </h2>
-          <InlineText id="testi_subtitle" fallback="Gak usah ragu, 5000+ orang udah ngebuktiin sendiri kualitasnya! ✨" as="p" className="k-font-quicksand" style={{ color: "#6d28d9", fontSize: 16, margin: "0 auto", maxWidth: 520, fontWeight: 500 }} />
+          <InlineText id="testi_subtitle" fallback="Gak usah ragu, 5000+ orang udah ngebuktiin sendiri kualitasnya! ✨" as="p" className="k-font-quicksand" style={{ color: "var(--color-text-muted)", fontSize: 16, margin: "0 auto", maxWidth: 520, fontWeight: 500 }} />
         </div>
 
         {/* Scrapbook Masonry */}
@@ -198,48 +180,26 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
                 id={`testimonial-${t.id}`}
                 style={{
                   breakInside: "avoid",
-                  marginBottom: 24,
+                  marginBottom: 32,
                   transform: `rotate(${t.rotate})`,
                   transition: "transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
                   cursor: "default",
                   display: "inline-block",
                   width: "100%",
                 }}
-                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "rotate(0deg) scale(1.03)"; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLElement).style.transform = "rotate(0deg) scale(1.05)"; }}
                 onMouseLeave={e => { (e.currentTarget as HTMLElement).style.transform = `rotate(${t.rotate})`; }}
               >
                 {/* Tape */}
                 <div style={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: t.tapeLeft ? "flex-start" : "flex-end",
-                  paddingBottom: 4,
-                  paddingLeft: t.tapeLeft ? 20 : 0,
-                  paddingRight: t.tapeLeft ? 0 : 20,
-                }}>
-                  <div style={{
-                    width: 48, height: 18, borderRadius: 3,
-                    background: t.tape,
-                    border: "1px solid rgba(255,255,255,0.6)",
-                    transform: idx % 2 === 0 ? "rotate(1deg)" : "rotate(-2deg)",
-                  }} />
-                </div>
+                  position: "absolute", top: -10, left: "50%", transform: "translateX(-50%) rotate(-1deg)",
+                  width: 60, height: 20, background: "rgba(254,240,138,0.9)",
+                  border: "1px solid rgba(234,179,8,0.3)", borderRadius: 2, zIndex: 10,
+                  boxShadow: "0 2px 5px rgba(0,0,0,0.05)"
+                }} />
 
                 {/* Card */}
-                <div style={{
-                  background: t.bg,
-                  backdropFilter: "blur(12px)",
-                  WebkitBackdropFilter: "blur(12px)",
-                  border: `2px solid ${t.border}`,
-                  borderRadius: 24,
-                  padding: "18px 18px 16px",
-                  boxShadow: "0 8px 32px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04)",
-                  position: "relative",
-                  overflow: "hidden",
-                }}>
-                  {/* Shimmer overlay */}
-                  <div className="k-shimmer" style={{ position:"absolute", inset:0, borderRadius:24, opacity:0.2, pointerEvents:"none" }} />
-
+                <div className="pb-polaroid" style={{ width: "100%" }}>
                   {/* User row */}
                   <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:12 }}>
                     <div style={{
@@ -253,8 +213,8 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
                       {t.avatar}
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div className="k-font-nunito" style={{ fontWeight:800, color:"#1f2937", fontSize:13, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{t.name}</div>
-                      <div className="k-font-quicksand" style={{ fontSize:11, color:"#8b5cf6", fontWeight:600 }}>{t.username}</div>
+                      <div className="k-font-nunito" style={{ fontWeight:800, color:"var(--color-text)", fontSize:13, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{t.name}</div>
+                      <div className="k-font-quicksand" style={{ fontSize:11, color:"var(--color-text-muted)", fontWeight:600 }}>{t.username}</div>
                     </div>
                     <span style={{ fontSize:16, flexShrink:0 }} title="Terverifikasi">✔️</span>
                   </div>
@@ -273,7 +233,7 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
                   {/* Quote */}
                   <div style={{ position:"relative" }}>
                     <span style={{ position:"absolute", top:-4, left:-4, fontSize:28, color:"rgba(236,72,153,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
-                    <p className="k-font-quicksand" style={{ margin:0, fontSize:13, color:"#374151", lineHeight:1.65, paddingLeft:16, paddingRight:8, paddingTop:4, paddingBottom:4 }}>
+                    <p className="k-font-quicksand" style={{ margin:0, fontSize:13, color:"var(--color-text)", lineHeight:1.65, paddingLeft:16, paddingRight:8, paddingTop:4, paddingBottom:4 }}>
                       {t.review}
                     </p>
                     <span style={{ position:"absolute", bottom:-8, right:0, fontSize:28, color:"rgba(168,139,250,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
@@ -312,6 +272,7 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
               <span className="k-font-quicksand" style={{ fontWeight:700, color:"#6d28d9", fontSize:13 }}>{b.label}</span>
             </div>
           ))}
+        </div>
         </div>
       </div>
     </section>

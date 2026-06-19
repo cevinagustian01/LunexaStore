@@ -5,8 +5,20 @@
       "nama": "Netflix Premium",
       "harga": 35000,
       "gambar": "🍿",
-      "stok": 100,
-      "created_at": "2024-01-01T00:00:00Z"
+      "stok": 40,
+      "created_at": "2024-01-01T00:00:00Z",
+      "variants": [
+        {
+          "name": "Sharing 1 Bulan (Garansi 14D)",
+          "price": 10000,
+          "stok": 40
+        },
+        {
+          "name": "Sharing 1 Bulan (Garansi 1 Bulan)",
+          "price": 36000,
+          "stok": 0
+        }
+      ]
     },
     {
       "id": "p2",
@@ -14,23 +26,59 @@
       "harga": 15000,
       "gambar": "🧋",
       "stok": 50,
-      "created_at": "2024-01-02T00:00:00Z"
+      "created_at": "2024-01-02T00:00:00Z",
+      "variants": [
+        {
+          "name": "1 Bulan",
+          "price": 3000,
+          "stok": 50
+        },
+        {
+          "name": "6 Bulan",
+          "price": 4000,
+          "stok": 50
+        },
+        {
+          "name": "1 Tahun",
+          "price": 5000,
+          "stok": 50
+        }
+      ]
     },
     {
       "id": "p3",
       "nama": "Vidio Platinum",
       "harga": 25000,
       "gambar": "⚽",
-      "stok": 75,
-      "created_at": "2024-01-03T00:00:00Z"
+      "stok": 10,
+      "created_at": "2024-01-03T00:00:00Z",
+      "variants": [
+        {
+          "name": "All Device",
+          "price": 34000,
+          "stok": 10
+        },
+        {
+          "name": "TV",
+          "price": 7000,
+          "stok": 5
+        }
+      ]
     },
     {
       "id": "p4",
       "nama": "Spotify Premium",
       "harga": 20000,
       "gambar": "🎧",
-      "stok": 200,
-      "created_at": "2024-01-04T00:00:00Z"
+      "stok": 0,
+      "created_at": "2024-01-04T00:00:00Z",
+      "variants": [
+        {
+          "name": "Private 1 Bulan",
+          "price": 18000,
+          "stok": 0
+        }
+      ]
     }
   ],
   "testimonials": [
@@ -89,6 +137,56 @@
       "id": "faq_title",
       "section": "faq",
       "value": "FAQ~ 🌸"
+    },
+    {
+      "id": "pb_hero_subtitle",
+      "section": "general",
+      "value": "Langganan Netflix, Viu, Vidio & Spotify dengan harga bersahabat dan Bergaransi!"
+    },
+    {
+      "id": "pb_hero_title",
+      "section": "general",
+      "value": "Beli Akun Premium Murah & Aman"
+    },
+    {
+      "id": "footer_text",
+      "section": "general",
+      "value": "lunexastore by owner — 2026"
+    },
+    {
+      "id": "socmed_wa",
+      "section": "general",
+      "value": "https://wa.me/62881025015067"
+    },
+    {
+      "id": "socmed_tg",
+      "section": "general",
+      "value": "https://t.me/cevinagustian01"
+    },
+    {
+      "id": "socmed_x",
+      "section": "general",
+      "value": "https://x.com/matchalatt33nak"
+    },
+    {
+      "id": "socmed_links_json",
+      "section": "general",
+      "value": "[{\"id\":\"1781887616581\",\"platform\":\"WhatsApp 1\",\"url\":\"https://wa.me/6281210940407\",\"icon\":\"📱\"},{\"id\":\"wa\",\"platform\":\"WhatsApp 2\",\"icon\":\"📱\",\"url\":\"https://wa.me/62881025015067\"},{\"id\":\"tg\",\"platform\":\"Telegram\",\"icon\":\"✈️\",\"url\":\"https://t.me/cevinagustian01\"},{\"id\":\"x\",\"platform\":\"X (Twitter)\",\"icon\":\"🐦\",\"url\":\"https://x.com/matchalatt33nak\"}]"
+    },
+    {
+      "id": "faq_cta_desc",
+      "section": "general",
+      "value": "Bergabung dengan xxx+ pelanggan happy! Mulai hanya dari Rp 10.000/bulan"
+    },
+    {
+      "id": "faq_list_json",
+      "section": "general",
+      "value": "[{\"id\":\"f1\",\"q\":\"Apakah akun yang dijual 100% aman? 🛡️\",\"e\":\"🔒\",\"a\":\"Tentu saja! Semua akun premium bergaransi. Kami telah melayani 5000+ pelanggan dengan zero complaint. Transaksi aman via transfer bank, e-wallet, atau QRIS.\"},{\"id\":\"f2\",\"q\":\"Berapa lama proses aktivasi setelah bayar? ⚡\",\"e\":\"⚡\",\"a\":\"Super cepat! Rata-rata 5-15 menit setelah konfirmasi pembayaran. CS kami aktif 24/7 dan langsung kirim notifikasi via WhatsApp/Telegram setelah akun aktif.\"},{\"id\":\"f3\",\"q\":\"Bagaimana jika akun bermasalah atau expired? 🤝\",\"e\":\"🎁\",\"a\":\"Tenang! Ada masalah teknis sebelum masa paket habis? Kami langsung replace atau refund 100%. Kepuasan pelanggan adalah prioritas utama kami.\"},{\"id\":\"f5\",\"q\":\"Metode pembayaran apa saja yang tersedia? 💳\",\"e\":\"💳\",\"a\":\"Transfer Bank (BCA, BNI, BRI, Mandiri), GoPay, OVO, DANA, ShopeePay, dan QRIS. Semua aman dan ada bukti transfer yang bisa disimpan!\"}]"
+    },
+    {
+      "id": "features_list_json",
+      "section": "general",
+      "value": "[{\"id\":\"f1\",\"icon\":\"💬\",\"title\":\"Testimoni Asli\",\"desc\":\"Ribuan pelanggan udah ngebuktiin sendiri kualitas layanan kami. Terjamin 100%!\"},{\"id\":\"f2\",\"icon\":\"🚀\",\"title\":\"Aktif Instan\",\"desc\":\"Bayar sekarang, langsung bisa nonton hari ini juga. Gak pake nunggu lama.\"},{\"id\":\"f3\",\"icon\":\"🛡️\",\"title\":\"Garansi Penuh\",\"desc\":\"Ada kendala sebelum masa aktif habis? Langsung kami ganti baru, no debat.\"},{\"id\":\"f4\",\"icon\":\"📱\",\"title\":\"Bisa Semua Device\",\"desc\":\"Nonton dari HP, Laptop, TV? Semua bisa tanpa ribet pakai VPN.\"},{\"id\":\"f5\",\"icon\":\"💎\",\"title\":\"Kualitas UHD 4K\",\"desc\":\"Nikmati resolusi tertinggi buat pengalaman nonton yang bener-bener memanjakan mata.\"},{\"id\":\"f6\",\"icon\":\"🔒\",\"title\":\"Aman & Terpercaya\",\"desc\":\"Pembayaran terjamin aman, data privasi kamu terjaga. Langganan tanpa was-was.\"}]"
     }
   ]
 }

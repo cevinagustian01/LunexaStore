@@ -89,10 +89,38 @@ const products = [
   },
 ];
 
+import { useState } from "react";
 import { Product } from "@/lib/db";
 import InlineText from "@/components/InlineText";
+import { useSiteContent } from "@/components/SiteContentProvider";
 
-export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Product[] }) {
+export default function ProductCatalog({ 
+  dbProducts = [],
+  variant = "carousel",
+  hideHeader = false
+}: { 
+  dbProducts?: Product[],
+  variant?: "carousel" | "grid",
+  hideHeader?: boolean
+}) {
+  const [buyModal, setBuyModal] = useState<{ product: string, pkg: string, price: string } | null>(null);
+
+  const { text: socmedJson } = useSiteContent("socmed_links_json", "");
+  const { text: wa } = useSiteContent("socmed_wa", "https://wa.me/6281234567890");
+  const { text: tg } = useSiteContent("socmed_tg", "https://t.me/username");
+  const { text: x } = useSiteContent("socmed_x", "https://x.com/username");
+  
+  let socmedLinks: { id: string; platform: string; url: string; icon: string }[] = [];
+  try {
+    if (socmedJson) {
+      socmedLinks = JSON.parse(socmedJson);
+    } else {
+      if (wa) socmedLinks.push({ id: "wa", platform: "WhatsApp", icon: "📱", url: wa });
+      if (tg) socmedLinks.push({ id: "tg", platform: "Telegram", icon: "✈️", url: tg });
+      if (x) socmedLinks.push({ id: "x", platform: "X (Twitter)", icon: "🐦", url: x });
+    }
+  } catch(e) {}
+
   const styles = [
     { emoji: "🎬", iconGrad: "linear-gradient(135deg, #ef4444, #dc2626)", headerGrad: "linear-gradient(135deg, rgba(254,226,226,0.8), rgba(255,241,242,0.9))", accentColor: "#ef4444", lightBg: "rgba(254,226,226,0.5)", borderColor: "rgba(252,165,165,0.5)", btnGrad: "linear-gradient(135deg, #ef4444, #ec4899)", badgeBg: "rgba(254,226,226,0.8)" },
     { emoji: "🧋", iconGrad: "linear-gradient(135deg, #a855f7, #7c3aed)", headerGrad: "linear-gradient(135deg, rgba(243,232,255,0.8), rgba(250,245,255,0.9))", accentColor: "#a855f7", lightBg: "rgba(243,232,255,0.5)", borderColor: "rgba(216,180,254,0.5)", btnGrad: "linear-gradient(135deg, #a855f7, #ec4899)", badgeBg: "rgba(243,232,255,0.8)" },
@@ -103,9 +131,11 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
   const list = dbProducts.length > 0
     ? dbProducts.map((p, i) => {
         const s = styles[i % styles.length];
+        const totalStok = p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0;
         return {
           id: p.id,
           name: p.nama,
+          stok: totalStok,
           emoji: s.emoji,
           tagline: "Paket Murah Meriah",
           iconGrad: s.iconGrad,
@@ -114,13 +144,17 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
           lightBg: s.lightBg,
           borderColor: s.borderColor,
           btnGrad: s.btnGrad,
-          badge: "🔥 Tersedia",
-          badgeColor: s.accentColor,
-          badgeBg: s.badgeBg,
+          badge: totalStok > 0 ? "🔥 Tersedia" : "❌ Habis",
+          badgeColor: totalStok > 0 ? s.accentColor : "#ef4444",
+          badgeBg: totalStok > 0 ? s.badgeBg : "#fee2e2",
           features: ["Akses Penuh", "Kualitas Terbaik", "Garansi"],
-          packages: [
-            { name: "Promo", price: `Rp ${p.harga.toLocaleString("id-ID")}`, original: "", popular: true }
-          ]
+          packages: (p.variants && p.variants.length > 0 ? p.variants : [{ name: "Standard", price: p.harga || 0, stok: p.stok || 0 }]).map((v, idx) => ({
+            name: v.name,
+            price: `Rp ${v.price.toLocaleString("id-ID")}`,
+            original: v.crossed_price ? `Rp ${v.crossed_price.toLocaleString("id-ID")}` : "",
+            popular: idx === 0,
+            stok: v.stok !== undefined ? v.stok : (p.stok || 0)
+          }))
         };
       })
     : products;
@@ -128,70 +162,57 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
   return (
     <section
       id="products"
-      className="k-lined-paper"
-      style={{ padding: "90px 0", position: "relative", overflow: "hidden" }}
+      style={{ padding: "80px 0", position: "relative" }}
     >
-      {/* Decorative elements */}
-      <div className="k-wiggle" style={{ position:"absolute", top:20, left:16, fontSize:28, opacity:0.35 }}>📌</div>
-      <div className="k-float" style={{ position:"absolute", top:40, right:20, fontSize:24, opacity:0.4 }}>🎀</div>
-      <div className="k-sparkle" style={{ position:"absolute", bottom:40, left:20, fontSize:24, opacity:0.35 }}>⭐</div>
-      <div className="k-bounce" style={{ position:"absolute", bottom:20, right:16, fontSize:28, opacity:0.4 }}>🌸</div>
-
-      <div className="k-container" style={{ position: "relative", zIndex: 5 }}>
+      <div className="k-container">
+        <div className="pb-lined" style={{ padding: "60px 24px" }}>
         {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: 56 }}>
-          {/* Tape decoration */}
-          <div style={{ display: "inline-block", position: "relative", marginBottom: 10 }}>
-            <div style={{ position:"absolute", top:-10, left:"50%", transform:"translateX(-50%) rotate(-1deg)", width:80, height:20, background:"rgba(254,240,138,0.85)", borderRadius:4, border:"1px solid rgba(234,179,8,0.4)" }} />
-            <InlineText id="catalog_label" fallback="～ katalog produk ～" as="span" className="k-font-quicksand" style={{ position:"relative", zIndex:1, fontSize:12, fontWeight:700, color:"#854d0e", display:"inline-block", padding:"2px 8px" }} />
+        {!hideHeader && (
+          <div style={{ textAlign: "center", marginBottom: 56 }}>
+            <div style={{ display: "inline-block", position: "relative", marginBottom: 10 }}>
+              <InlineText id="catalog_label" fallback="Katalog Produk" as="span" className="k-font-quicksand" style={{ fontSize:14, fontWeight:700, color:"#ec4899", letterSpacing:"0.05em", textTransform:"uppercase" }} />
+            </div>
+            <h2 className="k-font-quicksand" style={{ fontSize: "clamp(2rem, 5vw, 2.5rem)", margin: "0 0 12px", display: "block", fontWeight: 800 }}>
+              <InlineText id="catalog_title" fallback="Pilih Paketmu!" as="span" style={{
+                color: "var(--color-primary)"
+              }} />
+            </h2>
+            <InlineText id="catalog_subtitle" fallback="Semua paket resmi & terpercaya — harga yang bikin senyum lebar." as="p" className="k-font-quicksand" style={{ color: "var(--color-text-muted)", fontSize: 16, margin: "0 auto", maxWidth: 520, fontWeight: 500 }} />
           </div>
-          <h2 className="k-font-bubble" style={{ fontSize: "clamp(2rem, 5vw, 3rem)", margin: "0 0 12px", display: "block" }}>
-            <InlineText id="catalog_title" fallback="Pilih Paketmu! 🛍️" as="span" style={{
-              background: "linear-gradient(90deg, #ec4899, #a855f7, #60a5fa)",
-              WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
-            }} />
-          </h2>
-          <InlineText id="catalog_subtitle" fallback="Semua paket resmi & terpercaya — harga yang bikin senyum-senyum sendiri~ 💖" as="p" className="k-font-quicksand" style={{ color: "#6d28d9", fontSize: 16, margin: "0 auto 16px", maxWidth: 520, fontWeight: 500 }} />
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, fontSize:18, color:"#f9a8d4" }}>
-            <div style={{ width:50, height:1, background:"linear-gradient(90deg, transparent, #FFB3D1)" }} />
-            ✦ ✦ ✦
-            <div style={{ width:50, height:1, background:"linear-gradient(90deg, #FFB3D1, transparent)" }} />
-          </div>
-        </div>
+        )}
 
-        {/* === PRODUCT CARDS GRID === */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: 24,
-        }}>
+        {/* === PRODUCT CARDS === */}
+        <div 
+          className="no-scrollbar"
+          style={variant === "carousel" ? {
+            display: "flex",
+            overflowX: "auto",
+            scrollSnapType: "x mandatory",
+            gap: 24,
+            paddingBottom: 24,
+            WebkitOverflowScrolling: "touch",
+          } : {
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+            gap: 24,
+          }}
+        >
           {list.map((p, idx) => (
             <div
               key={p.id}
               id={`product-card-${p.id}`}
               className="k-card"
               style={{
-                background: "rgba(255,255,255,0.85)",
-                backdropFilter: "blur(12px)",
-                border: `2px solid ${p.borderColor}`,
-                borderRadius: 28,
+                background: "var(--bg-card)",
+                border: "var(--border-kawaii)",
+                borderRadius: 24,
                 overflow: "hidden",
-                boxShadow: "0 8px 32px rgba(0,0,0,0.06)",
+                boxShadow: "var(--shadow-card)",
                 position: "relative",
+                flex: variant === "carousel" ? "0 0 min(320px, 85vw)" : "auto",
+                scrollSnapAlign: "center",
               }}
             >
-              {/* Tape */}
-              <div style={{
-                position: "absolute",
-                top: -8,
-                ...(idx % 2 === 0 ? { left: 24 } : { right: 24 }),
-                width: 52, height: 18, borderRadius: 4,
-                background: idx % 2 === 0 ? "rgba(255,179,209,0.85)" : "rgba(221,214,254,0.85)",
-                border: "1px solid rgba(255,255,255,0.6)",
-                transform: idx % 2 === 0 ? "rotate(2deg)" : "rotate(-2deg)",
-                zIndex: 5,
-              }} />
-
               {/* Card Header */}
               <div style={{ background: p.headerGrad, padding: "20px 20px 16px" }}>
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 }}>
@@ -207,7 +228,7 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
                     </div>
                     <div>
                       <div className="k-font-bubble" style={{ fontSize: 18, color: "#1f2937" }}>{p.name}</div>
-                      <div className="k-font-quicksand" style={{ fontSize: 11, color: "#6b7280", marginTop: 2 }}>{p.tagline}</div>
+                      <div className="k-font-quicksand" style={{ fontSize: 11, color: "#4b5563", marginTop: 2 }}>{p.tagline}</div>
                     </div>
                   </div>
                   <span className="k-font-quicksand" style={{
@@ -224,7 +245,7 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
                   {p.features.map(f => (
                     <div key={f} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                       <span style={{ color: p.accentColor, fontWeight: 700, fontSize: 12 }}>✓</span>
-                      <span className="k-font-quicksand" style={{ fontSize: 11, color: "#374151", fontWeight: 600 }}>{f}</span>
+                      <span className="k-font-quicksand" style={{ fontSize: 11, color: "var(--color-text)", fontWeight: 600 }}>{f}</span>
                     </div>
                   ))}
                 </div>
@@ -243,7 +264,7 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
                         display: "flex", alignItems: "center", justifyContent: "space-between",
                         padding: pkg.popular ? "12px 14px" : "10px 14px",
                         borderRadius: 16,
-                        background: pkg.popular ? p.btnGrad : "rgba(249,250,251,0.8)",
+                        background: pkg.popular ? p.btnGrad : "var(--bg-glass)",
                         border: pkg.popular ? "none" : `1.5px solid ${p.borderColor}`,
                         position: "relative",
                         boxShadow: pkg.popular ? `0 6px 20px ${p.borderColor}` : "none",
@@ -265,13 +286,13 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
                       <div>
                         <div className="k-font-nunito" style={{
                           fontWeight: 800, fontSize: 13,
-                          color: pkg.popular ? "white" : "#374151",
+                          color: pkg.popular ? "white" : "var(--color-text)",
                         }}>
                           {pkg.name}
                         </div>
                         <div className="k-font-quicksand" style={{
                           fontSize: 11, textDecoration: "line-through",
-                          color: pkg.popular ? "rgba(255,255,255,0.65)" : "#9ca3af",
+                          color: pkg.popular ? "rgba(255,255,255,0.65)" : "var(--color-text-muted)",
                         }}>
                           {pkg.original}
                         </div>
@@ -284,23 +305,29 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
                       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                         <span className="k-font-bubble" style={{
                           fontSize: 15,
-                          color: pkg.popular ? "white" : "#1f2937",
+                          color: pkg.popular ? "white" : "var(--color-text)",
                         }}>
                           {pkg.price}
                         </span>
                         <button
                           id={`btn-buy-${p.id}-${pkg.name.replace(" ","")}`}
                           className="k-btn k-font-quicksand"
+                          disabled={!("stok" in pkg) || pkg.stok === 0}
+                          onClick={() => {
+                            if (!("stok" in pkg) || pkg.stok === 0) return;
+                            setBuyModal({ product: p.name, pkg: pkg.name, price: pkg.price });
+                          }}
                           style={{
                             padding: "6px 14px", borderRadius: 999, fontSize: 11, fontWeight: 700,
                             whiteSpace: "nowrap",
-                            background: pkg.popular ? "rgba(255,255,255,0.9)" : p.btnGrad,
-                            color: pkg.popular ? p.accentColor : "white",
+                            background: !("stok" in pkg) || pkg.stok === 0 ? "#e5e7eb" : (pkg.popular ? "rgba(255,255,255,0.9)" : p.btnGrad),
+                            color: !("stok" in pkg) || pkg.stok === 0 ? "#9ca3af" : (pkg.popular ? p.accentColor : "white"),
                             border: "none",
-                            boxShadow: pkg.popular ? "none" : `0 3px 10px ${p.borderColor}`,
+                            boxShadow: !("stok" in pkg) || pkg.stok === 0 ? "none" : (pkg.popular ? "none" : `0 3px 10px ${p.borderColor}`),
+                            cursor: !("stok" in pkg) || pkg.stok === 0 ? "not-allowed" : "pointer"
                           }}
                         >
-                          Beli Sekarang
+                          {!("stok" in pkg) || pkg.stok === 0 ? "Stok Habis" : "Beli Sekarang"}
                         </button>
                       </div>
                     </div>
@@ -311,25 +338,101 @@ export default function ProductCatalog({ dbProducts = [] }: { dbProducts?: Produ
           ))}
         </div>
 
-        {/* Trust note */}
-        <div style={{ textAlign: "center", marginTop: 40 }}>
-          <div
-            className="k-glass"
-            style={{
-              display: "inline-flex", alignItems: "center", gap: 10,
-              padding: "12px 24px", borderRadius: 999,
-              border: "1px solid rgba(255,179,209,0.4)",
-              boxShadow: "0 4px 16px rgba(255,133,179,0.1)",
+        {/* Lihat Semua Button for Carousel */}
+        {variant === "carousel" && (
+          <div style={{ textAlign: "center", marginTop: 24 }}>
+            <a href="/katalog" className="pb-btn k-font-quicksand" style={{ background: "white", color: "#FF64A4", border: "2px solid #FF64A4", boxShadow: "0 4px 12px rgba(255,100,164,0.15)" }}>
+              <span>Lihat Semua Katalog ➔</span>
+            </a>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* Buy Modal */}
+    {buyModal && (
+      <div 
+        style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(30,0,60,0.5)", backdropFilter: "blur(8px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "20px", animation: "kFadeIn 0.3s ease-out"
+        }}
+        onClick={(e) => e.target === e.currentTarget && setBuyModal(null)}
+      >
+        <div style={{
+          background: "white", borderRadius: 32, padding: "32px",
+          width: "100%", maxWidth: 420,
+          boxShadow: "0 24px 60px rgba(160,108,213,0.3)",
+          border: "2px solid #E8D5F5",
+          animation: "kFadeUp 0.3s ease-out",
+          position: "relative",
+          textAlign: "center"
+        }}>
+          <button 
+            onClick={() => setBuyModal(null)}
+            style={{ 
+              position: "absolute", top: 16, right: 16, background: "#fdf2f8", 
+              border: "none", borderRadius: "50%", width: 32, height: 32, 
+              cursor: "pointer", fontSize: 16, color: "#db2777", display: "flex", alignItems: "center", justifyContent: "center" 
             }}
           >
-            <span className="k-heartbeat" style={{ fontSize: 22 }}>💖</span>
-            <span className="k-font-quicksand" style={{ fontSize: 13, color: "#6d28d9", fontWeight: 600 }}>
-              Semua transaksi aman & terenkripsi · Konfirmasi via WA/TG · <span style={{ color: "#ec4899", fontWeight: 700 }}>@lunexastore</span>
-            </span>
-            <span className="k-heartbeat" style={{ fontSize: 22, animationDelay: "0.5s" }}>💖</span>
+            ×
+          </button>
+          
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🛒</div>
+          <h3 className="k-font-pacific" style={{ margin: "0 0 8px", fontSize: 24, color: "#1f2937" }}>Lanjut Pembelian?</h3>
+          <p className="k-font-quicksand" style={{ color: "#6b7280", fontSize: 14, marginBottom: 24 }}>
+            Pesan <strong>{buyModal.product}</strong><br/>
+            Paket <strong>{buyModal.pkg}</strong> ({buyModal.price})
+          </p>
+          
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <p className="k-font-quicksand" style={{ fontSize: 12, fontWeight: 700, color: "#9ca3af", letterSpacing: "0.05em", textTransform: "uppercase", margin: 0 }}>Hubungi via:</p>
+            {socmedLinks.map(s => {
+              // Create prefilled message
+              const msg = encodeURIComponent(`Halo min, saya mau pesan ${buyModal.product} - Paket ${buyModal.pkg} seharga ${buyModal.price}.`);
+              let finalUrl = s.url;
+              if (s.platform.toLowerCase().includes("whatsapp") || s.url.includes("wa.me")) {
+                finalUrl = `${s.url}${s.url.includes("?") ? "&" : "?"}text=${msg}`;
+              } else if (s.platform.toLowerCase().includes("telegram") || s.url.includes("t.me")) {
+                finalUrl = `${s.url}?text=${msg}`;
+              } else if (s.platform.toLowerCase().includes("x ") || s.platform.toLowerCase() === "x" || s.url.includes("x.com") || s.url.includes("twitter.com")) {
+                finalUrl = `https://twitter.com/messages/compose?recipient_id=${s.url.split("/").pop()}&text=${msg}`; 
+              }
+
+              return (
+                <a 
+                  key={s.id} 
+                  href={finalUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="k-btn k-font-quicksand"
+                  style={{ 
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    padding: "12px 24px", borderRadius: 999, fontSize: 14, fontWeight: 800,
+                    background: "#f8fafc", color: "#1f2937", border: "1.5px solid #e2e8f0",
+                    textDecoration: "none", transition: "all 0.2s"
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.background = "#FF64A4";
+                    e.currentTarget.style.color = "white";
+                    e.currentTarget.style.borderColor = "#FF64A4";
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.background = "#f8fafc";
+                    e.currentTarget.style.color = "#1f2937";
+                    e.currentTarget.style.borderColor = "#e2e8f0";
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>{s.icon}</span> {s.platform}
+                </a>
+              );
+            })}
           </div>
         </div>
       </div>
+    )}
     </section>
   );
 }

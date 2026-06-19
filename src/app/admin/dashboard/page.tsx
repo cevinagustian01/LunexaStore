@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getProducts, saveProduct, deleteProduct, getTestimonials, saveTestimonial, deleteTestimonial, getSiteContent, saveSiteContent } from "@/lib/db";
+import { 
+  getProducts, saveProduct, deleteProduct, reorderProducts,
+  getTestimonials, saveTestimonial, deleteTestimonial,
+  getSiteContent, saveSiteContent, deleteSiteContent,
+} from "@/lib/db";
 import type { Product, Testimonial, SiteContent } from "@/lib/db";
 import Link from "next/link";
 
@@ -15,7 +19,7 @@ type Toast = { id: number; msg: string; type: "success" | "error" | "info" };
 
 // ── Blank form defaults ─────────────────────────────────────────
 const BLANK_PRODUCT: Omit<Product, "id" | "created_at"> = {
-  nama: "", harga: 0, gambar: "", stok: 0,
+  nama: "", gambar: "", variants: [{ name: "1 Bulan", price: 0, stok: 0 }]
 };
 const BLANK_TESTI: Omit<Testimonial, "id" | "created_at"> = {
   username: "", avatar: "", rating: 5, komen: "",
@@ -46,7 +50,7 @@ const S = {
   } as React.CSSProperties,
   btnPrimary: {
     padding: "10px 22px", borderRadius: 999,
-    background: "linear-gradient(135deg, #f472b6, #a855f7)",
+    background: "linear-gradient(135deg, #f472b6, #FF64A4)",
     color: "white", fontWeight: 800, fontSize: 13,
     border: "none", cursor: "pointer", fontFamily: "Nunito, sans-serif",
     transition: "transform 0.2s, box-shadow 0.2s",
@@ -73,7 +77,7 @@ const S = {
 };
 
 export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<"products" | "testimonials" | "content" | "socmed">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "testimonials" | "content" | "features" | "faq" | "socmed">("products");
   const [toasts, setToasts] = useState<Toast[]>([]);
 
   // ── Products state ─────────────────────────────────────
@@ -95,24 +99,19 @@ export default function AdminDashboard() {
   // ── Content state ──────────────────────────────────────
   const [contentItems, setContentItems] = useState<SiteContent[]>([]);
   const [contentLoading, setContentLoading] = useState(false);
-  const [contentModal, setContentModal] = useState<"edit" | null>(null);
+  const [contentModal, setContentModal] = useState<"add" | "edit" | null>(null);
   const [editContent, setEditContent] = useState<SiteContent | null>(null);
   const [contentSaving, setContentSaving] = useState(false);
 
   // ── Socmed state ───────────────────────────────────────
-  const [socmedWA, setSocmedWA] = useState("");
-  const [socmedTG, setSocmedTG] = useState("");
-  const [socmedIG, setSocmedIG] = useState("");
-  const [socmedTT, setSocmedTT] = useState("");
+  type SocmedLink = { id: string; platform: string; url: string; icon: string };
+  const [socmedLinks, setSocmedLinks] = useState<SocmedLink[]>([]);
   const [socmedSaving, setSocmedSaving] = useState(false);
 
   const saveSocmed = async () => {
     setSocmedSaving(true);
     try {
-      await saveSiteContent("socmed_wa", socmedWA);
-      await saveSiteContent("socmed_tg", socmedTG);
-      await saveSiteContent("socmed_ig", socmedIG);
-      await saveSiteContent("socmed_tt", socmedTT);
+      await saveSiteContent("socmed_links_json", JSON.stringify(socmedLinks));
       toast("✨ Link sosial media berhasil disimpan!");
       fetchContent_();
     } catch (e: any) {
@@ -121,12 +120,134 @@ export default function AdminDashboard() {
     setSocmedSaving(false);
   };
 
-  // Sync socmed state when content loads
+  const addSocmedLink = () => {
+    setSocmedLinks([...socmedLinks, { id: Date.now().toString(), platform: "", url: "", icon: "🔗" }]);
+  };
+
+  const updateSocmedLink = (id: string, field: keyof SocmedLink, val: string) => {
+    setSocmedLinks(prev => prev.map(s => s.id === id ? { ...s, [field]: val } : s));
+  };
+
+  const removeSocmedLink = (id: string) => {
+    setSocmedLinks(prev => prev.filter(s => s.id !== id));
+  };
+
+  const moveSocmedLink = (index: number, direction: "up" | "down") => {
+    setSocmedLinks(prev => {
+      const newLinks = [...prev];
+      if (direction === "up" && index > 0) {
+        [newLinks[index - 1], newLinks[index]] = [newLinks[index], newLinks[index - 1]];
+      } else if (direction === "down" && index < newLinks.length - 1) {
+        [newLinks[index], newLinks[index + 1]] = [newLinks[index + 1], newLinks[index]];
+      }
+      return newLinks;
+    });
+  };
+
+  // ── Features state ───────────────────────────────────────
+  type FeatureItem = { id: string; icon: string; title: string; desc: string };
+  const [featuresList, setFeaturesList] = useState<FeatureItem[]>([]);
+  const [featuresSaving, setFeaturesSaving] = useState(false);
+
+  const saveFeatures = async () => {
+    setFeaturesSaving(true);
+    try {
+      await saveSiteContent("features_list_json", JSON.stringify(featuresList));
+      toast("✨ Keunggulan berhasil disimpan!");
+      fetchContent_();
+    } catch (e: any) {
+      toast(`Error: ${e.message}`, "error");
+    }
+    setFeaturesSaving(false);
+  };
+
+  const addFeature = () => setFeaturesList([...featuresList, { id: Date.now().toString(), icon: "✨", title: "", desc: "" }]);
+  const updateFeature = (id: string, field: keyof FeatureItem, val: string) => setFeaturesList(prev => prev.map(s => s.id === id ? { ...s, [field]: val } : s));
+  const removeFeature = (id: string) => setFeaturesList(prev => prev.filter(s => s.id !== id));
+  const moveFeature = (index: number, direction: "up" | "down") => {
+    setFeaturesList(prev => {
+      const arr = [...prev];
+      if (direction === "up" && index > 0) [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+      else if (direction === "down" && index < arr.length - 1) [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+      return arr;
+    });
+  };
+
+  // ── FAQ state ───────────────────────────────────────
+  type FaqItem = { id: string; q: string; e: string; a: string };
+  const [faqList, setFaqList] = useState<FaqItem[]>([]);
+  const [faqSaving, setFaqSaving] = useState(false);
+
+  const saveFaq = async () => {
+    setFaqSaving(true);
+    try {
+      await saveSiteContent("faq_list_json", JSON.stringify(faqList));
+      toast("✨ FAQ berhasil disimpan!");
+      fetchContent_();
+    } catch (e: any) {
+      toast(`Error: ${e.message}`, "error");
+    }
+    setFaqSaving(false);
+  };
+
+  const addFaq = () => setFaqList([...faqList, { id: Date.now().toString(), q: "", e: "❓", a: "" }]);
+  const updateFaq = (id: string, field: keyof FaqItem, val: string) => setFaqList(prev => prev.map(s => s.id === id ? { ...s, [field]: val } : s));
+  const removeFaq = (id: string) => setFaqList(prev => prev.filter(s => s.id !== id));
+  const moveFaq = (index: number, direction: "up" | "down") => {
+    setFaqList(prev => {
+      const arr = [...prev];
+      if (direction === "up" && index > 0) [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+      else if (direction === "down" && index < arr.length - 1) [arr[index], arr[index + 1]] = [arr[index + 1], arr[index]];
+      return arr;
+    });
+  };
+
+  // Sync state when content loads
   useEffect(() => {
-    setSocmedWA(contentItems.find(c => c.id === "socmed_wa")?.value || "");
-    setSocmedTG(contentItems.find(c => c.id === "socmed_tg")?.value || "");
-    setSocmedIG(contentItems.find(c => c.id === "socmed_ig")?.value || "");
-    setSocmedTT(contentItems.find(c => c.id === "socmed_tt")?.value || "");
+    // Sync socmed
+    const socJson = contentItems.find(c => c.id === "socmed_links_json")?.value;
+    if (socJson) {
+      try { setSocmedLinks(JSON.parse(socJson)); } catch (e) {}
+    } else {
+      const wa = contentItems.find(c => c.id === "socmed_wa")?.value;
+      const tg = contentItems.find(c => c.id === "socmed_tg")?.value;
+      const x = contentItems.find(c => c.id === "socmed_x")?.value;
+      const defaults: SocmedLink[] = [];
+      if (wa) defaults.push({ id: "wa", platform: "WhatsApp", icon: "📱", url: wa });
+      if (tg) defaults.push({ id: "tg", platform: "Telegram", icon: "✈️", url: tg });
+      if (x) defaults.push({ id: "x", platform: "X (Twitter)", icon: "🐦", url: x });
+      setSocmedLinks(defaults);
+    }
+
+    // Sync features
+    const featJson = contentItems.find(c => c.id === "features_list_json")?.value;
+    if (featJson) {
+      try { setFeaturesList(JSON.parse(featJson)); } catch (e) {}
+    } else {
+      setFeaturesList([
+        { id: "f1", icon: "💬", title: "Testimoni Asli", desc: "Ribuan pelanggan udah ngebuktiin sendiri kualitas layanan kami. Terjamin 100%!" },
+        { id: "f2", icon: "🚀", title: "Aktif Instan", desc: "Bayar sekarang, langsung bisa nonton hari ini juga. Gak pake nunggu lama." },
+        { id: "f3", icon: "🛡️", title: "Garansi Penuh", desc: "Ada kendala sebelum masa aktif habis? Langsung kami ganti baru, no debat." },
+        { id: "f4", icon: "📱", title: "Bisa Semua Device", desc: "Nonton dari HP, Laptop, TV pintar? Semua bisa tanpa ribet pakai VPN." },
+        { id: "f5", icon: "💎", title: "Kualitas UHD 4K", desc: "Nikmati resolusi tertinggi buat pengalaman nonton yang bener-bener memanjakan mata." },
+        { id: "f6", icon: "🔒", title: "Aman & Terpercaya", desc: "Pembayaran terjamin aman, data privasi kamu terjaga. Langganan tanpa was-was." },
+      ]);
+    }
+
+    // Sync FAQ
+    const faqJson = contentItems.find(c => c.id === "faq_list_json")?.value;
+    if (faqJson) {
+      try { setFaqList(JSON.parse(faqJson)); } catch (e) {}
+    } else {
+      setFaqList([
+        { id:"f1", q:"Apakah akun yang dijual 100% aman & resmi? 🛡️", e:"🔒", a:"Tentu saja! Semua akun premium resmi bergaransi. Kami telah melayani 5000+ pelanggan dengan zero complaint. Transaksi aman via transfer bank, e-wallet, atau QRIS." },
+        { id:"f2", q:"Berapa lama proses aktivasi setelah bayar? ⚡", e:"⚡", a:"Super cepat! Rata-rata 5-15 menit setelah konfirmasi pembayaran. CS kami aktif 24/7 dan langsung kirim notifikasi via WhatsApp/Telegram setelah akun aktif." },
+        { id:"f3", q:"Bagaimana jika akun bermasalah atau expired? 🤝", e:"🎁", a:"Tenang! Ada masalah teknis sebelum masa paket habis? Kami langsung replace atau refund 100%. Kepuasan pelanggan adalah prioritas utama kami." },
+        { id:"f4", q:"Bisakah dipakai di beberapa perangkat sekaligus? 📱", e:"📺", a:"Tergantung paket! Netflix: 4-5 perangkat. Spotify: 1 perangkat aktif. Viu: 2 perangkat. Vidio: beberapa perangkat. Detail ada di deskripsi masing-masing paket." },
+        { id:"f5", q:"Metode pembayaran apa saja yang tersedia? 💳", e:"💳", a:"Transfer Bank (BCA, BNI, BRI, Mandiri), GoPay, OVO, DANA, ShopeePay, dan QRIS. Semua aman dan ada bukti transfer yang bisa disimpan!" },
+        { id:"f6", q:"Ada promo atau diskon untuk pembelian bundle? 🎉", e:"🎀", a:"Ada! Sering ada promo bundle Netflix + Spotify, Viu + Vidio combo dengan diskon hingga 40%. Follow sosmed atau DM kami untuk info promo terbaru~ 🌸" },
+      ]);
+    }
   }, [contentItems]);
 
   // ── Toast helper ───────────────────────────────────────
@@ -183,13 +304,38 @@ export default function AdminDashboard() {
     }
   };
 
+  const moveProduct = async (index: number, direction: "up" | "down") => {
+    const newProducts = [...products];
+    if (direction === "up" && index > 0) {
+      [newProducts[index - 1], newProducts[index]] = [newProducts[index], newProducts[index - 1]];
+    } else if (direction === "down" && index < newProducts.length - 1) {
+      [newProducts[index + 1], newProducts[index]] = [newProducts[index], newProducts[index + 1]];
+    } else {
+      return;
+    }
+    
+    // Optimistic UI update
+    setProducts(newProducts);
+    try {
+      await reorderProducts(newProducts.map(p => p.id));
+      toast("↕️ Posisi produk diperbarui!");
+    } catch (e: any) {
+      toast(`Gagal mengurutkan: ${e.message}`, "error");
+      fetchProducts_(); // revert
+    }
+  };
+
   const openProdAdd = () => {
     setProdForm(BLANK_PRODUCT);
     setEditProd(null);
     setProdModal("add");
   };
   const openProdEdit = (p: Product) => {
-    setProdForm({ nama: p.nama, harga: p.harga, gambar: p.gambar ?? "", stok: p.stok });
+    setProdForm({ 
+      nama: p.nama, 
+      gambar: p.gambar ?? "", 
+      variants: p.variants ? JSON.parse(JSON.stringify(p.variants)) : [{ name: "Standard", price: p.harga || 0, stok: p.stok || 0 }]
+    });
     setEditProd(p);
     setProdModal("edit");
   };
@@ -267,11 +413,11 @@ export default function AdminDashboard() {
   }, []);
 
   const saveContent_ = async () => {
-    if (!editContent || !editContent.value.trim()) return toast("Teks tidak boleh kosong!", "error");
+    if (!editContent || !editContent.id.trim() || !editContent.value.trim()) return toast("ID dan Teks tidak boleh kosong!", "error");
     setContentSaving(true);
     try {
       await saveSiteContent(editContent.id, editContent.value);
-      toast("✅ Konten web berhasil diperbarui!");
+      toast(contentModal === "add" ? "✨ Konten web ditambahkan!" : "✅ Konten web berhasil diperbarui!");
       closeContentModal();
       fetchContent_();
     } catch (e: any) {
@@ -280,6 +426,21 @@ export default function AdminDashboard() {
     setContentSaving(false);
   };
 
+  const deleteContent_ = async (id: string) => {
+    if (!confirm(`Hapus konten dengan ID "${id}"?`)) return;
+    try {
+      await deleteSiteContent(id);
+      toast("🗑️ Konten dihapus!");
+      fetchContent_();
+    } catch (e: any) {
+      toast(`Gagal menghapus: ${e.message}`, "error");
+    }
+  };
+
+  const openContentAdd = () => {
+    setEditContent({ id: "", section: "general", value: "" });
+    setContentModal("add");
+  };
   const openContentEdit = (c: SiteContent) => {
     setEditContent({ ...c }); // Copy to allow editing
     setContentModal("edit");
@@ -335,7 +496,7 @@ export default function AdminDashboard() {
               <div>
                 <h2 style={{ margin: 0, fontFamily: "Pacifico, cursive", fontSize: 20 }}>
                   <span style={{
-                    background: "linear-gradient(90deg, #ec4899, #a855f7)",
+                    background: "linear-gradient(90deg, #FF64A4, #FF64A4)",
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                   }}>
                     {prodModal === "add" ? "➕ Tambah Produk" : "✏️ Edit Produk"}
@@ -343,7 +504,7 @@ export default function AdminDashboard() {
                 </h2>
                 {editProd && <p style={{ margin: "4px 0 0", color: "#9ca3af", fontSize: 12, fontFamily: "Quicksand, sans-serif" }}>ID: {editProd.id}</p>}
               </div>
-              <button onClick={closeProdModal} style={{ background: "#f3e8ff", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+              <button onClick={closeProdModal} style={{ background: "#FFE4EF", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
             </div>
 
             {/* Form fields */}
@@ -357,26 +518,6 @@ export default function AdminDashboard() {
                   placeholder="cth: Netflix Premium 1 Bulan"
                 />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
-                <div>
-                  <label style={S.label}>Harga (Rp) *</label>
-                  <input
-                    style={S.input} type="number" min={0}
-                    value={prodForm.harga}
-                    onChange={e => setProdForm(p => ({ ...p, harga: parseInt(e.target.value) || 0 }))}
-                    placeholder="35000"
-                  />
-                </div>
-                <div>
-                  <label style={S.label}>Stok *</label>
-                  <input
-                    style={S.input} type="number" min={0}
-                    value={prodForm.stok}
-                    onChange={e => setProdForm(p => ({ ...p, stok: parseInt(e.target.value) || 0 }))}
-                    placeholder="100"
-                  />
-                </div>
-              </div>
               <div>
                 <label style={S.label}>URL Gambar</label>
                 <input
@@ -387,14 +528,93 @@ export default function AdminDashboard() {
                 />
               </div>
 
-              {/* Preview harga */}
-              {prodForm.harga > 0 && (
-                <div style={{ background: "#fdf4ff", border: "1px dashed #c084fc", borderRadius: 12, padding: "10px 14px" }}>
-                  <span style={{ fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: 13, color: "#7c3aed" }}>
-                    💰 Harga: Rp {prodForm.harga.toLocaleString("id-ID")}
-                  </span>
+              {/* Variants Section */}
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <label style={{ ...S.label, marginBottom: 0 }}>Varian Produk & Harga *</label>
+                  <button 
+                    onClick={() => {
+                      const v = prodForm.variants ? [...prodForm.variants] : [];
+                      v.push({ name: "", price: 0, stok: 0 });
+                      setProdForm(p => ({ ...p, variants: v }));
+                    }}
+                    style={{ background: "#fdf2f8", border: "1px solid #fbcfe8", borderRadius: 8, padding: "4px 8px", fontSize: 11, color: "#db2777", cursor: "pointer", fontWeight: 700 }}
+                  >
+                    + Tambah Varian
+                  </button>
                 </div>
-              )}
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {(prodForm.variants || []).map((v, i) => (
+                    <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-start", background: "#f8fafc", padding: 12, borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 8 }}>
+                        <input
+                          style={{ ...S.input, padding: "6px 10px", fontSize: 13 }}
+                          placeholder="Nama Varian (mis. 1 Bulan)"
+                          value={v.name}
+                          onChange={e => {
+                            const newV = [...(prodForm.variants || [])];
+                            newV[i].name = e.target.value;
+                            setProdForm(p => ({ ...p, variants: newV }));
+                          }}
+                        />
+                        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+                          <div>
+                            <label style={{ fontSize: 10, color: "#64748b", fontWeight: 700, marginBottom: 2, display: "block" }}>Harga Jual (Rp)</label>
+                            <input
+                              style={{ ...S.input, padding: "6px 10px", fontSize: 13 }}
+                              type="number" min={0}
+                              value={v.price}
+                              onChange={e => {
+                                const newV = [...(prodForm.variants || [])];
+                                newV[i].price = parseInt(e.target.value) || 0;
+                                setProdForm(p => ({ ...p, variants: newV }));
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 10, color: "#64748b", fontWeight: 700, marginBottom: 2, display: "block" }}>Stok</label>
+                            <input
+                              style={{ ...S.input, padding: "6px 10px", fontSize: 13 }}
+                              type="number" min={0}
+                              value={v.stok !== undefined ? v.stok : 0}
+                              onChange={e => {
+                                const newV = [...(prodForm.variants || [])];
+                                newV[i].stok = parseInt(e.target.value) || 0;
+                                setProdForm(p => ({ ...p, variants: newV }));
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 10, color: "#64748b", fontWeight: 700, marginBottom: 2, display: "block" }}>Harga Coret (Opsional)</label>
+                            <input
+                              style={{ ...S.input, padding: "6px 10px", fontSize: 13 }}
+                              type="number" min={0}
+                              placeholder="Kosongkan jika tidak ada diskon"
+                              value={v.crossed_price || ""}
+                              onChange={e => {
+                                const newV = [...(prodForm.variants || [])];
+                                newV[i].crossed_price = e.target.value ? parseInt(e.target.value) : undefined;
+                                setProdForm(p => ({ ...p, variants: newV }));
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <button 
+                        disabled={(prodForm.variants || []).length <= 1}
+                        onClick={() => {
+                          const newV = [...(prodForm.variants || [])];
+                          newV.splice(i, 1);
+                          setProdForm(p => ({ ...p, variants: newV }));
+                        }}
+                        style={{ background: "transparent", border: "none", cursor: (prodForm.variants || []).length <= 1 ? "not-allowed" : "pointer", padding: "8px", opacity: (prodForm.variants || []).length <= 1 ? 0.3 : 1 }}
+                      >
+                        🗑️
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Actions */}
@@ -433,13 +653,13 @@ export default function AdminDashboard() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24 }}>
               <h2 style={{ margin: 0, fontFamily: "Pacifico, cursive", fontSize: 20 }}>
                 <span style={{
-                  background: "linear-gradient(90deg, #a855f7, #ec4899)",
+                  background: "linear-gradient(90deg, #FF64A4, #FF64A4)",
                   WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                 }}>
                   {testiModal === "add" ? "➕ Tambah Testimoni" : "✏️ Edit Testimoni"}
                 </span>
               </h2>
-              <button onClick={closeTestiModal} style={{ background: "#f3e8ff", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+              <button onClick={closeTestiModal} style={{ background: "#FFE4EF", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -536,20 +756,30 @@ export default function AdminDashboard() {
               <div>
                 <h2 style={{ margin: 0, fontFamily: "Pacifico, cursive", fontSize: 20 }}>
                   <span style={{
-                    background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+                    background: "linear-gradient(90deg, #3b82f6, #E85191)",
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                   }}>
                     ✏️ Edit Teks Web
                   </span>
                 </h2>
                 <p style={{ margin: "4px 0 0", color: "#9ca3af", fontSize: 12, fontFamily: "Quicksand, sans-serif" }}>
-                  ID: {editContent?.id} ({editContent?.section})
+                  {contentModal === "add" ? "Tambah section baru" : `ID: ${editContent?.id} (${editContent?.section})`}
                 </p>
               </div>
-              <button onClick={closeContentModal} style={{ background: "#f3e8ff", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
+              <button onClick={closeContentModal} style={{ background: "#FFE4EF", border: "none", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", fontSize: 18, color: "#7c3aed", display: "flex", alignItems: "center", justifyContent: "center" }}>×</button>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div>
+                <label style={S.label}>ID Konten *</label>
+                <input
+                  style={S.input}
+                  value={editContent?.id ?? ""}
+                  onChange={e => setEditContent(p => p ? { ...p, id: e.target.value } : null)}
+                  placeholder="Misal: hero_title"
+                  disabled={contentModal === "edit"}
+                />
+              </div>
               <div>
                 <label style={S.label}>Teks / Nilai *</label>
                 <textarea
@@ -597,14 +827,14 @@ export default function AdminDashboard() {
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
               <div style={{
                 width: 38, height: 38, borderRadius: "50%",
-                background: "linear-gradient(135deg, #f472b6, #a855f7)",
+                background: "linear-gradient(135deg, #f472b6, #FF64A4)",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 18, boxShadow: "0 4px 10px rgba(244,114,182,0.3)",
               }}>✨</div>
               <div>
                 <div style={{ fontFamily: "Pacifico, cursive", fontSize: 15 }}>
                   <span style={{
-                    background: "linear-gradient(90deg, #ec4899, #a855f7)",
+                    background: "linear-gradient(90deg, #FF64A4, #FF64A4)",
                     WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text",
                   }}>Lunexa Store</span>
                 </div>
@@ -625,7 +855,7 @@ export default function AdminDashboard() {
                 style={{
                   display: "flex", alignItems: "center", gap: 6,
                   padding: "7px 16px", borderRadius: 999,
-                  background: "#f3e8ff", color: "#7c3aed",
+                  background: "#FFE4EF", color: "#7c3aed",
                   fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: 13,
                   textDecoration: "none", border: "1.5px solid #ddd6fe",
                 }}
@@ -660,9 +890,9 @@ export default function AdminDashboard() {
           {/* Summary cards */}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 16, marginBottom: 28 }}>
             {[
-              { label: "Total Produk", value: products.length, icon: "🛍️", color: "#ec4899", bg: "#fdf2f8" },
-              { label: "Total Testimoni", value: testis.length, icon: "💬", color: "#8b5cf6", bg: "#faf5ff" },
-              { label: "Stok Tersedia", value: products.reduce((s, p) => s + p.stok, 0), icon: "📦", color: "#2563eb", bg: "#eff6ff" },
+              { label: "Total Produk", value: products.length, icon: "🛍️", color: "#FF64A4", bg: "#fdf2f8" },
+              { label: "Total Testimoni", value: testis.length, icon: "💬", color: "#E85191", bg: "#faf5ff" },
+              { label: "Stok Tersedia", value: products.reduce((s, p) => s + (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0), 0), icon: "📦", color: "#2563eb", bg: "#eff6ff" },
               { label: "Avg Rating", value: testis.length ? (testis.reduce((s, t) => s + t.rating, 0) / testis.length).toFixed(1) + " ★" : "—", icon: "⭐", color: "#d97706", bg: "#fffbeb" },
             ].map(c => (
               <div key={c.label} style={{ ...S.card, padding: "20px", background: c.bg, borderColor: `${c.color}30` }}>
@@ -674,8 +904,8 @@ export default function AdminDashboard() {
           </div>
 
           {/* ── Tab Navigation ── */}
-          <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "white", borderRadius: 16, padding: 6, border: "2px solid #E8D5F5", width: "fit-content" }}>
-            {(["products", "testimonials", "content", "socmed"] as const).map(tab => (
+          <div style={{ display: "flex", gap: 4, marginBottom: 24, background: "white", borderRadius: 16, padding: 6, border: "2px solid #E8D5F5", width: "fit-content", flexWrap: "wrap" }}>
+            {(["products", "testimonials", "content", "features", "faq", "socmed"] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -683,12 +913,17 @@ export default function AdminDashboard() {
                   padding: "10px 24px", borderRadius: 12, border: "none", cursor: "pointer",
                   fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: 13,
                   transition: "all 0.2s ease",
-                  background: activeTab === tab ? "linear-gradient(135deg, #f472b6, #a855f7)" : "transparent",
+                  background: activeTab === tab ? "linear-gradient(135deg, #f472b6, #FF64A4)" : "transparent",
                   color: activeTab === tab ? "white" : "#6b7280",
                   boxShadow: activeTab === tab ? "0 4px 12px rgba(244,114,182,0.3)" : "none",
                 }}
               >
-                {tab === "products" ? "🛍️ Produk" : tab === "testimonials" ? "💬 Testimoni" : tab === "content" ? "📝 Konten Web" : "📱 Sosial Media"}
+                {tab === "products" && "🛍️ Produk"}
+                {tab === "testimonials" && "💬 Testimoni"}
+                {tab === "content" && "📝 Konten Web"}
+                {tab === "features" && "✨ Keunggulan"}
+                {tab === "faq" && "❓ FAQ"}
+                {tab === "socmed" && "📱 Sosial Media"}
               </button>
             ))}
           </div>
@@ -723,7 +958,7 @@ export default function AdminDashboard() {
                 {prodLoading ? (
                   <div style={{ padding: 48, textAlign: "center" }}>
                     <div style={{ fontSize: 32, marginBottom: 12 }}>✨</div>
-                    <p style={{ fontFamily: "Nunito, sans-serif", color: "#8b5cf6", fontWeight: 700 }}>Memuat produk...</p>
+                    <p style={{ fontFamily: "Nunito, sans-serif", color: "#E85191", fontWeight: 700 }}>Memuat produk...</p>
                   </div>
                 ) : products.length === 0 ? (
                   <div style={{ padding: 48, textAlign: "center" }}>
@@ -754,36 +989,56 @@ export default function AdminDashboard() {
                             key={p.id}
                             style={{
                               background: i % 2 === 0 ? "white" : "#FDFAFF",
-                              borderBottom: "1px solid #F3E8FF",
+                              borderBottom: "1px solid #FFE4EF",
                               transition: "background 0.15s",
                             }}
                           >
                             <td style={{ padding: "14px 20px", fontFamily: "Nunito, sans-serif", fontWeight: 700, color: "#1f2937", fontSize: 14 }}>
                               {p.nama}
                             </td>
-                            <td style={{ padding: "14px 20px", fontFamily: "Quicksand, sans-serif", fontWeight: 700, color: "#ec4899", fontSize: 14, whiteSpace: "nowrap" }}>
-                              Rp {p.harga.toLocaleString("id-ID")}
+                            <td style={{ padding: "14px 20px", fontFamily: "Quicksand, sans-serif", fontWeight: 700, color: "#FF64A4", fontSize: 14, whiteSpace: "nowrap" }}>
+                              {p.variants && p.variants.length > 0 ? (
+                                <>Mulai dari Rp {Math.min(...p.variants.map(v => v.price)).toLocaleString("id-ID")}</>
+                              ) : (
+                                <>Rp {(p.harga || 0).toLocaleString("id-ID")}</>
+                              )}
                             </td>
                             <td style={{ padding: "14px 20px" }}>
                               <span style={{
                                 fontFamily: "Nunito, sans-serif", fontWeight: 800, fontSize: 13,
                                 padding: "3px 12px", borderRadius: 999,
-                                background: p.stok > 10 ? "#f0fdf4" : p.stok > 0 ? "#fffbeb" : "#fff1f2",
-                                color: p.stok > 10 ? "#15803d" : p.stok > 0 ? "#d97706" : "#be123c",
-                                border: `1px solid ${p.stok > 10 ? "#bbf7d0" : p.stok > 0 ? "#fde68a" : "#fecdd3"}`,
+                                background: (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 10 ? "#f0fdf4" : (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 0 ? "#fffbeb" : "#fff1f2",
+                                color: (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 10 ? "#15803d" : (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 0 ? "#d97706" : "#be123c",
+                                border: `1px solid ${(p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 10 ? "#bbf7d0" : (p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0) > 0 ? "#fde68a" : "#fecdd3"}`,
                               }}>
-                                {p.stok} unit
+                                {p.variants?.reduce((sum, v) => sum + (v.stok || 0), 0) || p.stok || 0} unit
                               </span>
                             </td>
                             <td style={{ padding: "14px 20px", fontSize: 13, color: "#9ca3af", fontFamily: "Quicksand, sans-serif" }}>
                               {p.gambar ? (
-                                <a href={p.gambar} target="_blank" rel="noopener" style={{ color: "#8b5cf6", fontWeight: 700, textDecoration: "none" }}>🖼️ Lihat</a>
+                                <a href={p.gambar} target="_blank" rel="noopener" style={{ color: "#E85191", fontWeight: 700, textDecoration: "none" }}>🖼️ Lihat</a>
                               ) : (
                                 <span style={{ color: "#d1d5db" }}>—</span>
                               )}
                             </td>
                             <td style={{ padding: "14px 20px" }}>
                               <div style={{ display: "flex", gap: 8 }}>
+                                <div style={{ display: "flex", gap: 4 }}>
+                                  <button
+                                    disabled={i === 0}
+                                    onClick={() => moveProduct(i, "up")}
+                                    style={{ ...S.btnSecondary, padding: "6px 10px", fontSize: 12, opacity: i === 0 ? 0.3 : 1, cursor: i === 0 ? "not-allowed" : "pointer" }}
+                                  >
+                                    ⬆️
+                                  </button>
+                                  <button
+                                    disabled={i === products.length - 1}
+                                    onClick={() => moveProduct(i, "down")}
+                                    style={{ ...S.btnSecondary, padding: "6px 10px", fontSize: 12, opacity: i === products.length - 1 ? 0.3 : 1, cursor: i === products.length - 1 ? "not-allowed" : "pointer" }}
+                                  >
+                                    ⬇️
+                                  </button>
+                                </div>
                                 <button
                                   id={`btn-edit-product-${p.id}`}
                                   onClick={() => openProdEdit(p)}
@@ -839,7 +1094,7 @@ export default function AdminDashboard() {
               {testiLoading ? (
                 <div style={{ ...S.card, padding: 48, textAlign: "center" }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>💫</div>
-                  <p style={{ fontFamily: "Nunito, sans-serif", color: "#8b5cf6", fontWeight: 700 }}>Memuat testimoni...</p>
+                  <p style={{ fontFamily: "Nunito, sans-serif", color: "#E85191", fontWeight: 700 }}>Memuat testimoni...</p>
                 </div>
               ) : testis.length === 0 ? (
                 <div style={{ ...S.card, padding: 48, textAlign: "center" }}>
@@ -866,7 +1121,7 @@ export default function AdminDashboard() {
                       <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14, paddingRight: 80 }}>
                         <div style={{
                           width: 44, height: 44, borderRadius: "50%",
-                          background: "linear-gradient(135deg, #f472b6, #a855f7)",
+                          background: "linear-gradient(135deg, #f472b6, #FF64A4)",
                           display: "flex", alignItems: "center", justifyContent: "center",
                           fontSize: t.avatar && t.avatar.length <= 2 ? 24 : 14,
                           border: "2px solid white",
@@ -890,7 +1145,7 @@ export default function AdminDashboard() {
                         fontFamily: "Quicksand, sans-serif", fontSize: 13, color: "#4b5563",
                         lineHeight: 1.65,
                         background: "#FDFAFF", borderRadius: 12, padding: "10px 12px",
-                        border: "1px solid #F3E8FF",
+                        border: "1px solid #FFE4EF",
                       }}>
                         &ldquo;{t.komen}&rdquo;
                       </p>
@@ -933,15 +1188,20 @@ export default function AdminDashboard() {
                     Ubah teks pada landing page langsung dari sini
                   </p>
                 </div>
-                <button onClick={fetchContent_} style={{ ...S.btnSecondary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
-                  🔄 Refresh
-                </button>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={fetchContent_} style={{ ...S.btnSecondary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                    🔄 Refresh
+                  </button>
+                  <button onClick={openContentAdd} style={{ ...S.btnPrimary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                    ➕ Tambah Konten
+                  </button>
+                </div>
               </div>
 
               {contentLoading ? (
                 <div style={{ ...S.card, padding: 48, textAlign: "center" }}>
                   <div style={{ fontSize: 32, marginBottom: 12 }}>✨</div>
-                  <p style={{ fontFamily: "Nunito, sans-serif", color: "#8b5cf6", fontWeight: 700 }}>Memuat konten...</p>
+                  <p style={{ fontFamily: "Nunito, sans-serif", color: "#E85191", fontWeight: 700 }}>Memuat konten...</p>
                 </div>
               ) : contentItems.length === 0 ? (
                 <div style={{ ...S.card, padding: 48, textAlign: "center" }}>
@@ -990,12 +1250,20 @@ export default function AdminDashboard() {
                             {c.value}
                           </td>
                           <td style={{ padding: "14px 20px" }}>
-                            <button
-                              onClick={() => openContentEdit(c)}
-                              style={S.btnEdit}
-                            >
-                              ✏️ Edit
-                            </button>
+                            <div style={{ display: "flex", gap: 8 }}>
+                              <button
+                                onClick={() => openContentEdit(c)}
+                                style={S.btnEdit}
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={() => deleteContent_(c.id)}
+                                style={S.btnDanger}
+                              >
+                                🗑️ Hapus
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -1003,6 +1271,144 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════
+              FEATURES TAB
+              ════════════════════════════════════════ */}
+          {activeTab === "features" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <div>
+                  <h2 style={{ margin: 0, fontFamily: "Nunito, sans-serif", fontWeight: 900, fontSize: 20, color: "#1f2937" }}>
+                    ✨ Kelola Keunggulan
+                  </h2>
+                  <p style={{ margin: "2px 0 0", fontFamily: "Quicksand, sans-serif", fontSize: 13, color: "#6b7280" }}>
+                    Atur daftar keunggulan layanan di halaman utama.
+                  </p>
+                </div>
+                <button onClick={addFeature} style={{ ...S.btnSecondary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                  ➕ Tambah Keunggulan
+                </button>
+              </div>
+
+              <div style={{ ...S.card, maxWidth: 800 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                  {featuresList.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "20px 0", color: "#9ca3af", fontFamily: "Quicksand, sans-serif" }}>Belum ada data keunggulan.</div>
+                  ) : (
+                    featuresList.map((f, index) => (
+                      <div key={f.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 16, borderBottom: index < featuresList.length - 1 ? "1px dashed #E8D5F5" : "none" }}>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ display: "flex", gap: 12 }}>
+                            <div style={{ width: 80 }}>
+                              <label style={S.label}>Icon</label>
+                              <input style={S.input} value={f.icon} onChange={e => updateFeature(f.id, "icon", e.target.value)} placeholder="✨" />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <label style={S.label}>Judul</label>
+                              <input style={S.input} value={f.title} onChange={e => updateFeature(f.id, "title", e.target.value)} placeholder="Misal: Aktif Instan" />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={S.label}>Deskripsi</label>
+                            <textarea style={{ ...S.input, minHeight: 60, resize: "vertical" }} value={f.desc} onChange={e => updateFeature(f.id, "desc", e.target.value)} placeholder="Penjelasan singkat..." />
+                          </div>
+                        </div>
+                        <div style={{ paddingTop: 26, display: "flex", gap: 6, flexDirection: "column" }}>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button disabled={index === 0} onClick={() => moveFeature(index, "up")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === 0 ? 0.4 : 1, cursor: index === 0 ? "not-allowed" : "pointer" }}>
+                              ⬆️
+                            </button>
+                            <button disabled={index === featuresList.length - 1} onClick={() => moveFeature(index, "down")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === featuresList.length - 1 ? 0.4 : 1, cursor: index === featuresList.length - 1 ? "not-allowed" : "pointer" }}>
+                              ⬇️
+                            </button>
+                          </div>
+                          <button onClick={() => removeFeature(f.id)} style={{ ...S.btnDanger, padding: "10px", width: "100%", height: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            🗑️ Hapus
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  <div style={{ marginTop: 8 }}>
+                    <button onClick={saveFeatures} disabled={featuresSaving} style={{ ...S.btnPrimary, width: "100%", opacity: featuresSaving ? 0.7 : 1 }}>
+                      {featuresSaving ? "Menyimpan..." : "Simpan Perubahan ✅"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ════════════════════════════════════════
+              FAQ TAB
+              ════════════════════════════════════════ */}
+          {activeTab === "faq" && (
+            <div>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                <div>
+                  <h2 style={{ margin: 0, fontFamily: "Nunito, sans-serif", fontWeight: 900, fontSize: 20, color: "#1f2937" }}>
+                    ❓ Kelola FAQ
+                  </h2>
+                  <p style={{ margin: "2px 0 0", fontFamily: "Quicksand, sans-serif", fontSize: 13, color: "#6b7280" }}>
+                    Atur daftar tanya jawab di halaman utama.
+                  </p>
+                </div>
+                <button onClick={addFaq} style={{ ...S.btnSecondary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                  ➕ Tambah FAQ
+                </button>
+              </div>
+
+              <div style={{ ...S.card, maxWidth: 800 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                  {faqList.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "20px 0", color: "#9ca3af", fontFamily: "Quicksand, sans-serif" }}>Belum ada data FAQ.</div>
+                  ) : (
+                    faqList.map((f, index) => (
+                      <div key={f.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 16, borderBottom: index < faqList.length - 1 ? "1px dashed #E8D5F5" : "none" }}>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ display: "flex", gap: 12 }}>
+                            <div style={{ width: 80 }}>
+                              <label style={S.label}>Emoji</label>
+                              <input style={S.input} value={f.e} onChange={e => updateFaq(f.id, "e", e.target.value)} placeholder="❓" />
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <label style={S.label}>Pertanyaan</label>
+                              <input style={S.input} value={f.q} onChange={e => updateFaq(f.id, "q", e.target.value)} placeholder="Misal: Apakah aman?" />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={S.label}>Jawaban</label>
+                            <textarea style={{ ...S.input, minHeight: 60, resize: "vertical" }} value={f.a} onChange={e => updateFaq(f.id, "a", e.target.value)} placeholder="Penjelasan lengkap..." />
+                          </div>
+                        </div>
+                        <div style={{ paddingTop: 26, display: "flex", gap: 6, flexDirection: "column" }}>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button disabled={index === 0} onClick={() => moveFaq(index, "up")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === 0 ? 0.4 : 1, cursor: index === 0 ? "not-allowed" : "pointer" }}>
+                              ⬆️
+                            </button>
+                            <button disabled={index === faqList.length - 1} onClick={() => moveFaq(index, "down")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === faqList.length - 1 ? 0.4 : 1, cursor: index === faqList.length - 1 ? "not-allowed" : "pointer" }}>
+                              ⬇️
+                            </button>
+                          </div>
+                          <button onClick={() => removeFaq(f.id)} style={{ ...S.btnDanger, padding: "10px", width: "100%", height: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            🗑️ Hapus
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
+                  <div style={{ marginTop: 8 }}>
+                    <button onClick={saveFaq} disabled={faqSaving} style={{ ...S.btnPrimary, width: "100%", opacity: faqSaving ? 0.7 : 1 }}>
+                      {faqSaving ? "Menyimpan..." : "Simpan Perubahan ✅"}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
@@ -1020,26 +1426,51 @@ export default function AdminDashboard() {
                     Atur link kontak yang akan ditampilkan di Footer.
                   </p>
                 </div>
+                <button onClick={addSocmedLink} style={{ ...S.btnSecondary, padding: "9px 18px", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                  ➕ Tambah Media
+                </button>
               </div>
 
               <div style={{ ...S.card, maxWidth: 600 }}>
-                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-                  <div>
-                    <label style={S.label}>WhatsApp URL</label>
-                    <input style={S.input} value={socmedWA} onChange={e => setSocmedWA(e.target.value)} placeholder="https://wa.me/628..." />
-                  </div>
-                  <div>
-                    <label style={S.label}>Telegram URL</label>
-                    <input style={S.input} value={socmedTG} onChange={e => setSocmedTG(e.target.value)} placeholder="https://t.me/..." />
-                  </div>
-                  <div>
-                    <label style={S.label}>Instagram URL</label>
-                    <input style={S.input} value={socmedIG} onChange={e => setSocmedIG(e.target.value)} placeholder="https://instagram.com/..." />
-                  </div>
-                  <div>
-                    <label style={S.label}>TikTok URL</label>
-                    <input style={S.input} value={socmedTT} onChange={e => setSocmedTT(e.target.value)} placeholder="https://tiktok.com/@..." />
-                  </div>
+                <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+                  {socmedLinks.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "20px 0", color: "#9ca3af", fontFamily: "Quicksand, sans-serif" }}>Belum ada media sosial.</div>
+                  ) : (
+                    socmedLinks.map((link, index) => (
+                      <div key={link.id} style={{ display: "flex", gap: 12, alignItems: "flex-start", paddingBottom: 16, borderBottom: index < socmedLinks.length - 1 ? "1px dashed #E8D5F5" : "none" }}>
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 10 }}>
+                          <div style={{ display: "flex", gap: 12 }}>
+                            <div style={{ flex: 1 }}>
+                              <label style={S.label}>Platform (mis. WhatsApp)</label>
+                              <input style={S.input} value={link.platform} onChange={e => updateSocmedLink(link.id, "platform", e.target.value)} placeholder="Nama Platform" />
+                            </div>
+                            <div style={{ width: 80 }}>
+                              <label style={S.label}>Icon / Emoji</label>
+                              <input style={S.input} value={link.icon} onChange={e => updateSocmedLink(link.id, "icon", e.target.value)} placeholder="📱" />
+                            </div>
+                          </div>
+                          <div>
+                            <label style={S.label}>URL Tautan</label>
+                            <input style={S.input} value={link.url} onChange={e => updateSocmedLink(link.id, "url", e.target.value)} placeholder="https://..." />
+                          </div>
+                        </div>
+                        <div style={{ paddingTop: 26, display: "flex", gap: 6, flexDirection: "column" }}>
+                          <div style={{ display: "flex", gap: 6 }}>
+                            <button disabled={index === 0} onClick={() => moveSocmedLink(index, "up")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === 0 ? 0.4 : 1, cursor: index === 0 ? "not-allowed" : "pointer" }}>
+                              ⬆️
+                            </button>
+                            <button disabled={index === socmedLinks.length - 1} onClick={() => moveSocmedLink(index, "down")} style={{ ...S.btnSecondary, padding: "10px", width: 42, height: 42, display: "flex", alignItems: "center", justifyContent: "center", opacity: index === socmedLinks.length - 1 ? 0.4 : 1, cursor: index === socmedLinks.length - 1 ? "not-allowed" : "pointer" }}>
+                              ⬇️
+                            </button>
+                          </div>
+                          <button onClick={() => removeSocmedLink(link.id)} style={{ ...S.btnDanger, padding: "10px", width: "100%", height: 42, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                            🗑️ Hapus
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+
                   <div style={{ marginTop: 8 }}>
                     <button onClick={saveSocmed} disabled={socmedSaving} style={{ ...S.btnPrimary, width: "100%", opacity: socmedSaving ? 0.7 : 1 }}>
                       {socmedSaving ? "Menyimpan..." : "Simpan Perubahan ✨"}
@@ -1055,7 +1486,7 @@ export default function AdminDashboard() {
         <footer style={{ textAlign: "center", padding: "24px", borderTop: "1px solid #E8D5F5", marginTop: 40 }}>
           <p style={{ fontFamily: "Quicksand, sans-serif", fontSize: 12, color: "#9ca3af", margin: 0 }}>
             ✨ Lunexa Store Admin Panel · Data disimpan di{" "}
-            <a href="https://supabase.com" target="_blank" rel="noopener" style={{ color: "#8b5cf6", fontWeight: 700, textDecoration: "none" }}>Supabase</a>
+            <a href="https://supabase.com" target="_blank" rel="noopener" style={{ color: "#E85191", fontWeight: 700, textDecoration: "none" }}>Supabase</a>
           </p>
         </footer>
       </div>

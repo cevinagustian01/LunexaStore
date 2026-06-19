@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import KawaiiBackground from "@/components/KawaiiBackground";
+import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
   title: "Lunexa Store ✨ | Nonton Sepuasnya Tanpa Iklan!",
@@ -28,7 +30,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased">
-        {children}
+        <ThemeProvider>
+          <KawaiiBackground />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );

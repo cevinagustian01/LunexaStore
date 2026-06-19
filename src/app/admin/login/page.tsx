@@ -42,7 +42,7 @@ export default function AdminLogin() {
         textAlign: "center"
       }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
-        <h1 style={{ fontFamily: "Pacifico, cursive", color: "#ec4899", margin: "0 0 8px", fontSize: 32 }}>Admin Login</h1>
+        <h1 style={{ fontFamily: "Pacifico, cursive", color: "#FF64A4", margin: "0 0 8px", fontSize: 32 }}>Admin Login</h1>
         <p style={{ fontFamily: "Quicksand, sans-serif", color: "#6b7280", margin: "0 0 32px", fontSize: 14 }}>
           Silakan masukkan password rahasia untuk mengakses dashboard.
         </p>
@@ -66,7 +66,7 @@ export default function AdminLogin() {
             type="submit"
             disabled={loading || !password}
             style={{
-              padding: "14px", borderRadius: 16, background: "linear-gradient(135deg, #f472b6, #a855f7)",
+              padding: "14px", borderRadius: 16, background: "linear-gradient(135deg, #f472b6, #FF64A4)",
               color: "white", fontWeight: 800, fontSize: 16, border: "none", cursor: "pointer",
               fontFamily: "Nunito, sans-serif", boxShadow: "0 4px 14px rgba(244,114,182,0.35)",
               opacity: (loading || !password) ? 0.7 : 1

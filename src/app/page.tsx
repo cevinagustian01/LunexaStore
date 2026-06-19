@@ -4,7 +4,7 @@ import { SiteContentProvider } from "@/components/SiteContentProvider";
 
 import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
-import WhyUsSection from "@/components/WhyUsSection";
+import Features from "@/components/Features";
 import ProductCatalog from "@/components/ProductCatalog";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
@@ -31,12 +31,11 @@ export default async function Home() {
 
   return (
     <SiteContentProvider initialContent={contentMap} isAdmin={isAdmin}>
-      <main>
+      <main style={{ position: "relative", zIndex: 1 }}>
         {/* AIDA: Attention */}
         <Header />
         <HeroSection />
-        {/* AIDA: Interest */}
-        <WhyUsSection />
+        <Features />
         {/* AIDA: Desire */}
         <ProductCatalog dbProducts={dbProducts} />
         <Testimonials dbTestimonials={dbTestimonials} />

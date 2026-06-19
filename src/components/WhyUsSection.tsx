@@ -70,7 +70,7 @@ export default function WhyUsSection() {
       id="why"
       style={{
         padding: "90px 0",
-        background: "linear-gradient(180deg, #FFFBF9 0%, #F5EEFF 100%)",
+        background: "linear-gradient(180deg, #FFD6E7 0%, #FFF3C4 100%)",
         position: "relative",
         overflow: "hidden",
       }}
@@ -113,8 +113,8 @@ export default function WhyUsSection() {
               id={`benefit-${i}`}
               className="k-card"
               style={{
-                background: b.bg,
-                border: `1.5px solid ${b.border}`,
+                background: "rgba(255,255,255,0.85)",
+                border: "3px solid white",
                 borderRadius: 24, padding: "24px 24px",
                 backdropFilter: "blur(8px)",
                 boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
@@ -123,10 +123,10 @@ export default function WhyUsSection() {
             >
               <div style={{
                 width: 52, height: 52, borderRadius: 16,
-                background: "white", border: `2px solid ${b.border}`,
+                background: b.bg, border: "2px solid white",
                 display: "flex", alignItems: "center", justifyContent: "center",
                 fontSize: 26, marginBottom: 16,
-                boxShadow: `0 4px 12px ${b.border}`,
+                boxShadow: "0 4px 12px rgba(255,182,217,0.4)",
               }}>
                 {b.icon}
               </div>
@@ -142,11 +142,11 @@ export default function WhyUsSection() {
 
         {/* Comparison Table */}
         <div style={{
-          background: "rgba(255,255,255,0.7)",
+          background: "rgba(255,255,255,0.85)",
           backdropFilter: "blur(12px)",
           borderRadius: 28, overflow: "hidden",
-          border: "1.5px solid rgba(255,179,209,0.4)",
-          boxShadow: "0 8px 40px rgba(236,72,153,0.1)",
+          border: "4px solid white",
+          boxShadow: "0 8px 32px rgba(255,182,217,0.3)",
           maxWidth: 700, margin: "0 auto",
         }}>
           {/* Table header */}

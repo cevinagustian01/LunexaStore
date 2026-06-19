@@ -13,13 +13,185 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --bg-main: linear-gradient(160deg, #fce8f7 0%, #e8f4fd 30%, #fef3fb 60%, #edf9f0 100%);
+  --color-text: #374151;
+  --color-text-muted: #6b7280;
+  --color-primary: #FF64A4;
+  --bg-glass: rgba(255,255,255,0.6);
+  --bg-card: rgba(255, 255, 255, 0.80);
+  --bg-card-lined: rgba(255,253,245,0.85);
+  --shadow-card: 0 4px 14px rgba(236, 72, 153, 0.1), 0 0 0 1.5px rgba(255,182,217,0.3);
+  --shadow-card-hover: 0 6px 20px rgba(236, 72, 153, 0.18), 0 0 0 2px rgba(255,182,217,0.5);
+  --border-kawaii: 2px solid rgba(255,182,217,0.5);
+  --bg-footer: rgba(255,251,249,0.80);
+}
+
+[data-theme="light"] {
+  --bg-main: #F9FAFB;
+  --color-text: #1F2937;
+  --color-text-muted: #6B7280;
+  --color-primary: #ec4899;
+  --bg-glass: rgba(255,255,255,0.9);
+  --bg-card: #FFFFFF;
+  --bg-card-lined: #FFFFFF;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --border-kawaii: 1px solid #E5E7EB;
+  --bg-footer: #FFFFFF;
+}
+
+[data-theme="dark"] {
+  --bg-main: #111827;
+  --color-text: #F9FAFB;
+  --color-text-muted: #9CA3AF;
+  --color-primary: #f472b6;
+  --bg-glass: rgba(31,41,55,0.8);
+  --bg-card: #1F2937;
+  --bg-card-lined: #1F2937;
+  --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-card-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+  --border-kawaii: 1px solid #374151;
+  --bg-footer: #1F2937;
+}
+
 body {
   margin: 0;
   padding: 0;
   font-family: 'Quicksand', sans-serif;
-  background: #FEFCFF;
-  color: #5A3A6E;
+  background: var(--bg-main);
+  background-attachment: fixed;
+  color: var(--color-text);
   overflow-x: hidden;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ── Kawaii Page Background ── */
+.kawaii-page-bg {
+  position: relative;
+  background: linear-gradient(160deg,
+    #fce8f7 0%,
+    #e8f4fd 25%,
+    #fef3fb 50%,
+    #edf9f0 75%,
+    #fef0fc 100%
+  );
+  background-size: 400% 400%;
+  animation: kBgShift 18s ease infinite;
+}
+
+@keyframes kBgShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Kawaii Floating Blobs ── */
+.kawaii-blob {
+  position: fixed;
+  border-radius: 50% 60% 50% 70% / 60% 50% 70% 50%;
+  filter: blur(0px);
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 0;
+  animation: kBlobMorph 10s ease-in-out infinite alternate;
+}
+@keyframes kBlobMorph {
+  0%   { border-radius: 50% 60% 50% 70% / 60% 50% 70% 50%; transform: scale(1) translate(0,0); }
+  33%  { border-radius: 70% 40% 60% 50% / 50% 60% 40% 70%; transform: scale(1.05) translate(8px,-12px); }
+  66%  { border-radius: 40% 70% 50% 60% / 70% 40% 60% 50%; transform: scale(0.97) translate(-6px,8px); }
+  100% { border-radius: 60% 50% 70% 40% / 40% 70% 50% 60%; transform: scale(1.02) translate(4px,-4px); }
+}
+
+/* ── Kawaii Sticker Floaters (decorative divs) ── */
+.kawaii-sticker-float {
+  position: fixed;
+  pointer-events: none;
+  z-index: 0;
+  user-select: none;
+  line-height: 1;
+  filter: drop-shadow(0 4px 12px rgba(236,72,153,0.3));
+}
+
+/* ── Section Wave Dividers ── */
+.kawaii-wave-top {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  transform: rotate(180deg);
+}
+.kawaii-wave-bottom {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+}
+
+/* ── Kawaii card sticker border ── */
+.k-kawaii-card {
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  box-shadow:
+    var(--shadow-card),
+    inset 0 1px 0 rgba(255,255,255,0.8);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease;
+}
+.k-kawaii-card:hover {
+  transform: translateY(-6px) rotate(-0.5deg) scale(1.01);
+  box-shadow:
+    var(--shadow-card-hover),
+    inset 0 1px 0 rgba(255,255,255,0.9);
+}
+
+/* ── Sticker-style badge ── */
+.k-sticker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 12px;
+  background: white;
+  border: 2.5px solid currentColor;
+  box-shadow: 3px 3px 0 currentColor;
+  transform: rotate(-1deg);
+  transition: transform 0.2s ease;
+}
+.k-sticker-badge:hover { transform: rotate(1deg) scale(1.05); }
+
+/* ── Doodle underline ── */
+.k-doodle-underline {
+  position: relative;
+  display: inline-block;
+}
+.k-doodle-underline::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #FF64A4, #C9A8E8, #80d4f5);
+  border-radius: 999px;
+  animation: kDoodleWobble 2s ease-in-out infinite;
+}
+@keyframes kDoodleWobble {
+  0%, 100% { transform: scaleX(1) scaleY(1); }
+  50%       { transform: scaleX(1.03) scaleY(1.5); }
+}
+
+/* ── Confetti dot ── */
+.k-confetti-dot {
+  position: absolute;
+  border-radius: 50%;
+  animation: kConfettiFall linear infinite;
+  pointer-events: none;
+  opacity: 0.7;
+}
+@keyframes kConfettiFall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 0.8; }
+  100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
 }
 
 /* === SCROLLBAR === */
@@ -145,6 +317,83 @@ body {
   animation: kGradientShift 4s ease infinite;
 }
 
+/* ===========================
+   PASTEBOARD UI CLASSES
+   =========================== */
+.pb-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.3s, border 0.3s;
+  border: var(--border-kawaii);
+}
+.pb-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.pb-lined {
+  background-color: var(--bg-card-lined);
+  background-image: 
+    linear-gradient(#fecdd3 1px, transparent 1px);
+  background-size: 100% 32px;
+  border-radius: 24px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  border: var(--border-kawaii);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background-color 0.3s ease, border 0.3s ease;
+}
+
+.pb-polaroid {
+  background: var(--bg-card);
+  padding: 12px 12px 40px 12px;
+  box-shadow: var(--shadow-card);
+  position: relative;
+  display: inline-block;
+  transition: background 0.3s ease;
+}
+
+.pb-btn {
+  background: #FF64A4; /* Sweet Threads Hot Pink */
+  color: white;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+.pb-btn:hover {
+  background: #E85191;
+  transform: scale(1.02);
+}
+
+.pb-btn-outline {
+  background: transparent;
+  color: #FF64A4;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-weight: 700;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #FF64A4;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.pb-btn-outline:hover {
+  background: rgba(255, 100, 164, 0.1);
+}
+
 /* Animations */
 .k-float { animation: kFloat 3.5s ease-in-out infinite; }
 .k-float-slow { animation: kFloatSlow 5s ease-in-out infinite; }
@@ -186,6 +435,7 @@ body {
   text-decoration: none;
   border: none;
   outline: none;
+  color: white;
 }
 .k-btn::before {
   content: '';
@@ -231,7 +481,7 @@ body {
 
 /* Lined paper background */
 .k-lined-paper {
-  background-color: #FFFBF9;
+  background-color: var(--bg-card-lined);
   background-image: repeating-linear-gradient(transparent, transparent 27px, rgba(255,182,217,0.35) 27px, rgba(255,182,217,0.35) 28px);
 }
 
