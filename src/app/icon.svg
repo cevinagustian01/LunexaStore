@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF99C4"/>
+      <stop offset="100%" stop-color="#FF64A4"/>
+    </linearGradient>
+  </defs>
+  <!-- Main heart shape -->
+  <path d="M50 88.9L16.7 55.6C7.5 46.4 7.5 31.5 16.7 22.3C25.9 13.1 40.8 13.1 50 22.3C59.2 13.1 74.1 13.1 83.3 22.3C92.5 31.5 92.5 46.4 83.3 55.6L50 88.9Z" fill="url(#g)"/>
+  
+  <!-- Sparkles -->
+  <path d="M25 15 L28 22 L35 25 L28 28 L25 35 L22 28 L15 25 L22 22 Z" fill="#FFFFFF"/>
+  <path d="M80 75 L82 79 L86 81 L82 83 L80 87 L78 83 L74 81 L78 79 Z" fill="#FFFFFF"/>
+  
+  <!-- Highlights -->
+  <circle cx="32" cy="38" r="4" fill="#FFFFFF" opacity="0.8"/>
+  <circle cx="40" cy="32" r="2.5" fill="#FFFFFF" opacity="0.6"/>
+</svg>
