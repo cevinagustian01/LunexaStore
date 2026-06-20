@@ -862,6 +862,18 @@ export default function AdminDashboard() {
               >
                 ← Kembali ke Situs
               </Link>
+              <Link
+                href="/admin/dashboard/netflix"
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 16px", borderRadius: 999,
+                  background: "linear-gradient(135deg, #E50914, #E85191)", color: "white",
+                  fontFamily: "Nunito, sans-serif", fontWeight: 700, fontSize: 13,
+                  textDecoration: "none", border: "none", boxShadow: "0 4px 12px rgba(229,9,20,0.3)"
+                }}
+              >
+                🎥 Netflix Bot
+              </Link>
               <button
                 onClick={async () => {
                   const { logout } = await import("@/lib/auth");
