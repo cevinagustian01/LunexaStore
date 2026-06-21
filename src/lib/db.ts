@@ -46,23 +46,40 @@ type DbData = {
   site_content: SiteContent[];
 };
 
+// Global memory cache for Vercel Serverless
+const globalAny = global as any;
+const tmpFile = path.join("/tmp", "data.json");
+
 // Helper to read DB
 async function readDb(): Promise<DbData> {
+  if (globalAny.__dbCache) return globalAny.__dbCache;
+
+  let raw = "";
   try {
-    const raw = await fs.readFile(dataFile, "utf-8");
+    // Try to read from /tmp first (Vercel modified)
+    raw = await fs.readFile(tmpFile, "utf-8");
+  } catch (e) {
+    try {
+      // Fallback to original
+      raw = await fs.readFile(dataFile, "utf-8");
+    } catch (error) {
+      console.error("Failed to read DB", error);
+      return { products: [], testimonials: [], site_content: [] };
+    }
+  }
+
+  try {
     const data = JSON.parse(raw) as DbData;
     
     // Auto-migrate products to variants if missing
     if (data.products && Array.isArray(data.products)) {
       data.products = data.products.map(p => {
-        // Migrate variants without stock
         if (p.variants) {
           p.variants = p.variants.map(v => ({
             ...v,
             stok: v.stok !== undefined ? v.stok : (p.stok || 0)
           }));
         }
-
         if (!p.variants || p.variants.length === 0) {
           p.variants = [
             { 
@@ -76,16 +93,27 @@ async function readDb(): Promise<DbData> {
       });
     }
 
+    globalAny.__dbCache = data;
     return data;
   } catch (error) {
-    console.error("Failed to read DB", error);
+    console.error("JSON parse error", error);
     return { products: [], testimonials: [], site_content: [] };
   }
 }
 
 // Helper to write DB
 async function writeDb(data: DbData): Promise<void> {
-  await fs.writeFile(dataFile, JSON.stringify(data, null, 2), "utf-8");
+  globalAny.__dbCache = data;
+  try {
+    await fs.writeFile(dataFile, JSON.stringify(data, null, 2), "utf-8");
+  } catch (error) {
+    // Vercel read-only filesystem fallback
+    try {
+      await fs.writeFile(tmpFile, JSON.stringify(data, null, 2), "utf-8");
+    } catch (e) {
+      console.error("Vercel write failed entirely", e);
+    }
+  }
 }
 
 // ════════════════════════════════════════
