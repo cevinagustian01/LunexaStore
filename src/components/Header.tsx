@@ -18,13 +18,8 @@ export default function Header() {
     >
       <div className="k-container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {/* Logo */}
-        <Link href="#home" style={{ textDecoration: "none" }}>
-          <span
-            className="k-font-quicksand"
-            style={{ fontSize: 24, fontWeight: 800, color: "#3b1f6e" }}
-          >
-            Lunexa<span style={{ color: "#FF64A4" }}>Store</span>
-          </span>
+        <Link href="#home" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
+          <img src="/logo.png" alt="Lunexa Store" style={{ height: 48, objectFit: "contain" }} />
         </Link>
 
         {/* Desktop Nav */}
