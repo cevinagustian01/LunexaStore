@@ -19,6 +19,7 @@ const testimonials = [
     rotate: "-1.5deg",
     tape: "rgba(255,179,209,0.85)",
     tapeLeft: true,
+    image: undefined,
   },
   {
     id: 2,
