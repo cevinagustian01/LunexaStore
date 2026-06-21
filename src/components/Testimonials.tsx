@@ -235,12 +235,12 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
 
                   {/* Quote & Optional Image */}
                   <div style={{ position:"relative" }}>
-                    {t.image && (
+                    {(t as any).image && (
                       <div style={{ marginBottom: 12, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(0,0,0,0.05)" }}>
-                        <img src={t.image} alt="Bukti Testimoni" style={{ width: "100%", height: "auto", display: "block" }} />
+                        <img src={(t as any).image} alt="Bukti Testimoni" style={{ width: "100%", height: "auto", display: "block" }} />
                       </div>
                     )}
-                    <span style={{ position:"absolute", top: t.image ? "auto" : -4, left:-4, fontSize:28, color:"rgba(236,72,153,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
+                    <span style={{ position:"absolute", top: (t as any).image ? "auto" : -4, left:-4, fontSize:28, color:"rgba(236,72,153,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
                     <p className="k-font-quicksand" style={{ margin:0, fontSize:13, color:"var(--color-text)", lineHeight:1.65, paddingLeft:16, paddingRight:8, paddingTop:4, paddingBottom:4 }}>
                       {t.review}
                     </p>
