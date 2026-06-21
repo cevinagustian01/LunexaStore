@@ -17,9 +17,8 @@ export default function Header() {
       }}
     >
       <div className="k-container" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        {/* Logo */}
         <Link href="#home" style={{ textDecoration: "none", display: "flex", alignItems: "center" }}>
-          <img src="/logo.png" alt="Lunexa Store" style={{ height: 48, objectFit: "contain" }} />
+          <img src="/logo.png" alt="Lunexa Store" style={{ height: 90, width: "auto", objectFit: "contain", margin: "-10px 0" }} />
         </Link>
 
         {/* Desktop Nav */}
