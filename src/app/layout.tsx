@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import KawaiiBackground from "@/components/KawaiiBackground";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Analytics } from "@vercel/analytics/react";
 
 export const metadata: Metadata = {
   title: "Lunexa Store ✨ | Nonton Sepuasnya Tanpa Iklan!",
@@ -34,6 +35,7 @@ export default function RootLayout({
           <KawaiiBackground />
           {children}
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
