@@ -30,6 +30,7 @@ export type Testimonial = {
   avatar: string;
   rating: number;
   komen: string;
+  image?: string;
   created_at: string;
 };
 

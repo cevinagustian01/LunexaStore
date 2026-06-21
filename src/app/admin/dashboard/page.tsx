@@ -22,7 +22,7 @@ const BLANK_PRODUCT: Omit<Product, "id" | "created_at"> = {
   nama: "", gambar: "", variants: [{ name: "1 Bulan", price: 0, stok: 0 }]
 };
 const BLANK_TESTI: Omit<Testimonial, "id" | "created_at"> = {
-  username: "", avatar: "", rating: 5, komen: "",
+  username: "", avatar: "", rating: 5, komen: "", image: ""
 };
 
 // ── Shared style tokens ─────────────────────────────────────────
@@ -392,7 +392,7 @@ export default function AdminDashboard() {
     setTestiModal("add");
   };
   const openTestiEdit = (t: Testimonial) => {
-    setTestiForm({ username: t.username, avatar: t.avatar ?? "", rating: t.rating, komen: t.komen });
+    setTestiForm({ username: t.username, avatar: t.avatar ?? "", rating: t.rating, komen: t.komen, image: t.image ?? "" });
     setEditTesti(t);
     setTestiModal("edit");
   };
@@ -716,6 +716,17 @@ export default function AdminDashboard() {
                   value={testiForm.komen}
                   onChange={e => setTestiForm(p => ({ ...p, komen: e.target.value }))}
                   placeholder="Ceritakan pengalaman pelanggan..."
+                />
+              </div>
+
+              <div>
+                <label style={S.label}>Image Bukti (Opsional)</label>
+                <input
+                  type="text"
+                  style={S.input}
+                  value={testiForm.image ?? ""}
+                  onChange={e => setTestiForm(p => ({ ...p, image: e.target.value }))}
+                  placeholder="URL gambar (opsional)"
                 />
               </div>
             </div>

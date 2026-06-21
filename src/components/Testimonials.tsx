@@ -134,6 +134,7 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
           avatarGrad: c.avatarGrad,
           stars: t.rating,
           review: t.komen,
+          image: (t as any).image,
           product: "Pelanggan Setia",
           productColor: "#f472b6",
           bg: c.bg,
@@ -231,9 +232,14 @@ export default function Testimonials({ dbTestimonials = [] }: { dbTestimonials?:
                     </span>
                   </div>
 
-                  {/* Quote */}
+                  {/* Quote & Optional Image */}
                   <div style={{ position:"relative" }}>
-                    <span style={{ position:"absolute", top:-4, left:-4, fontSize:28, color:"rgba(236,72,153,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
+                    {t.image && (
+                      <div style={{ marginBottom: 12, borderRadius: 12, overflow: "hidden", border: "1px solid rgba(0,0,0,0.05)" }}>
+                        <img src={t.image} alt="Bukti Testimoni" style={{ width: "100%", height: "auto", display: "block" }} />
+                      </div>
+                    )}
+                    <span style={{ position:"absolute", top: t.image ? "auto" : -4, left:-4, fontSize:28, color:"rgba(236,72,153,0.15)", fontFamily:"serif", lineHeight:1 }}>"</span>
                     <p className="k-font-quicksand" style={{ margin:0, fontSize:13, color:"var(--color-text)", lineHeight:1.65, paddingLeft:16, paddingRight:8, paddingTop:4, paddingBottom:4 }}>
                       {t.review}
                     </p>
