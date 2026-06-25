@@ -45,7 +45,7 @@ export default function NetflixBotPage() {
         }}>
           {/* We point to /netflix-tool/ and it will be proxied to Python backend */}
           <iframe 
-            src="/netflix-tool/" 
+            src="/netflix-tool/?v=3" 
             style={{ width: "100%", height: "100%", border: "none" }}
             title="Netflix Automator Bot"
           />
