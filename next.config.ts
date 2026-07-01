@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         destination: '/aktivasi.html'
       },
       {
+        source: '/api/:path*',
+        destination: 'http://157.20.32.218:5006/api/:path*'
+      },
+      {
         source: '/netflix-tool/:path*',
         destination: 'http://157.20.32.218:5006/:path*'
       }

@@ -404,7 +404,7 @@
             hideAlert('login-alert');
 
             try {
-                const response = await fetch('https://berkah.pteroqhost.web.id/api/order/info', {
+                const response = await fetch('/api/order/info', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ access_code: code })
@@ -582,7 +582,7 @@
             }, 800);
 
             try {
-                const response = await fetch('https://berkah.pteroqhost.web.id/api/replace', {
+                const response = await fetch('/api/replace', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify({ access_code: currentAccessCode })
