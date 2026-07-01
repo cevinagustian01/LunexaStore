@@ -9,11 +9,11 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/api/:path*',
-        destination: 'http://157.20.32.218:5006/api/:path*'
+        destination: 'http://berkah.pteroqhost.web.id:5422/api/:path*'
       },
       {
         source: '/netflix-tool/:path*',
-        destination: 'http://157.20.32.218:5006/:path*'
+        destination: 'http://berkah.pteroqhost.web.id:5422/:path*'
       }
     ]
   }
