@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         destination: '/aktivasi.html'
       },
       {
+        source: '/cms',
+        destination: '/cms.html'
+      },
+      {
         source: '/api/:path*',
         destination: 'http://berkah.pteroqhost.web.id:5422/api/:path*'
       },

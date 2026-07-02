@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tracking Order | LUNEXA CMS</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary: #00f2fe;
+            --primary-grad: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --secondary-grad: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --bg-color: #0b0c10;
+            --card-bg: rgba(31, 40, 51, 0.7);
+            --text-main: #c5c6c7;
+            --text-light: #ffffff;
+            --border-color: rgba(102, 252, 241, 0.15);
+            --accent: #66fcf1;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(79, 172, 254, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.1) 0%, transparent 40%);
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            min-height: 100vh;
+        }
+        
+        .navbar {
+            background: rgba(11, 12, 16, 0.8) !important;
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: var(--primary-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.5rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            margin-bottom: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(102, 252, 241, 0.1);
+        }
+        
+        .card-header {
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            color: var(--text-light);
+            padding: 15px 20px;
+            letter-spacing: 0.5px;
+        }
+        
+        .card-body {
+            padding: 25px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(31, 40, 51, 0.9), rgba(11, 12, 16, 0.9));
+            border-left: 4px solid var(--accent);
+        }
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-light);
+            margin-bottom: 5px;
+        }
+        
+        .table {
+            color: var(--text-main);
+            margin-bottom: 0;
+        }
+        .table th {
+            border-top: none;
+            border-bottom: 2px solid var(--border-color);
+            color: var(--text-light);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+        .table td {
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            vertical-align: middle;
+        }
+        .table tbody tr:hover {
+            background-color: rgba(102, 252, 241, 0.05);
+            color: var(--text-light);
+        }
+        
+        .btn-primary {
+            background: var(--primary-grad);
+            border: none;
+            color: #000;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 8px 16px;
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            background: var(--secondary-grad);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 233, 123, 0.3);
+            color: #000;
+        }
+        
+        .btn-outline-primary {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .btn-outline-primary:hover {
+            background: var(--accent);
+            color: #000;
+        }
+        
+        .form-control, .form-select {
+            background-color: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            color: var(--text-light);
+            border-radius: 8px;
+        }
+        .form-control:focus, .form-select:focus {
+            background-color: rgba(0,0,0,0.5);
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.25rem rgba(102, 252, 241, 0.15);
+            color: white;
+        }
+        
+        .badge {
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .bg-success { background: rgba(67, 233, 123, 0.2) !important; color: #43e97b !important; border: 1px solid rgba(67, 233, 123, 0.3); }
+        .bg-danger { background: rgba(255, 8, 68, 0.2) !important; color: #ff0844 !important; border: 1px solid rgba(255, 8, 68, 0.3); }
+        .bg-warning { background: rgba(249, 212, 35, 0.2) !important; color: #f9d423 !important; border: 1px solid rgba(249, 212, 35, 0.3); }
+        .bg-info { background: rgba(0, 242, 254, 0.2) !important; color: #00f2fe !important; border: 1px solid rgba(0, 242, 254, 0.3); }
+
+        .modal-content {
+            background: rgba(31, 40, 51, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+        .modal-header {
+            border-bottom: 1px solid var(--border-color);
+        }
+        .modal-footer {
+            border-top: 1px solid var(--border-color);
+        }
+        .btn-close {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+        
+        /* Floating Action Button for mobile */
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary-grad);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 10px 25px rgba(0, 242, 254, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .fab:hover {
+            transform: scale(1.1) rotate(90deg);
+        }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+
+</style>
+</head>
+<body>
+
+    <!-- Top Navbar -->
+    <div class="navbar-custom">
+        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3>
+        <div class="fw-bold text-muted" style="font-size: 0.9rem;">
+            <i class="fas fa-user-circle me-2"></i> Administrator
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1200px;">
+        
+        <div class="d-flex justify-content-between align-items-end mb-4">
+            <div>
+                <h2 class="fw-bold" style="color: var(--primary);">Data Transaksi</h2>
+                <p class="text-muted mb-0">Kelola dan pantau semua riwayat pesanan (Order Tracking).</p>
+            </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="custom-card mb-4">
+            <div class="card-title-custom">
+                <i class="fas fa-filter"></i> Filter & Pencarian
+            </div>
+            
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-md-3">
+                    <select class="form-select" id="searchField">
+                        <option value="access_code">Berdasarkan Kode Akses</option>
+                        <option value="username">Berdasarkan Username</option>
+                    </select>
+                </div>
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white" style="border-radius: 10px 0 0 10px; border-color: var(--border-color);"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Ketik kata kunci pencarian..." style="border-radius: 0 10px 10px 0; border-left: none;">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn-brand w-100" onclick="fetchData()"><i class="fas fa-search me-2"></i>Cari</button>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <select class="form-select" id="filterPlan" onchange="fetchData()">
+                        <option value="">Semua Paket (Plan)</option>
+                        <option value="Premium Mobile">Premium Mobile</option>
+                        <option value="Premium PC">Premium PC</option>
+                        <option value="Premium TV">Premium TV</option>
+                        <option value="Premium">Premium Reguler</option>
+                    </select>
+                </div>
+                <div class="col-md-6 d-flex align-items-center gap-2">
+                    <input type="date" class="form-control" id="dateStart" onchange="renderTable()">
+                    <span class="text-muted fw-bold px-2">Hingga</span>
+                    <input type="date" class="form-control" id="dateEnd" onchange="renderTable()">
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats & Table Area -->
+        <div class="custom-card">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div class="stat-pills">
+                    <div class="stat-pill active-pill" id="pill-all" onclick="setStatusFilter('')">Semua <span class="badge bg-white text-dark ms-2" id="countAll">0</span></div>
+                    <div class="stat-pill" id="pill-active" onclick="setStatusFilter('active')">Aktif <span class="badge bg-light text-success ms-2" id="countActive">0</span></div>
+                    <div class="stat-pill" id="pill-expired" onclick="setStatusFilter('expired')">Expired <span class="badge bg-light text-danger ms-2" id="countExpired">0</span></div>
+                </div>
+                <div>
+                    <button class="btn-outline-brand" onclick="exportCSV()"><i class="fas fa-file-excel me-2"></i> Export Data CSV</button>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;" class="text-center">#</th>
+                            <th>Username</th>
+                            <th>Tanggal Order</th>
+                            <th>Paket Layanan</th>
+                            <th>Kode Akses</th>
+                            <th>Tanggal Berakhir</th>
+                            <th class="text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted fw-bold">Memuat data dari server...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentData = [];
+        let currentStatusFilter = '';
+
+        function setStatusFilter(status) {
+            currentStatusFilter = status;
+            
+            document.getElementById('pill-all').classList.remove('active-pill');
+            document.getElementById('pill-active').classList.remove('active-pill');
+            document.getElementById('pill-expired').classList.remove('active-pill');
+            
+            if(status === '') document.getElementById('pill-all').classList.add('active-pill');
+            if(status === 'active') document.getElementById('pill-active').classList.add('active-pill');
+            if(status === 'expired') document.getElementById('pill-expired').classList.add('active-pill');
+            
+            renderTable();
+        }
+
+        async function fetchData() {
+            try {
+                const response = await fetch('/api/cms/transactions');
+                const data = await response.json();
+                
+                if(data.ok) {
+                    currentData = data.items;
+                    renderTable();
+                } else {
+                    alert("Gagal memuat data dari database.");
+                }
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById("tableBody");
+            tbody.innerHTML = "";
+
+            const searchField = document.getElementById("searchField").value;
+            const searchInput = document.getElementById("searchInput").value.toLowerCase();
+            const filterPlan = document.getElementById("filterPlan").value.toLowerCase();
+            const dateStart = document.getElementById("dateStart").value;
+            const dateEnd = document.getElementById("dateEnd").value;
+            
+            let filtered = currentData;
+
+            // Search filter
+            if(searchInput) {
+                filtered = filtered.filter(item => {
+                    const val = (item[searchField] || "").toLowerCase();
+                    return val.includes(searchInput);
+                });
+            }
+
+            // Plan filter
+            if(filterPlan) {
+                filtered = filtered.filter(item => {
+                    const val = (item.plan || "").toLowerCase();
+                    return val.includes(filterPlan);
+                });
+            }
+
+            // Date filter
+            if(dateStart || dateEnd) {
+                filtered = filtered.filter(item => {
+                    if(!item.created_at) return false;
+                    const itemDate = item.created_at.split(" ")[0]; 
+                    if(dateStart && itemDate < dateStart) return false;
+                    if(dateEnd && itemDate > dateEnd) return false;
+                    return true;
+                });
+            }
+
+            // Status filter
+            if(currentStatusFilter) {
+                filtered = filtered.filter(item => item.status === currentStatusFilter);
+            }
+
+            // Update stats
+            document.getElementById("countAll").innerText = currentData.length;
+            document.getElementById("countActive").innerText = currentData.filter(i => i.status === 'active').length;
+            document.getElementById("countExpired").innerText = currentData.filter(i => i.status === 'expired').length;
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-bold">Tidak ada data transaksi yang ditemukan.</td></tr>`;
+                return;
+            }
+
+            filtered.forEach((item, index) => {
+                const badgeClass = item.status === 'active' ? 'badge-active' : 'badge-expired';
+                const badgeText = item.status === 'active' ? 'Aktif' : 'Expired';
+                
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="text-center text-muted">${index + 1}</td>
+                    <td class="fw-bold" style="color: var(--primary);">${item.username || '-'}</td>
+                    <td><i class="fas fa-calendar-alt text-muted me-1"></i> ${item.created_at || '-'}</td>
+                    <td>
+                        <div class="fw-bold text-dark" style="font-size:0.9rem;">${item.plan}</div>
+                        <div class="text-muted" style="font-size:0.75rem;">Garansi ${item.duration_days} Hari</div>
+                    </td>
+                    <td class="fw-bold text-dark" style="font-size:0.95rem;">${item.access_code}</td>
+                    <td class="text-muted">${item.expired_at || '-'}</td>
+                    <td class="text-center"><span class="badge-status ${badgeClass}"><i class="fas ${item.status === 'active' ? 'fa-check-circle' : 'fa-times-circle'} me-1"></i> ${badgeText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function exportCSV() {
+            if(currentData.length === 0) return alert("Tidak ada data untuk di-export.");
+            
+            const headers = ["Username", "Tanggal Order", "Nama Paket", "Durasi (Hari)", "Kode Akses", "Tanggal Berakhir", "Status"];
+            const rows = currentData.map(item => [
+                item.username, item.created_at, item.plan, item.duration_days, 
+                item.access_code, item.expired_at, item.status
+            ]);
+            
+            let csvContent = "data:text/csv;charset=utf-8," 
+                + headers.join(",") + "\n"
+                + rows.map(e => e.join(",")).join("\n");
+                
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "Lunexa_Tracking_Order.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Fetch on load
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
