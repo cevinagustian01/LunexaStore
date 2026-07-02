@@ -411,9 +411,17 @@
             renderTable();
         }
 
+        let CMS_KEY = localStorage.getItem('adm_key') || '';
+        if (!CMS_KEY) {
+            CMS_KEY = prompt("Masukkan Admin Key (Kunci Rahasia):");
+            if (CMS_KEY) localStorage.setItem('adm_key', CMS_KEY);
+        }
+
         async function fetchData() {
             try {
-                const response = await fetch('/api/cms/transactions');
+                const response = await fetch('/api/cms/transactions', {
+                    headers: { 'X-Admin-Key': CMS_KEY }
+                });
                 const data = await response.json();
                 
                 if(data.ok) {

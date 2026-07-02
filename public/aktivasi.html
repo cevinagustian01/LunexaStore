@@ -332,10 +332,10 @@
                     </div>
                     
                     <div id="activation-area">
-                        <a id="btn-open-netflix" href="#" target="_blank" class="btn-brand d-block text-center text-decoration-none">
+                        <a id="btn-open-netflix" href="#" target="_blank" onclick="sendLog('open')" class="btn-brand d-block text-center text-decoration-none">
                             <i class="fas fa-play-circle me-2"></i> Buka Netflix Sekarang
                         </a>
-                        <button onclick="copyLink()" class="btn-outline-brand mt-3">
+                        <button onclick="copyLink(); sendLog('copy')" class="btn-outline-brand mt-3">
                             <i class="fas fa-copy me-2"></i> Salin Link Aktivasi
                         </button>
                         <div class="mt-3 p-3 rounded" style="background-color: #fffaf0; border: 1px dashed #f39c12; font-size: 0.85rem; color: #d35400;">
@@ -348,15 +348,6 @@
                     </div>
                     <div id="activation-dead" class="alert alert-warning mt-3 mb-0" style="display:none;">
                         <i class="fas fa-exclamation-triangle me-2"></i> Akun ini terdeteksi tidak aktif/berkendala. Silakan klik tombol <b>Ganti Akun / Klaim Garansi</b> di bawah untuk mendapatkan akun baru.
-                    </div>
-                </div>
-
-                <!-- VIDEO TUTORIAL -->
-                <div class="action-card mb-4" id="video-tutorial-section">
-                    <h5 class="action-title" style="color: var(--primary);"><i class="fas fa-play-circle me-2"></i> Video Tutorial Aktivasi</h5>
-                    <p class="tutorial-text mb-3" style="font-size: 0.9rem; color: #7f8c8d;">Tonton panduan lengkap aktivasi perangkat Anda:</p>
-                    <div id="dynamic-video-tutorial">
-                        <!-- Video iframe will be injected here via JS -->
                     </div>
                 </div>
 
@@ -476,15 +467,9 @@
             const activationExpired = document.getElementById('activation-expired');
             const activationDead = document.getElementById('activation-dead');
             const dynInstruction = document.getElementById('dynamic-instruction');
-            const dynVideo = document.getElementById('dynamic-video-tutorial');
-            const videoSection = document.getElementById('video-tutorial-section');
 
             // Dynamic Instruction based on Plan
             let planName = (currentOrderData.plan || "").toLowerCase();
-            
-            // Tampilkan video section secara default
-            if(videoSection) videoSection.style.display = 'block';
-
             if(planName.includes("tv")) {
                 dynInstruction.innerHTML = `
                     <b>Tata cara aktivasi perangkat TV:</b><br>
@@ -493,11 +478,6 @@
                     3. Masukkan 8 digit kode yang muncul di TV<br>
                     4. Selamat, akun Netflix anda sudah siap digunakan<br>
                     5. Enjoy Netflix
-                `;
-                if(dynVideo) dynVideo.innerHTML = `
-                    <div class="ratio" style="--bs-aspect-ratio: 177.77%; max-width: 280px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2);">
-                        <iframe src="https://www.youtube.com/embed/g3KldOKKccc" title="Tutorial TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
                 `;
             } else if(planName.includes("mobile")) {
                 dynInstruction.innerHTML = `
@@ -510,11 +490,6 @@
                     6. Selamat, akun Netflix anda sudah siap digunakan<br>
                     7. Enjoy Netflix
                 `;
-                if(dynVideo) dynVideo.innerHTML = `
-                    <div class="ratio" style="--bs-aspect-ratio: 177.77%; max-width: 280px; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2);">
-                        <iframe src="https://www.youtube.com/embed/5t8lwHwzpko" title="Tutorial Mobile" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                `;
             } else {
                 dynInstruction.innerHTML = `
                     <b>Tata cara aktivasi perangkat PC/Laptop:</b><br>
@@ -522,11 +497,6 @@
                     2. Anda akan diarahkan ke aplikasi Netflix<br>
                     3. Selamat, akun Netflix anda sudah siap digunakan<br>
                     4. Enjoy Netflix
-                `;
-                if(dynVideo) dynVideo.innerHTML = `
-                    <div class="ratio ratio-16x9" style="max-width: 100%; margin: 0 auto; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(255, 107, 129, 0.2);">
-                        <iframe src="https://www.youtube.com/embed/xfCPIX02qCg" title="Tutorial PC" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
                 `;
             }
 
@@ -571,6 +541,16 @@
             document.getElementById('access_code').value = '';
             document.getElementById('login-screen').style.display = 'block';
             document.getElementById('dashboard-screen').style.display = 'none';
+        }
+
+        function sendLog(action) {
+            if (currentAccessCode) {
+                fetch('/api/log_action', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({access_code: currentAccessCode, action: action})
+                }).catch(e => console.error(e));
+            }
         }
 
         function copyLink() {
