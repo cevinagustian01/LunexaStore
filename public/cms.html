@@ -763,12 +763,17 @@
 
         let createOrderModal;
         function openCreateModal() {
-            if(!createOrderModal) createOrderModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
-            document.getElementById('modal-create-access-code').value = '';
-            document.getElementById('modal-create-username').value = '';
-            document.getElementById('modal-create-plan').selectedIndex = 0;
-            document.getElementById('modal-create-duration').value = '';
-            createOrderModal.show();
+            try {
+                if(!createOrderModal) createOrderModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
+                document.getElementById('modal-create-access-code').value = '';
+                document.getElementById('modal-create-username').value = '';
+                document.getElementById('modal-create-plan').selectedIndex = 0;
+                document.getElementById('modal-create-duration').value = '';
+                createOrderModal.show();
+            } catch (e) {
+                alert("Error membuka modal: " + e.message);
+                console.error(e);
+            }
         }
 
         async function saveCreateOrder() {
