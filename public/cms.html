@@ -225,6 +225,11 @@
                 <h2 class="fw-bold" style="color: var(--primary);">Data Transaksi</h2>
                 <p class="text-muted mb-0">Kelola dan pantau semua riwayat pesanan (Order Tracking).</p>
             </div>
+            <div>
+                <button class="btn btn-brand" onclick="openCreateModal()">
+                    <i class="fas fa-plus me-1"></i> Create Order Manual
+                </button>
+            </div>
         </div>
 
         <!-- Dashboard Stats -->
@@ -406,8 +411,49 @@
                 </div>
             </div>
         </div>
+
+        <div class="modal fade" id="createOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="background: var(--bg-color); border-bottom: 2px solid var(--border-color); border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold" style="color: var(--primary);"><i class="fas fa-plus me-2"></i>Create Order Manual</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Kode Akses (Custom)</label>
+                        <input type="text" id="modal-create-access-code" class="form-control" placeholder="Contoh: ORD-LAMA123">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nama Pelanggan</label>
+                        <input type="text" id="modal-create-username" class="form-control" placeholder="Contoh: Budi">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Paket Layanan</label>
+                        <select id="modal-create-plan" class="form-select">
+                            <option value="premium">Premium</option>
+                            <option value="premium_hd">Premium HD</option>
+                            <option value="premium_uhd">Premium UHD</option>
+                            <option value="premium_1_bulan">Premium 1 Bulan</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Durasi (Hari)</label>
+                        <input type="number" id="modal-create-duration" class="form-control" placeholder="Contoh: 30">
+                    </div>
+                    <div class="text-muted" style="font-size: 0.8rem;">*Sistem akan otomatis mencarikan dan menetapkan cookie yang tersedia di database sesuai paket yang dipilih.</div>
+                </div>
+                <div class="modal-footer" style="border-top: none; padding-top: 0;">
+                    <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn-brand" onclick="saveCreateOrder()">Buat Order</button>
+                </div>
+            </div>
+        </div>
+        </div>
+
     </div>
 
+    <!-- Scripts -->
     <script>
         let currentData = [];
         let currentStatusFilter = '';
@@ -709,6 +755,53 @@
                     fetchTransactions();
                 } else {
                     alert("Gagal: " + data.error);
+                }
+            } catch(e) {
+                alert("Gagal menghubungi server.");
+            }
+        }
+
+        let createOrderModal;
+        function openCreateModal() {
+            if(!createOrderModal) createOrderModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
+            document.getElementById('modal-create-access-code').value = '';
+            document.getElementById('modal-create-username').value = '';
+            document.getElementById('modal-create-plan').selectedIndex = 0;
+            document.getElementById('modal-create-duration').value = '';
+            createOrderModal.show();
+        }
+
+        async function saveCreateOrder() {
+            let accessCode = document.getElementById('modal-create-access-code').value.trim();
+            let username = document.getElementById('modal-create-username').value.trim();
+            let plan = document.getElementById('modal-create-plan').value;
+            let duration = document.getElementById('modal-create-duration').value;
+
+            if(!accessCode || !plan || !duration) {
+                alert("Harap lengkapi Kode Akses, Paket, dan Durasi.");
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/cms/transactions/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY },
+                    body: JSON.stringify({ 
+                        access_code: accessCode, 
+                        username: username,
+                        plan: plan,
+                        duration_days: duration
+                    })
+                });
+                
+                const data = await response.json();
+                if(data.ok) {
+                    alert("Sukses: Order manual berhasil dibuat!");
+                    createOrderModal.hide();
+                    fetchData();
+                    fetchStats();
+                } else {
+                    alert("Gagal: " + (data.error || "Terjadi kesalahan."));
                 }
             } catch(e) {
                 alert("Gagal menghubungi server.");
