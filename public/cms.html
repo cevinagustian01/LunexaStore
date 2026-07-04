@@ -706,7 +706,11 @@
                 document.getElementById('modal-create-access-code').value = '';
                 document.getElementById('modal-create-username').value = '';
                 document.getElementById('modal-create-plan').selectedIndex = 0;
-                document.getElementById('modal-create-duration').value = '';
+                let now = new Date();
+                let tzOffset = now.getTimezoneOffset() * 60000;
+                document.getElementById('modal-create-start-date').value = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+                let nextMonth = new Date(now.getTime() + 30*24*60*60*1000);
+                document.getElementById('modal-create-end-date').value = (new Date(nextMonth - tzOffset)).toISOString().slice(0, 16);
                 createModalObj.show();
             } catch (e) {
                 alert("Error membuka modal: " + e.message);
@@ -718,10 +722,11 @@
             let accessCode = document.getElementById('modal-create-access-code').value.trim();
             let username = document.getElementById('modal-create-username').value.trim();
             let plan = document.getElementById('modal-create-plan').value;
-            let duration = document.getElementById('modal-create-duration').value;
+            let startDate = document.getElementById('modal-create-start-date').value;
+            let endDate = document.getElementById('modal-create-end-date').value;
 
-            if(!accessCode || !plan || !duration) {
-                alert("Harap lengkapi Kode Akses, Paket, dan Durasi.");
+            if(!accessCode || !plan || !startDate || !endDate) {
+                alert("Harap lengkapi Kode Akses, Paket, dan Tanggal.");
                 return;
             }
 
@@ -733,7 +738,8 @@
                         access_code: accessCode, 
                         username: username,
                         plan: plan,
-                        duration_days: duration
+                        start_date: startDate,
+                        end_date: endDate
                     })
                 });
                 
@@ -1030,9 +1036,15 @@
                             <option value="premium_1_bulan">Premium 1 Bulan</option>
                         </select>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Durasi (Hari)</label>
-                        <input type="number" id="modal-create-duration" class="form-control" placeholder="Contoh: 30">
+                    <div class="row">
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Tanggal Mulai</label>
+                            <input type="datetime-local" id="modal-create-start-date" class="form-control">
+                        </div>
+                        <div class="col-6 mb-3">
+                            <label class="form-label fw-bold">Tanggal Berakhir</label>
+                            <input type="datetime-local" id="modal-create-end-date" class="form-control">
+                        </div>
                     </div>
                     <div class="text-muted" style="font-size: 0.8rem;">*Sistem akan otomatis mencarikan dan menetapkan cookie yang tersedia di database sesuai paket yang dipilih.</div>
                 </div>
