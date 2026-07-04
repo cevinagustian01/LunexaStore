@@ -194,6 +194,21 @@
 </head>
 <body>
 
+<!-- Login UI -->
+<div id="login" class="d-flex align-items-center justify-content-center" style="min-height: 100vh; display: none !important;">
+    <div class="custom-card p-4" style="width: 100%; max-width: 400px; margin: 0 auto; text-align: center;">
+        <h3 class="fw-bold mb-3" style="color: var(--primary);"><i class="fas fa-lock me-2"></i>CMS Login</h3>
+        <p class="text-muted mb-4">Enter your admin key to continue</p>
+        <div class="mb-3 text-start">
+            <label class="form-label fw-bold" style="color: var(--text-dark);">Admin Key</label>
+            <input type="password" id="login-key" class="form-control" style="background: #fafafa; border: 1px solid var(--border-color); color: #333;" placeholder="Enter key...">
+        </div>
+        <button class="btn btn-brand w-100" onclick="doLogin()">Login</button>
+        <div id="login-msg" class="text-danger mt-3" style="font-size: 0.85rem; min-height: 20px;"></div>
+    </div>
+</div>
+
+<div id="app" style="display: none;">
     <!-- Top Navbar -->
     <div class="navbar-custom">
         <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3>
@@ -411,23 +426,66 @@
             renderTable();
         }
 
+        
         let CMS_KEY = localStorage.getItem('adm_key') || '';
-        if (!CMS_KEY) {
-            CMS_KEY = prompt("Masukkan Admin Key (Kunci Rahasia):");
-            if (CMS_KEY) localStorage.setItem('adm_key', CMS_KEY);
+
+        function showLogin(msg) {
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('login').style.display = 'flex';
+            document.getElementById('login').style.setProperty('display', 'flex', 'important');
+            if(msg) document.getElementById('login-msg').innerHTML = msg;
+        }
+
+        async function checkLogin() {
+            if(!CMS_KEY) return showLogin('');
+            try {
+                const response = await fetch('/api/cms/transactions', { headers: { 'X-Admin-Key': CMS_KEY } });
+                if(response.status === 401 || response.status === 403) return showLogin('Invalid Admin Key');
+                const data = await response.json();
+                if(data.ok) {
+                    document.getElementById('login').style.setProperty('display', 'none', 'important');
+                    document.getElementById('app').style.display = 'block';
+                    fetchData();
+                    fetchStats(data);
+                } else {
+                    showLogin('Error: ' + (data.error||''));
+                }
+            } catch(e) {
+                showLogin('Connection error');
+            }
+        }
+
+        async function doLogin() {
+            const k = document.getElementById('login-key').value.trim();
+            if(!k) return;
+            document.getElementById('login-msg').textContent = 'Checking...';
+            CMS_KEY = k;
+            try {
+                const response = await fetch('/api/cms/transactions', { headers: { 'X-Admin-Key': CMS_KEY } });
+                if(response.ok) {
+                    localStorage.setItem('adm_key', CMS_KEY);
+                    location.reload();
+                } else {
+                    const data = await response.json().catch(() => ({}));
+                    document.getElementById('login-msg').textContent = data.error || 'Invalid Admin Key';
+                    CMS_KEY = localStorage.getItem('adm_key') || '';
+                }
+            } catch(e) {
+                document.getElementById('login-msg').textContent = 'Error connection';
+            }
         }
 
         async function fetchData() {
             try {
-                const response = await fetch('/api/cms/transactions', {
-                    headers: { 'X-Admin-Key': CMS_KEY }
-                });
+                const response = await fetch('/api/cms/transactions', { headers: { 'X-Admin-Key': CMS_KEY } });
                 const data = await response.json();
                 
                 if(data.ok) {
                     currentData = data.items;
                     renderTable();
+                    fetchStats(data);
                 } else {
+                    fetchStats();
                     alert("Gagal memuat data dari database.");
                 }
             } catch (error) {
@@ -539,19 +597,22 @@
         }
 
         // Fetch API implementations
-        async function fetchStats() {
+        async function fetchStats(serverData = null) {
             try {
-                const response = await fetch('/api/cms/stats', { headers: { 'X-Admin-Key': CMS_KEY } });
-                const data = await response.json();
-                if(data.ok) {
-                    document.getElementById('stat-total-cookies').innerText = data.total_cookies;
-                    document.getElementById('stat-active-cookies').innerText = data.active_cookies;
-                    document.getElementById('stat-dead-cookies').innerText = data.dead_cookies;
-                    
-                    document.getElementById('stat-total-orders').innerText = data.active_orders + data.expired_orders;
-                    document.getElementById('stat-active-orders').innerText = data.active_orders;
-                    document.getElementById('stat-expired-orders').innerText = data.expired_orders;
+                const totalTrx = currentData ? currentData.length : 0;
+                const activeTrx = currentData ? currentData.filter(x => x.status === 'active').length : 0;
+                const expiredTrx = currentData ? currentData.filter(x => x.status === 'expired').length : 0;
+                
+                // Fetch realtime cookie stats from server
+                if (serverData) {
+                    document.getElementById('stat-total-cookies').innerText = serverData.total_cookies || 0;
+                    document.getElementById('stat-active-cookies').innerText = serverData.active_cookies || 0;
+                    document.getElementById('stat-dead-cookies').innerText = serverData.dead_cookies || 0;
                 }
+                
+                document.getElementById('stat-total-orders').innerText = totalTrx;
+                document.getElementById('stat-active-orders').innerText = activeTrx;
+                document.getElementById('stat-expired-orders').innerText = expiredTrx;
             } catch(e) { console.error(e); }
         }
 
@@ -559,13 +620,14 @@
             if(!confirm(`Apakah Anda yakin ingin MENGHAPUS riwayat transaksi dengan Kode Akses ${accessCode}?\n\nTindakan ini tidak bisa dibatalkan!`)) return;
             try {
                 const res = await fetch('/api/cms/transactions/delete', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accessCode})
                 });
                 const data = await res.json();
                 if(data.ok) {
                     alert(data.message);
                     fetchData();
+                    fetchStats();
                     fetchStats();
                 } else {
                     alert(data.error);
@@ -586,7 +648,7 @@
             
             try {
                 const res = await fetch('/api/cms/transactions/check_cookie', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accessCode})
                 });
                 const data = await res.json();
@@ -613,7 +675,7 @@
             
             try {
                 const res = await fetch('/api/cms/transactions/replace_cookie', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accCode, new_cookie: newCookie})
                 });
                 const data = await res.json();
@@ -638,7 +700,7 @@
             
             try {
                 const res = await fetch('/api/cms/transactions/edit_expired', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accessCode, new_expired: newExpired.trim()})
                 });
                 const data = await res.json();
@@ -692,12 +754,12 @@
             
             try {
                 let res1 = await fetch('/api/cms/transactions/edit_plan', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accessCode, new_plan: newPlan})
                 });
                 
                 let res2 = await fetch('/api/cms/transactions/edit_expired', {
-                    method: 'POST', headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
                     body: JSON.stringify({access_code: accessCode, new_expired: newExpired})
                 });
                 
@@ -708,6 +770,7 @@
                     alert("Sukses: Data transaksi berhasil diperbarui!");
                     editOrderModal.hide();
                     fetchData();
+                    fetchStats();
                 } else {
                     alert("Gagal: " + (d1.error || d2.error || "Gagal mengubah data."));
                 }
@@ -719,35 +782,159 @@
             document.getElementById('btn-save-edit').innerHTML = '<i class="fas fa-save me-2"></i>Simpan Perubahan';
         }
 
+        let replaceProgressModal;
+
         async function autoReplaceCookie(accessCode) {
-            if(!confirm(`Apakah Anda yakin ingin mengganti akun secara otomatis untuk Kode Akses ${accessCode}?\nSistem akan mencarikan stok akun Live terbaik dari database.`)) return;
+            // Lazy initialize modal
+            if (!replaceProgressModal) {
+                replaceProgressModal = new bootstrap.Modal(document.getElementById('replaceProgressModal'));
+            }
+            
+            // Setup Modal UI
+            document.getElementById('replace-target-code').innerText = accessCode;
+            document.getElementById('replace-progress-section').style.display = 'block';
+            document.getElementById('replace-result-section').style.display = 'none';
+            document.getElementById('replace-error-section').style.display = 'none';
+            document.getElementById('replace-modal-footer').style.display = 'none';
+            document.getElementById('replace-modal-close').style.display = 'none';
+            document.getElementById('replace-modal-title').innerText = 'Memproses Permintaan...';
+            document.getElementById('replace-modal-icon').className = 'fas fa-sync-alt fa-spin me-2';
+            
+            replaceProgressModal.show();
             
             try {
+                // Simulate slight delay for progress bar animation effect
+                await new Promise(r => setTimeout(r, 800));
+                
                 const res = await fetch('/api/replace', {
                     method: 'POST', 
-                    headers: {'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY},
-                    body: JSON.stringify({access_code: accessCode})
+                    headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
+                    body: JSON.stringify({access_code: accessCode, force: true})
                 });
                 const data = await res.json();
+                
+                document.getElementById('replace-progress-section').style.display = 'none';
+                document.getElementById('replace-modal-footer').style.display = 'flex';
+                document.getElementById('replace-modal-close').style.display = 'block';
+                document.getElementById('replace-modal-icon').className = 'fas fa-info-circle me-2';
+                
                 if(data.ok) {
-                    alert("Berhasil! Akun telah diganti.\n" + (data.message || ""));
+                    document.getElementById('replace-modal-title').innerText = 'Sukses Mengganti Akun';
+                    document.getElementById('replace-result-section').style.display = 'block';
+                    
+                    document.getElementById('replace-res-plan').innerText = data.plan || '-';
+                    document.getElementById('replace-res-region').innerText = data.region || '-';
+                    document.getElementById('replace-res-link').value = data.login_link || '';
+                    document.getElementById('replace-res-cookie').value = data.cookie || '';
+                    
                     fetchData();
-                    fetchStats();
                 } else {
-                    alert("Gagal: " + (data.error || "Terjadi kesalahan"));
+                    document.getElementById('replace-modal-title').innerText = 'Gagal Mengganti Akun';
+                    document.getElementById('replace-error-section').style.display = 'block';
+                    document.getElementById('replace-error-msg').innerText = data.error || 'Terjadi kesalahan tidak diketahui';
                 }
             } catch(e) {
-                alert("Gagal menghubungi server.");
+                document.getElementById('replace-progress-section').style.display = 'none';
+                document.getElementById('replace-modal-footer').style.display = 'flex';
+                document.getElementById('replace-modal-close').style.display = 'block';
+                document.getElementById('replace-modal-title').innerText = 'Koneksi Gagal';
+                document.getElementById('replace-modal-icon').className = 'fas fa-exclamation-circle me-2 text-danger';
+                document.getElementById('replace-error-section').style.display = 'block';
+                document.getElementById('replace-error-msg').innerText = 'Gagal menghubungi server. Periksa koneksi internet Anda.';
             }
         }
 
         // Fetch on load
-        window.onload = () => {
-            fetchData();
-            fetchStats();
-        };
+        
+        function copyText(elementId) {
+            const input = document.getElementById(elementId);
+            if (input) {
+                input.select();
+                input.setSelectionRange(0, 99999);
+                document.execCommand('copy');
+                alert('Teks berhasil disalin!');
+            }
+        }
+
+        // Fetch on load
+        window.onload = checkLogin;
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+    <!-- Replace Progress & Result Modal -->
+    <div class="modal fade" id="replaceProgressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 15px; overflow: hidden; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); border-bottom: none;">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-sync-alt fa-spin me-2" id="replace-modal-icon"></i><span id="replace-modal-title">Memproses Permintaan...</span></h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" id="replace-modal-close" style="display: none;"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Progress Section -->
+                    <div id="replace-progress-section" class="text-center py-4">
+                        <h6 class="text-muted mb-3">Sedang mencarikan stok Live terbaik untuk <span id="replace-target-code" class="fw-bold text-dark"></span>...</h6>
+                        <div class="progress" style="height: 12px; border-radius: 10px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+                        </div>
+                        <p class="mt-3 small text-muted">Mohon tunggu sebentar, sistem sedang melakukan sinkronisasi dengan database.</p>
+                    </div>
+                    
+                    <!-- Result Section -->
+                    <div id="replace-result-section" style="display: none;">
+                        <div class="alert alert-success d-flex align-items-center mb-3" role="alert">
+                            <i class="fas fa-check-circle fs-3 me-3"></i>
+                            <div>
+                                <h6 class="mb-0 fw-bold">Berhasil Diganti!</h6>
+                                <span class="small">Akun baru telah berhasil dialokasikan.</span>
+                            </div>
+                        </div>
+                        <div class="card border-0 shadow-sm" style="background: #f8f9fa; border-radius: 12px;">
+                            <div class="card-body">
+                                <div class="row mb-2">
+                                    <div class="col-5 text-muted small fw-bold">Paket Layanan</div>
+                                    <div class="col-7 small fw-bold text-dark" id="replace-res-plan">-</div>
+                                </div>
+                                <div class="row mb-2">
+                                    <div class="col-5 text-muted small fw-bold">Region</div>
+                                    <div class="col-7 small fw-bold text-dark" id="replace-res-region">-</div>
+                                </div>
+                                <div class="row mb-3">
+                                    <div class="col-5 text-muted small fw-bold">Login Link</div>
+                                    <div class="col-7">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" id="replace-res-link" readonly style="background: #fff; font-size: 0.75rem;">
+                                            <button class="btn btn-outline-primary" type="button" onclick="copyText('replace-res-link')" title="Copy Link"><i class="fas fa-copy"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-12 text-muted small fw-bold mb-1">Data Cookie</div>
+                                    <div class="col-12">
+                                        <div class="input-group input-group-sm">
+                                            <input type="text" class="form-control" id="replace-res-cookie" readonly style="background: #fff; font-size: 0.75rem;">
+                                            <button class="btn btn-outline-primary" type="button" onclick="copyText('replace-res-cookie')" title="Copy Cookie"><i class="fas fa-copy"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Error Section -->
+                    <div id="replace-error-section" style="display: none;" class="text-center py-3">
+                        <i class="fas fa-exclamation-triangle text-danger mb-3" style="font-size: 3rem;"></i>
+                        <h6 class="fw-bold text-dark">Penggantian Gagal</h6>
+                        <p class="text-muted small" id="replace-error-msg">Terjadi kesalahan.</p>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 justify-content-center" id="replace-modal-footer" style="display: none;">
+                    <button type="button" class="btn btn-primary px-4" style="border-radius: 20px;" data-bs-dismiss="modal">Selesai</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
 
