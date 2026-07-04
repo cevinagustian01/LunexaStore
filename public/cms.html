@@ -1060,6 +1060,12 @@
                     </div>
                     <div class="text-muted" style="font-size: 0.8rem;">*Sistem akan otomatis mencarikan dan menetapkan cookie yang tersedia di database sesuai paket yang dipilih.</div>
                 </div>
+                <div id="create-order-progress-container" class="px-4 pb-3" style="display: none;">
+                    <div class="progress" style="height: 8px; border-radius: 10px;">
+                        <div id="create-order-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary));"></div>
+                    </div>
+                    <div class="text-center mt-2 small text-muted" id="create-order-progress-text" style="font-weight: 500;">Memproses pesanan...</div>
+                </div>
                 <div class="modal-footer" style="border-top: none; padding-top: 0;">
                     <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn-brand" onclick="saveCreateOrder()">Buat Order</button>
