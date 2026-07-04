@@ -761,20 +761,24 @@
             }
         }
 
-        let createOrderModal;
-        function openCreateModal() {
+        let createModalObj = null;
+        window.openCreateModal = function() {
             try {
-                if(!createOrderModal) createOrderModal = new bootstrap.Modal(document.getElementById('createOrderModal'));
+                if(!createModalObj) {
+                    let el = document.getElementById('createOrderModal');
+                    if (!el) { alert("Elemen createOrderModal tidak ditemukan di HTML!"); return; }
+                    createModalObj = new bootstrap.Modal(el);
+                }
                 document.getElementById('modal-create-access-code').value = '';
                 document.getElementById('modal-create-username').value = '';
                 document.getElementById('modal-create-plan').selectedIndex = 0;
                 document.getElementById('modal-create-duration').value = '';
-                createOrderModal.show();
+                createModalObj.show();
             } catch (e) {
                 alert("Error membuka modal: " + e.message);
                 console.error(e);
             }
-        }
+        };
 
         async function saveCreateOrder() {
             let accessCode = document.getElementById('modal-create-access-code').value.trim();
