@@ -731,8 +731,21 @@
                 alert("Harap lengkapi Kode Akses, Paket, dan Tanggal.");
                 return;
             }
+            
+            let btn = document.querySelector('#createOrderModal .btn-brand');
+            btn.disabled = true;
+            
+            let progContainer = document.getElementById('create-order-progress-container');
+            let progBar = document.getElementById('create-order-progress-bar');
+            let progText = document.getElementById('create-order-progress-text');
+            
+            progContainer.style.display = 'block';
+            progBar.style.width = '30%';
+            progText.innerText = useStock === 'yes' ? 'Mencari stok cookie terbaik dan sinkronisasi...' : 'Menyimpan data pesanan baru...';
 
             try {
+                setTimeout(() => { progBar.style.width = '70%'; }, 600);
+                
                 const response = await fetch('/api/cms/transactions/create', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY },
@@ -746,17 +759,29 @@
                     })
                 });
                 
+                progBar.style.width = '100%';
+                progText.innerText = 'Selesai!';
+                
                 const data = await response.json();
                 if(data.ok) {
-                    alert("Sukses: Order manual berhasil dibuat!");
-                    createOrderModal.hide();
-                    fetchData();
-                    fetchStats();
+                    setTimeout(() => {
+                        alert("Sukses: Order manual berhasil dibuat!");
+                        createModalObj.hide();
+                        progContainer.style.display = 'none';
+                        progBar.style.width = '0%';
+                        btn.disabled = false;
+                        fetchData();
+                        fetchStats();
+                    }, 500);
                 } else {
                     alert("Gagal: " + (data.error || "Terjadi kesalahan."));
+                    progContainer.style.display = 'none';
+                    btn.disabled = false;
                 }
             } catch(e) {
                 alert("Gagal menghubungi server.");
+                progContainer.style.display = 'none';
+                btn.disabled = false;
             }
         }
 
