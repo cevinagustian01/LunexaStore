@@ -706,6 +706,7 @@
                 document.getElementById('modal-create-access-code').value = '';
                 document.getElementById('modal-create-username').value = '';
                 document.getElementById('modal-create-plan').selectedIndex = 0;
+                document.getElementById('modal-create-use-stock').selectedIndex = 0;
                 let now = new Date();
                 let tzOffset = now.getTimezoneOffset() * 60000;
                 document.getElementById('modal-create-start-date').value = (new Date(now - tzOffset)).toISOString().slice(0, 16);
@@ -724,6 +725,7 @@
             let plan = document.getElementById('modal-create-plan').value;
             let startDate = document.getElementById('modal-create-start-date').value;
             let endDate = document.getElementById('modal-create-end-date').value;
+            let useStock = document.getElementById('modal-create-use-stock').value;
 
             if(!accessCode || !plan || !startDate || !endDate) {
                 alert("Harap lengkapi Kode Akses, Paket, dan Tanggal.");
@@ -739,7 +741,8 @@
                         username: username,
                         plan: plan,
                         start_date: startDate,
-                        end_date: endDate
+                        end_date: endDate,
+                        use_stock: useStock
                     })
                 });
                 
@@ -1036,6 +1039,13 @@
                             <option value="Reguler">Reguler</option>
                             <option value="- Next billing:">- Next billing:</option>
                             <option value="Premium">Premium</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Potong Stok Cookie?</label>
+                        <select id="modal-create-use-stock" class="form-select">
+                            <option value="yes">Ya, carikan cookie & potong stok</option>
+                            <option value="no">Tidak, hanya buat data pesanan saja</option>
                         </select>
                     </div>
                     <div class="row">
