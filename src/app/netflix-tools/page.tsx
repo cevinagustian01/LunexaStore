@@ -5,32 +5,62 @@ import {
   Sun, Globe, CaretDown, ArrowsClockwise, XCircle, 
   Crown, CalendarBlank, GlobeHemisphereWest, CreditCard, 
   Phone, CalendarX, Users, DeviceMobile, ClockCounterClockwise, 
-  Gear, LockKey, SignOut, Desktop, Television
+  Gear, LockKey, SignOut, Desktop, Television, LockKeyOpen
 } from '@phosphor-icons/react';
 
 export default function NetflixToolsPage() {
+  const [accessCode, setAccessCode] = useState('');
+  const [inputCode, setInputCode] = useState('');
+  const [isValidated, setIsValidated] = useState(false);
+  
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingDevices, setLoadingDevices] = useState(true);
   const [isLoggingOutAll, setIsLoggingOutAll] = useState(false);
+  const [loginError, setLoginError] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const API_BASE = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/netflix`;
   const [authData, setAuthData] = useState({ authURL: '', buildId: '' });
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = () => {
-    loadAccountInfo();
-    loadDevices();
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputCode.trim()) return;
+    
+    setIsLoggingIn(true);
+    setLoginError('');
+    
+    try {
+      const res = await fetch(`${API_BASE}/account_info?access_code=${encodeURIComponent(inputCode)}`);
+      const data = await res.json();
+      
+      if (data.success) {
+        setAccessCode(inputCode);
+        setAccountInfo(data);
+        if (data.authURL) setAuthData(prev => ({ ...prev, authURL: data.authURL }));
+        setIsValidated(true);
+        setLoading(false);
+        loadDevices(inputCode);
+      } else {
+        setLoginError(data.error || 'Kode Akses tidak valid atau cookie Netflix tidak ditemukan.');
+      }
+    } catch (err) {
+      setLoginError('Error koneksi ke server.');
+    } finally {
+      setIsLoggingIn(false);
+    }
   };
 
-  const loadAccountInfo = async () => {
+  const loadData = () => {
+    loadAccountInfo(accessCode);
+    loadDevices(accessCode);
+  };
+
+  const loadAccountInfo = async (code: string) => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/account_info`);
+      const res = await fetch(`${API_BASE}/account_info?access_code=${encodeURIComponent(code)}`);
       const data = await res.json();
       if (data.success) {
         setAccountInfo(data);
@@ -43,10 +73,10 @@ export default function NetflixToolsPage() {
     }
   };
 
-  const loadDevices = async () => {
+  const loadDevices = async (code: string) => {
     setLoadingDevices(true);
     try {
-      const res = await fetch(`${API_BASE}/devices`);
+      const res = await fetch(`${API_BASE}/devices?access_code=${encodeURIComponent(code)}`);
       const data = await res.json();
       if (data.success) {
         setDevices(data.devices || []);
@@ -68,12 +98,12 @@ export default function NetflixToolsPage() {
       const res = await fetch(`${API_BASE}/logout_device`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ deviceId, ...authData })
+        body: JSON.stringify({ access_code: accessCode, deviceId, ...authData })
       });
       const data = await res.json();
       if (data.success) {
         alert('Device berhasil dilogout!');
-        loadDevices();
+        loadDevices(accessCode);
       } else {
         alert(`Gagal logout: ${data.error || 'Unknown error'}`);
       }
@@ -89,12 +119,12 @@ export default function NetflixToolsPage() {
       const res = await fetch(`${API_BASE}/logout_all`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(authData)
+        body: JSON.stringify({ access_code: accessCode, ...authData })
       });
       const data = await res.json();
       if (data.success) {
         alert(`Berhasil melogout ${data.count} device!`);
-        loadDevices();
+        loadDevices(accessCode);
       } else {
         alert(`Gagal logout all: ${data.error || 'Unknown error'}`);
       }
@@ -105,12 +135,65 @@ export default function NetflixToolsPage() {
     }
   };
 
+  const handleDisconnect = () => {
+    setIsValidated(false);
+    setAccessCode('');
+    setInputCode('');
+    setAccountInfo(null);
+    setDevices([]);
+  };
+
+  if (!isValidated) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center p-6"
+        style={{ backgroundColor: '#0a0a0a', backgroundImage: 'none', position: 'absolute', inset: 0, zIndex: 9999 }}
+      >
+        <div className="bg-[#141414] border border-[#2a2a2a] p-8 rounded-2xl w-full max-w-md shadow-2xl">
+          <div className="flex justify-center mb-6 text-[#ef4444]">
+            <LockKeyOpen size={48} weight="duotone" />
+          </div>
+          <h1 className="text-2xl font-bold text-center text-[#f5f5f5] mb-2">Netflix Tools</h1>
+          <p className="text-[#a3a3a3] text-center text-sm mb-8">
+            Masukkan Kode Akses Anda untuk mengelola perangkat dan profil Netflix.
+          </p>
+          
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-[#a3a3a3] mb-1.5">Kode Akses</label>
+              <input 
+                type="text" 
+                value={inputCode}
+                onChange={(e) => setInputCode(e.target.value)}
+                placeholder="Misal: LUNEXA-XXXX"
+                className="w-full bg-[#0a0a0a] border border-[#333] rounded-xl px-4 py-3 text-[#f5f5f5] outline-none focus:border-[#ef4444] transition-colors"
+                required
+              />
+            </div>
+            {loginError && <div className="text-[#ef4444] text-sm bg-[#ef4444]/10 p-3 rounded-lg border border-[#ef4444]/20">{loginError}</div>}
+            
+            <button 
+              type="submit" 
+              disabled={isLoggingIn}
+              className="w-full bg-[#ef4444] hover:bg-[#dc2626] text-white font-semibold py-3 rounded-xl transition-all disabled:opacity-50"
+            >
+              {isLoggingIn ? 'Mengecek...' : 'Check Access'}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-[#f5f5f5] font-sans p-6 selection:bg-[#ef4444] selection:text-white">
+    <div 
+      className="min-h-screen font-sans p-6 selection:bg-[#ef4444] selection:text-white pb-20"
+      style={{ backgroundColor: '#0a0a0a', backgroundImage: 'none', position: 'absolute', inset: 0, zIndex: 9999, overflowY: 'auto' }}
+    >
       <div className="max-w-[1200px] mx-auto space-y-6">
         
         {/* Header */}
-        <header className="flex justify-between items-center">
+        <header className="flex justify-between items-center text-[#f5f5f5]">
           <div className="text-sm text-[#a3a3a3] flex items-center gap-2">
             Application <span className="mx-1">/</span> <span className="text-[#f5f5f5] font-medium">Netflix Tools</span>
           </div>
@@ -121,14 +204,14 @@ export default function NetflixToolsPage() {
             <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#141414] border border-[#2a2a2a] rounded-full text-[13px] cursor-pointer hover:bg-[#1a1a1a] transition-all">
               <Globe size={16} /> English <CaretDown size={14} />
             </div>
-            <div className="px-4 py-1.5 bg-[#10b981]/10 text-[#10b981] font-semibold text-[13px] rounded-full">
-              Admin
+            <div className="px-4 py-1.5 bg-[#10b981]/10 text-[#10b981] font-semibold text-[13px] rounded-full flex items-center gap-2">
+              <LockKey size={14} /> {accessCode}
             </div>
           </div>
         </header>
 
         {/* Connection Status */}
-        <div className="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-5 md:p-6 shadow-sm">
+        <div className="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-5 md:p-6 shadow-sm text-[#f5f5f5]">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-3">
               <div className="w-2.5 h-2.5 bg-[#10b981] rounded-full shadow-[0_0_10px_#10b981]"></div>
@@ -143,7 +226,7 @@ export default function NetflixToolsPage() {
               <button onClick={loadData} className="p-2 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a] rounded-full transition-all">
                 <ArrowsClockwise size={20} weight="bold" />
               </button>
-              <button className="flex items-center gap-1.5 text-[#ef4444] font-medium text-sm hover:text-[#dc2626] transition-colors">
+              <button onClick={handleDisconnect} className="flex items-center gap-1.5 text-[#ef4444] font-medium text-sm hover:text-[#dc2626] transition-colors">
                 <XCircle size={20} weight="fill" /> Disconnect
               </button>
             </div>
@@ -151,7 +234,7 @@ export default function NetflixToolsPage() {
         </div>
 
         {/* Account Info Grid */}
-        <div className="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-5 md:p-6">
+        <div className="bg-[#141414] border border-[#2a2a2a] rounded-2xl p-5 md:p-6 text-[#f5f5f5]">
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-[13px] text-[#a3a3a3]">
@@ -193,7 +276,7 @@ export default function NetflixToolsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 overflow-x-auto bg-[#141414] p-2 rounded-2xl border border-[#2a2a2a] scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto bg-[#141414] p-2 rounded-2xl border border-[#2a2a2a] scrollbar-hide text-[#f5f5f5]">
           <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap">
             <Users size={18} /> Profiles
           </button>
@@ -212,11 +295,11 @@ export default function NetflixToolsPage() {
         </div>
 
         {/* Devices Section */}
-        <div className="space-y-4 pt-2">
+        <div className="space-y-4 pt-2 text-[#f5f5f5]">
           <div className="flex justify-between items-center px-2">
             <h2 className="text-base font-semibold">{devices.length} Device Terhubung</h2>
             <div className="flex items-center gap-3">
-              <button onClick={loadDevices} className="p-2 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a] rounded-full transition-all">
+              <button onClick={() => loadDevices(accessCode)} className="p-2 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a] rounded-full transition-all">
                 <ArrowsClockwise size={20} className={loadingDevices ? "animate-spin" : ""} />
               </button>
               <button 
