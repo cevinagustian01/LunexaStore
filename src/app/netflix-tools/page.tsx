@@ -19,6 +19,7 @@ export default function NetflixToolsPage() {
   const [accessCode, setAccessCode] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [isValidated, setIsValidated] = useState(false);
+  const [activeTab, setActiveTab] = useState('devices');
   
   const [accountInfo, setAccountInfo] = useState<any>(null);
   const [devices, setDevices] = useState<any[]>([]);
@@ -284,93 +285,131 @@ export default function NetflixToolsPage() {
 
         {/* Tabs */}
         <div className="flex gap-2 overflow-x-auto bg-[#141414] p-2 rounded-2xl border border-[#2a2a2a] scrollbar-hide text-[#f5f5f5]">
-          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap">
+          <button 
+            onClick={() => setActiveTab('profiles')}
+            className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'profiles' ? 'text-[#f5f5f5] bg-[#1e1e1e] border border-[#333] shadow-sm' : 'text-[#a3a3a3] hover:text-[#f5f5f5]'}`}
+          >
             <Users size={18} /> Profiles
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#f5f5f5] bg-[#1e1e1e] border border-[#333] rounded-xl shadow-sm whitespace-nowrap">
+          <button 
+            onClick={() => setActiveTab('devices')}
+            className={`flex items-center gap-2 px-5 py-2.5 text-sm font-medium rounded-xl transition-all whitespace-nowrap ${activeTab === 'devices' ? 'text-[#f5f5f5] bg-[#1e1e1e] border border-[#333] shadow-sm' : 'text-[#a3a3a3] hover:text-[#f5f5f5]'}`}
+          >
             <DeviceMobile size={18} /> Devices
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap">
+          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap opacity-50 cursor-not-allowed">
             <ClockCounterClockwise size={18} /> History
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap">
+          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap opacity-50 cursor-not-allowed">
             <Gear size={18} /> Settings
           </button>
-          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap">
+          <button className="flex items-center gap-2 px-5 py-2.5 text-sm font-medium text-[#a3a3a3] hover:text-[#f5f5f5] rounded-xl transition-all whitespace-nowrap opacity-50 cursor-not-allowed">
             <LockKey size={18} /> Akun
           </button>
         </div>
 
-        {/* Devices Section */}
+        {/* Tab Content */}
         <div className="space-y-4 pt-2 text-[#f5f5f5]">
-          <div className="flex justify-between items-center px-2">
-            <h2 className="text-base font-semibold">{devices.length} Device Terhubung</h2>
-            <div className="flex items-center gap-3">
-              <button onClick={() => loadDevices(accessCode)} className="p-2 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a] rounded-full transition-all">
-                <ArrowsClockwise size={20} className={loadingDevices ? "animate-spin" : ""} />
-              </button>
-              <button 
-                onClick={handleLogoutAll} 
-                disabled={isLoggingOutAll}
-                className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]"
-              >
-                <SignOut size={18} weight="bold" />
-                {isLoggingOutAll ? 'Loading...' : 'Logout All'}
-              </button>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {loadingDevices ? (
-              [1, 2, 3].map(i => (
-                <div key={i} className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-4 flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-[#2a2a2a] animate-pulse"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-[#2a2a2a] rounded w-1/4 animate-pulse"></div>
-                    <div className="h-3 bg-[#2a2a2a] rounded w-1/3 animate-pulse"></div>
-                  </div>
-                </div>
-              ))
-            ) : devices.length === 0 ? (
-              <div className="text-center py-10 text-[#a3a3a3] bg-[#141414] rounded-xl border border-[#2a2a2a]">
-                Tidak ada device terhubung
+          
+          {activeTab === 'profiles' && (
+            <div className="animate-fadeIn">
+              <div className="flex justify-between items-center px-2 mb-4">
+                <h2 className="text-base font-semibold">{(accountInfo?.profiles || []).length} Profil Tersedia</h2>
               </div>
-            ) : (
-              devices.map((device, idx) => {
-                const typeLow = device.type.toLowerCase();
-                const isMobile = typeLow.includes('phone') || typeLow.includes('mobile') || typeLow.includes('ios') || typeLow.includes('android');
-                const isTV = typeLow.includes('tv') || typeLow.includes('smart');
-                
-                return (
-                  <div key={idx} className="group bg-[#141414] border border-[#2a2a2a] hover:bg-[#1a1a1a] hover:border-[#333] rounded-xl p-4 flex items-center justify-between transition-all">
-                    <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl border border-[#2a2a2a] bg-[#111] flex items-center justify-center
-                        ${isMobile ? 'text-blue-500' : isTV ? 'text-purple-500' : 'text-emerald-500'}`}>
-                        {isMobile ? <DeviceMobile size={24} /> : isTV ? <Television size={24} /> : <Desktop size={24} />}
-                      </div>
-                      <div className="flex flex-col gap-1">
-                        <div className="text-[15px] font-semibold flex items-center gap-2">
-                          {device.name}
-                          {device.isCurrent && (
-                            <span className="text-[11px] px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] rounded-md font-medium">This device</span>
-                          )}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                {(accountInfo?.profiles || []).map((profile: any, idx: number) => (
+                  <div key={idx} className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-4 flex flex-col items-center gap-3 transition-all hover:bg-[#1a1a1a] hover:border-[#333]">
+                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#2a2a2a] border border-[#333]">
+                      {profile.avatar ? (
+                        <img src={profile.avatar} alt={profile.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[#a3a3a3]">
+                          <Users size={32} />
                         </div>
-                        <div className="text-[13px] text-[#a3a3a3]">
-                          {device.type} • {device.last_active} {device.profile && `• Profile: ${device.profile}`}
-                        </div>
+                      )}
+                    </div>
+                    <div className="text-center">
+                      <div className="font-medium text-[15px] text-[#f5f5f5]">{profile.name || 'Unknown'}</div>
+                      <div className="text-[12px] text-[#10b981] font-medium mt-1">Active Profile</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeTab === 'devices' && (
+            <div className="animate-fadeIn">
+              <div className="flex justify-between items-center px-2 mb-4">
+                <h2 className="text-base font-semibold">{devices.length} Device Terhubung</h2>
+                <div className="flex items-center gap-3">
+                  <button onClick={() => loadDevices(accessCode)} className="p-2 text-[#a3a3a3] hover:text-[#f5f5f5] hover:bg-[#1a1a1a] rounded-full transition-all">
+                    <ArrowsClockwise size={20} className={loadingDevices ? "animate-spin" : ""} />
+                  </button>
+                  <button 
+                    onClick={handleLogoutAll} 
+                    disabled={isLoggingOutAll || devices.length === 0}
+                    className="flex items-center gap-2 bg-[#dc2626] hover:bg-[#b91c1c] disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-[0_0_15px_rgba(220,38,38,0.3)]"
+                  >
+                    <SignOut size={18} weight="bold" />
+                    {isLoggingOutAll ? 'Loading...' : 'Logout All'}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-3">
+                {loadingDevices ? (
+                  [1, 2, 3].map(i => (
+                    <div key={i} className="bg-[#141414] border border-[#2a2a2a] rounded-xl p-4 flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-xl bg-[#2a2a2a] animate-pulse"></div>
+                      <div className="flex-1 space-y-2">
+                        <div className="h-4 bg-[#2a2a2a] rounded w-1/4 animate-pulse"></div>
+                        <div className="h-3 bg-[#2a2a2a] rounded w-1/3 animate-pulse"></div>
                       </div>
                     </div>
-                    <button 
-                      onClick={() => handleLogoutDevice(device.id)}
-                      className="p-2 text-[#a3a3a3] hover:text-[#ef4444] hover:bg-[#ef4444]/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                    >
-                      <SignOut size={20} />
-                    </button>
+                  ))
+                ) : devices.length === 0 ? (
+                  <div className="text-center py-10 text-[#a3a3a3] bg-[#141414] rounded-xl border border-[#2a2a2a]">
+                    Tidak ada device terhubung
                   </div>
-                );
-              })
-            )}
-          </div>
+                ) : (
+                  devices.map((device, idx) => {
+                    const typeLow = device.type.toLowerCase();
+                    const isMobile = typeLow.includes('phone') || typeLow.includes('mobile') || typeLow.includes('ios') || typeLow.includes('android');
+                    const isTV = typeLow.includes('tv') || typeLow.includes('smart');
+                    
+                    return (
+                      <div key={idx} className="group bg-[#141414] border border-[#2a2a2a] hover:bg-[#1a1a1a] hover:border-[#333] rounded-xl p-4 flex items-center justify-between transition-all">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl border border-[#2a2a2a] bg-[#111] flex items-center justify-center
+                            ${isMobile ? 'text-blue-500' : isTV ? 'text-purple-500' : 'text-emerald-500'}`}>
+                            {isMobile ? <DeviceMobile size={24} /> : isTV ? <Television size={24} /> : <Desktop size={24} />}
+                          </div>
+                          <div className="flex flex-col gap-1">
+                            <div className="text-[15px] font-semibold flex items-center gap-2">
+                              {device.name}
+                              {device.isCurrent && (
+                                <span className="text-[11px] px-2 py-0.5 bg-[#10b981]/10 text-[#10b981] rounded-md font-medium">This device</span>
+                              )}
+                            </div>
+                            <div className="text-[13px] text-[#a3a3a3]">
+                              {device.type} • {device.last_active} {device.profile && `• Profile: ${device.profile}`}
+                            </div>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => handleLogoutDevice(device.id)}
+                          className="p-2 text-[#a3a3a3] hover:text-[#ef4444] hover:bg-[#ef4444]/10 rounded-full transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                        >
+                          <SignOut size={20} />
+                        </button>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
