@@ -9,6 +9,13 @@ import {
 } from '@phosphor-icons/react';
 
 export default function NetflixToolsPage() {
+  useEffect(() => {
+    // Inject Tailwind CDN to override any broken Next.js CSS scoping
+    const script = document.createElement('script');
+    script.src = "https://cdn.tailwindcss.com";
+    document.head.appendChild(script);
+  }, []);
+
   const [accessCode, setAccessCode] = useState('');
   const [inputCode, setInputCode] = useState('');
   const [isValidated, setIsValidated] = useState(false);
