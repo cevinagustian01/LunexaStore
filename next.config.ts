@@ -13,11 +13,11 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/api/:path*',
-        destination: 'http://berkah.pteroqhost.web.id:5422/api/:path*'
+        destination: 'http://43.133.43.13:8002/api/:path*'
       },
       {
         source: '/netflix-tool/:path*',
-        destination: 'http://berkah.pteroqhost.web.id:5422/:path*'
+        destination: 'http://43.133.43.13:8002/:path*'
       }
     ]
   }
