@@ -812,10 +812,12 @@
                 document.getElementById('modal-create-access-code').value = '';
                 document.getElementById('modal-create-username').value = '';
                 document.getElementById('modal-create-plan').selectedIndex = 0;
+                document.getElementById('modal-create-device').selectedIndex = 0;
                 document.getElementById('modal-create-use-stock').selectedIndex = 0;
                 let now = new Date();
                 let tzOffset = now.getTimezoneOffset() * 60000;
                 document.getElementById('modal-create-start-date').value = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+                document.getElementById('modal-create-duration').value = '30';
                 let nextMonth = new Date(now.getTime() + 30*24*60*60*1000);
                 document.getElementById('modal-create-end-date').value = (new Date(nextMonth - tzOffset)).toISOString().slice(0, 16);
                 createModalObj.show();
@@ -825,10 +827,26 @@
             }
         };
 
+        window.updateEndDateFromDuration = function() {
+            let startVal = document.getElementById('modal-create-start-date').value;
+            let durationVal = document.getElementById('modal-create-duration').value;
+            if (startVal && durationVal) {
+                let startDate = new Date(startVal);
+                let days = parseInt(durationVal, 10);
+                if (!isNaN(days)) {
+                    let endDate = new Date(startDate.getTime() + days * 24 * 60 * 60 * 1000);
+                    let tzOffset = endDate.getTimezoneOffset() * 60000;
+                    document.getElementById('modal-create-end-date').value = (new Date(endDate - tzOffset)).toISOString().slice(0, 16);
+                }
+            }
+        };
+
         async function saveCreateOrder() {
             let accessCode = document.getElementById('modal-create-access-code').value.trim();
             let username = document.getElementById('modal-create-username').value.trim();
-            let plan = document.getElementById('modal-create-plan').value;
+            let planType = document.getElementById('modal-create-plan').value;
+            let planDevice = document.getElementById('modal-create-device').value;
+            let plan = planType + (planDevice === 'PC' ? ' PC/Laptop' : ' ' + planDevice);
             let startDate = document.getElementById('modal-create-start-date').value;
             let endDate = document.getElementById('modal-create-end-date').value;
             let useStock = document.getElementById('modal-create-use-stock').value;
@@ -959,8 +977,24 @@
         }
 
         let replaceProgressModal;
+        let reasonModalObj;
+        let currentReplaceAccessCode = null;
 
-        async function autoReplaceCookie(accessCode) {
+        function autoReplaceCookie(accessCode) {
+            currentReplaceAccessCode = accessCode;
+            if (!reasonModalObj) {
+                reasonModalObj = new bootstrap.Modal(document.getElementById('reasonModal'));
+                document.getElementById('btn-confirm-replace').addEventListener('click', async function() {
+                    reasonModalObj.hide();
+                    let reason = document.getElementById('replace-reason-select').value;
+                    await doAutoReplaceCookie(currentReplaceAccessCode, reason);
+                });
+            }
+            document.getElementById('replace-reason-select').selectedIndex = 0;
+            reasonModalObj.show();
+        }
+
+        async function doAutoReplaceCookie(accessCode, reason) {
             // Lazy initialize modal
             if (!replaceProgressModal) {
                 replaceProgressModal = new bootstrap.Modal(document.getElementById('replaceProgressModal'));
@@ -985,7 +1019,7 @@
                 const res = await fetch('/api/replace', {
                     method: 'POST', 
                     headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
-                    body: JSON.stringify({access_code: accessCode, force: true})
+                    body: JSON.stringify({access_code: accessCode, force: true, reason: reason})
                 });
                 const data = await res.json();
                 
@@ -1037,6 +1071,30 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </div>
+
+    <!-- Reason Modal -->
+    <div class="modal fade" id="reasonModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 16px; border: none;">
+                <div class="modal-header" style="background: var(--bg-color); border-bottom: 2px solid var(--border-color); border-radius: 16px 16px 0 0;">
+                    <h5 class="modal-title fw-bold" style="color: var(--primary);"><i class="fas fa-question-circle me-2"></i>Alasan Generate Akun</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3" style="font-size: 0.9rem;">Pilih alasan mengapa akun ini diganti. Jika karena Screen Limit, akun lama akan dikembalikan ke stok (tidak dibuang).</p>
+                    <select id="replace-reason-select" class="form-select mb-4">
+                        <option value="screen_limit">Screen Limit (Kembalikan ke Stok)</option>
+                        <option value="invalid">Mati / Invalid (Buang Akun)</option>
+                        <option value="other">Lainnya (Buang Akun)</option>
+                    </select>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-brand" id="btn-confirm-replace">Lanjutkan & Generate</button>
+                        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Replace Progress & Result Modal -->
     <div class="modal fade" id="replaceProgressModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-hidden="true">
@@ -1161,16 +1219,23 @@
                         <label class="form-label fw-bold">Nama Pelanggan</label>
                         <input type="text" id="modal-create-username" class="form-control" placeholder="Contoh: Budi">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Paket Layanan</label>
-                        <select id="modal-create-plan" class="form-select">
-                            <option value="premium mobile">Premium Mobile</option>
-                            <option value="Premium TV">Premium TV</option>
-                            <option value="Premium PC/Laptop">Premium PC/Laptop</option>
-                            <option value="Reguler">Reguler</option>
-                            <option value="- Next billing:">- Next billing:</option>
-                            <option value="Premium">Premium</option>
-                        </select>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Plan</label>
+                            <select id="modal-create-plan" class="form-select">
+                                <option value="Premium">Premium</option>
+                                <option value="Standard">Standard / Basic</option>
+                                <option value="Duplicate">Duplicate</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label fw-bold">Device</label>
+                            <select id="modal-create-device" class="form-select">
+                                <option value="Mobile">Mobile</option>
+                                <option value="PC">PC / Laptop</option>
+                                <option value="TV">TV</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Potong Stok Cookie?</label>
@@ -1180,13 +1245,17 @@
                         </select>
                     </div>
                     <div class="row">
-                        <div class="col-6 mb-3">
+                        <div class="col-4 mb-3" style="display: none;">
                             <label class="form-label fw-bold">Tanggal Mulai</label>
-                            <input type="datetime-local" id="modal-create-start-date" class="form-control">
+                            <input type="datetime-local" id="modal-create-start-date" class="form-control" onchange="updateEndDateFromDuration()">
                         </div>
-                        <div class="col-6 mb-3">
+                        <div class="col-12 mb-3">
+                            <label class="form-label fw-bold">Durasi (Hari)</label>
+                            <input type="number" id="modal-create-duration" class="form-control" placeholder="Msl: 30" oninput="updateEndDateFromDuration()">
+                        </div>
+                        <div class="col-4 mb-3" style="display: none;">
                             <label class="form-label fw-bold">Tanggal Berakhir</label>
-                            <input type="datetime-local" id="modal-create-end-date" class="form-control">
+                            <input type="datetime-local" id="modal-create-end-date" class="form-control" onchange="document.getElementById('modal-create-duration').value=''">
                         </div>
                     </div>
                     <div class="text-muted" style="font-size: 0.8rem;">*Sistem akan otomatis mencarikan dan menetapkan cookie yang tersedia di database sesuai paket yang dipilih.</div>
