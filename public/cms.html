@@ -473,7 +473,11 @@
                 <div class="modal-body p-4">
                     <input type="hidden" id="modal-access-code">
                     <div class="mb-3">
-                        <label class="form-label fw-bold text-muted">Status Cookie Saat Ini:</label>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="form-label fw-bold text-muted mb-0">Status Cookie Saat Ini:</label>
+                            <button type="button" class="btn btn-sm btn-outline-primary" id="btn-check-playwright" onclick="checkPlaywrightCookie()" style="display: none;"><i class="fas fa-search me-1"></i>Cek via Playwright</button>
+                        </div>
+                        <input type="hidden" id="modal-cookie-id">
                         <div id="modal-cookie-status" class="alert alert-secondary py-2 mb-2">Memuat...</div>
                         <textarea id="modal-cookie-text" class="form-control" rows="3" readonly style="font-size: 0.8rem;"></textarea>
                     </div>
@@ -742,11 +746,47 @@
                     let st = data.status === "live" ? "<b class='text-success'>Aktif (Live)</b>" : "<b class='text-danger'>Mati (Dead)</b>";
                     document.getElementById('modal-cookie-status').innerHTML = `Cookie ID: ${data.cookie_id.split('-')[0]}... | Status: ${st}`;
                     document.getElementById('modal-cookie-text').value = data.cookie_text;
+                    document.getElementById('modal-cookie-id').value = data.cookie_id;
+                    document.getElementById('btn-check-playwright').style.display = 'inline-block';
                 } else {
                     document.getElementById('modal-cookie-status').innerHTML = `<b class="text-danger">${data.error}</b>`;
+                    document.getElementById('btn-check-playwright').style.display = 'none';
                 }
             } catch(e) {
                 document.getElementById('modal-cookie-status').innerHTML = "Gagal memuat status cookie.";
+                document.getElementById('btn-check-playwright').style.display = 'none';
+            }
+        }
+
+        async function checkPlaywrightCookie() {
+            const cookieId = document.getElementById('modal-cookie-id').value;
+            if(!cookieId) return;
+            
+            const btn = document.getElementById('btn-check-playwright');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-spinner fa-spin me-1"></i>Checking...`;
+            document.getElementById('modal-cookie-status').innerHTML = `<i class="fas fa-spinner fa-spin me-2"></i>Membuka Playwright (Bisa butuh 5-15 dtk)...`;
+            
+            try {
+                const res = await fetch('/api/admin/check_playwright', {
+                    method: 'POST', headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
+                    body: JSON.stringify({cookie_id: cookieId})
+                });
+                const data = await res.json();
+                if(res.status === 200) {
+                    let st = data.live ? "<b class='text-success'>Aktif (Live)</b>" : "<b class='text-danger'>Mati (Dead)</b>";
+                    let info = `Plan: ${data.plan || '-'} | Extra: ${data.extra ? 'Ya' : 'Tidak'} | PIN: ${data.hasPin ? 'Ya' : 'Tidak'}`;
+                    document.getElementById('modal-cookie-status').innerHTML = `<b>Playwright:</b> ${st}<br><small>${info}</small>`;
+                    // Refresh data in background
+                    fetchStats();
+                } else {
+                    document.getElementById('modal-cookie-status').innerHTML = `<b class="text-danger">Error: ${data.error}</b>`;
+                }
+            } catch(e) {
+                document.getElementById('modal-cookie-status').innerHTML = `<b class="text-danger">Gagal menghubungi server Playwright.</b>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fas fa-search me-1"></i>Cek via Playwright`;
             }
         }
 
