@@ -491,6 +491,42 @@
                     </div>
                 </div>
 
+    <!-- MODAL KONFIRMASI KLAIM GARANSI -->
+    <div class="modal fade" id="confirmReplaceModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #ff4b82 0%, #ff758c 100%);">
+                    <h5 class="modal-title fw-bold" id="confirmModalLabel">
+                        <i class="fas fa-question-circle me-2"></i> Konfirmasi Klaim Garansi
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center" style="font-size: 0.9rem; color: #444;">
+                    <div class="mb-3">
+                        <span class="badge rounded-pill px-3 py-2 fs-6" id="confirm-reason-badge" style="background-color: #fff0f5; color: #ff4b82; border: 1px solid #ffe4e1;">
+                            <i class="fas fa-exclamation-triangle me-1"></i> Ter-logout / Incorrect Password
+                        </span>
+                    </div>
+
+                    <p class="mb-3" style="font-size: 0.92rem; font-weight: 500;">
+                        Apakah Anda yakin ingin mengganti akun untuk pesanan ini?
+                    </p>
+
+                    <div class="p-3 mb-2 rounded border text-start" style="background: #fdfdfd; font-size: 0.83rem; color: #555;">
+                        <i class="fas fa-shield-alt text-success me-1"></i> <b>Sistem Garansi Otomatis:</b><br>
+                        Server kami akan memvalidasi secara instan dan memberikan <b>akun pengganti baru yang BELUM PERNAH Anda dapatkan</b> sebelumnya.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold" data-bs-dismiss="modal" style="font-size: 0.85rem;">Batal</button>
+                    <button type="button" onclick="executeClaimWarranty()" class="btn text-white rounded-pill px-4 fw-bold" style="background: linear-gradient(135deg, #ff4b82 0%, #ff758c 100%); border: none; font-size: 0.85rem;">
+                        <i class="fas fa-sync-alt me-1"></i> Ya, Ganti Akun Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL INSTRUKSI SETELAH GANTI AKUN -->
     <div class="modal fade" id="replaceInstructionModal" tabindex="-1" aria-labelledby="replaceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -767,17 +803,37 @@
             claimWarranty(reasonVal);
         }
 
-        async function claimWarranty(reasonOverride = null) {
-            const selectedReason = reasonOverride || document.querySelector('input[name="replace_reason"]:checked')?.value || 'logout';
-            
-            const reasonLabels = {
-                'logout': 'Ter-logout / Incorrect Password / Suspend',
-                'screen_limit': 'Layar Penuh (Screen Limit)',
-                'location_vpn': 'Lokasi / Household / VPN Error'
-            };
-            const reasonText = reasonLabels[selectedReason] || 'Ganti Akun';
+        let pendingSelectedReason = 'logout';
+        let confirmModalInstance = null;
 
-            if(!confirm(`KLAIM GARANSI GANTI AKUN?\n\nAlasan: ${reasonText}\n\nSistem kami akan memberikan akun pengganti baru yang BELUM PERNAH Anda dapatkan sebelumnya.`)) return;
+        function claimWarranty(reasonOverride = null) {
+            pendingSelectedReason = reasonOverride || document.querySelector('input[name="replace_reason"]:checked')?.value || 'logout';
+            
+            const reasonBadges = {
+                'logout': '<i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend',
+                'screen_limit': '<i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)',
+                'location_vpn': '<i class="fas fa-globe me-1"></i> Lokasi / Household / VPN Error'
+            };
+            const reasonBadgeHtml = reasonBadges[pendingSelectedReason] || '<i class="fas fa-tools me-1"></i> Ganti Akun';
+            const badgeEl = document.getElementById('confirm-reason-badge');
+            if(badgeEl) badgeEl.innerHTML = reasonBadgeHtml;
+
+            try {
+                if(!confirmModalInstance) {
+                    confirmModalInstance = new bootstrap.Modal(document.getElementById('confirmReplaceModal'));
+                }
+                confirmModalInstance.show();
+            } catch(e) {
+                executeClaimWarranty();
+            }
+        }
+
+        async function executeClaimWarranty() {
+            if(confirmModalInstance) {
+                try { confirmModalInstance.hide(); } catch(e) {}
+            }
+            
+            const selectedReason = pendingSelectedReason;
 
             setLoading('btn-replace', 'replace-text', 'replace-spinner', true);
             hideAlert('replace-alert');
