@@ -245,14 +245,28 @@
                 order: 3;
             }
         }
+        
+        .custom-reason-card {
+            border: 1.5px solid #ffe4e1;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .custom-reason-card:hover {
+            border-color: #4facfe;
+            background: #f4f9ff;
+        }
+        .custom-reason-card.selected-reason {
+            border-color: #4facfe !important;
+            background: #edf7ff !important;
+            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.15);
+        }
     </style>
 </head>
 <body>
-    <div id="maintenance-overlay" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); z-index: 999999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px;">
-        <i class="fas fa-tools fa-4x mb-4" style="color: #ff4b82;"></i>
-        <h2 style="color: #ff4b82; font-weight: 800; margin-bottom: 15px;">Web Sedang Maintenance</h2>
-        <p style="color: #4a4a4a; font-size: 1.1rem; max-width: 500px; margin-bottom: 25px;">Halo kak! Web Pengambilan Akun ini sedang dalam proses maintenance rutin. Estimasi selesai pada jam 10:00 Pagi ini. Silakan kembali lagi nanti ya, terima kasih atas pengertiannya! 🙏</p>
-    </div>
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="glass-card">
@@ -306,14 +320,45 @@
                     <!-- KLAIM GARANSI -->
                     <hr style="border-color: #ffe4e1; margin: 25px 0;">
                     <h5 class="action-title"><i class="fas fa-sync-alt"></i> Klaim Garansi (Ganti Akun)</h5>
-                    <p class="tutorial-text mb-3" style="font-size: 0.85rem;">Gunakan fitur ini <b>HANYA JIKA</b> Netflix Anda ter-*logout* dan muncul peringatan <i>"Incorrect Password"</i> atau <i>"Suspend"</i>.</p>
+                    <p class="tutorial-text mb-2" style="font-size: 0.85rem;">Pilih kendala yang Anda alami untuk menerima <b>akun baru unik</b> yang belum pernah Anda dapatkan:</p>
                     
+                    <!-- KENDALA SELECTOR -->
+                    <div class="mb-3">
+                        <div class="custom-reason-card selected-reason" onclick="selectReason('logout', this)">
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_logout" value="logout" checked>
+                                <label class="form-check-label fw-bold" for="reason_logout" style="cursor:pointer; font-size: 0.85rem; color: #d9534f;">
+                                    <i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend
+                                </label>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Akun ter-logout dan tidak bisa masuk kembali.</div>
+                            </div>
+                        </div>
+                        <div class="custom-reason-card" onclick="selectReason('screen_limit', this)">
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_screen" value="screen_limit">
+                                <label class="form-check-label fw-bold" for="reason_screen" style="cursor:pointer; font-size: 0.85rem; color: #0275d8;">
+                                    <i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)
+                                </label>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Peringatan "Too Many Devices" / Layar penuh saat ingin menonton.</div>
+                            </div>
+                        </div>
+                        <div class="custom-reason-card" onclick="selectReason('location_vpn', this)">
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_location" value="location_vpn">
+                                <label class="form-check-label fw-bold" for="reason_location" style="cursor:pointer; font-size: 0.85rem; color: #f0ad4e;">
+                                    <i class="fas fa-globe me-1"></i> Peringatan Lokasi / Household / VPN Error
+                                </label>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Peringatan "Not Part of Household" atau kendala lokasi/VPN.</div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="background-color: #f8f9fa; border-left: 4px solid #4facfe; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 0.85rem; color: #555;">
                         <b style="color: #4facfe;">Tata Cara Ganti Akun:</b><br>
-                        1. Klik tombol <b>"Ganti Akun Sekarang"</b> di bawah ini.<br>
-                        2. Tunggu proses validasi dan penarikan akun baru (sekitar 5-10 detik).<br>
-                        3. Setelah sukses, <b>Link Aktivasi</b> di sebelah kanan akan <b>otomatis diperbarui</b> tanpa perlu *refresh* halaman.<br>
-                        4. Klik tombol <b>"Buka Netflix Sekarang"</b> untuk masuk menggunakan akun Anda yang baru.
+                        1. Pilih kendala di atas, lalu klik <b>"Ganti Akun Sekarang"</b>.<br>
+                        2. Tunggu proses validasi dan penarikan akun baru (sekitar 3-5 detik).<br>
+                        3. Sistem otomatis memberikan <b>akun baru yang belum pernah Anda dapatkan</b> sebelumnya.<br>
+                        4. <b>Link Aktivasi</b> di sebelah kanan akan otomatis diperbarui.
                     </div>
                     
                     <div id="replace-alert" class="alert" style="display: none;"></div>
@@ -378,9 +423,11 @@
                             </h2>
                             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body">
-                                    Peringatan <b>"Too Many Devices"</b> terjadi jika ada profil lain yang sedang menonton bersamaan di batas maksimal.
+                                    Peringatan <b>"Too Many Devices"</b> terjadi jika profil lain sedang menonton di batas maksimal.
                                     <br><br>
-                                    <b>Solusi:</b> Tunggu 10-15 menit dan coba kembali secara berkala. Ini wajar pada paket sharing. Dilarang logout!
+                                    <button onclick="claimWarrantyWithReason('screen_limit')" class="btn btn-sm btn-outline-primary rounded-pill w-100 fw-bold">
+                                        <i class="fas fa-sync-alt me-1"></i> Ganti Akun Kena Screen Limit
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -395,7 +442,9 @@
                                 <div class="accordion-body">
                                     Jika Anda tiba-tiba ter-logout dan muncul peringatan <b>"Incorrect Password"</b> atau <b>"Tidak dapat masuk"</b>.
                                     <br><br>
-                                    <b>Solusi:</b> Silakan gunakan fitur <b>Klaim Garansi (Ganti Akun)</b> di sebelah kiri. Sistem kami akan otomatis mencarikan akun pengganti (replace) untuk Anda secara instan selama masih dalam masa garansi.
+                                    <button onclick="claimWarrantyWithReason('logout')" class="btn btn-sm btn-outline-danger rounded-pill w-100 fw-bold">
+                                        <i class="fas fa-sync-alt me-1"></i> Ganti Akun Ter-logout / Mati
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -403,20 +452,113 @@
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingThree">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                                    <i class="fas fa-home me-2 text-warning"></i> Peringatan "Update Household"
+                                    <i class="fas fa-globe me-2 text-warning"></i> Peringatan Household / Lokasi / VPN Error
                                 </button>
                             </h2>
                             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
                                 <div class="accordion-body">
-                                    Jika muncul layar TV meminta Update Household (Rumah Tangga Netflix).
+                                    Jika muncul layar TV meminta Update Household (Rumah Tangga Netflix) atau kendala Lokasi/VPN.
                                     <br><br>
-                                    <b>Solusi:</b> Klik tombol <b>"I'm Traveling" (Saya Sedang Bepergian)</b> lalu hubungi Admin WhatsApp untuk meminta kode persetujuan akses.
+                                    <button onclick="claimWarrantyWithReason('location_vpn')" class="btn btn-sm btn-outline-warning rounded-pill w-100 fw-bold">
+                                        <i class="fas fa-sync-alt me-1"></i> Ganti Akun Kena Household / VPN
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingFour">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                    <i class="fas fa-broom me-2 text-info"></i> Panduan Logout & Hapus Data / Cache (Per Perangkat)
+                                </button>
+                            </h2>
+                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                                <div class="accordion-body" style="font-size: 0.83rem;">
+                                    <b>📱 HP / Tablet Android:</b><br>
+                                    Buka <i>Pengaturan HP</i> &rarr; <i>Aplikasi (Apps)</i> &rarr; <i>Netflix</i> &rarr; <i>Penyimpanan (Storage)</i> &rarr; Klik <b>Hapus Data & Hapus Cache</b>.
+                                    <br><br>
+                                    <b>🍎 iPhone / iPad (iOS):</b><br>
+                                    Buka <i>Pengaturan (Settings)</i> HP &rarr; Scroll cari <i>Netflix</i> &rarr; Aktifkan tombol <b>Reset</b>, lalu buka ulang aplikasi Netflix.
+                                    <br><br>
+                                    <b>📺 Smart TV / Android TV / STB:</b><br>
+                                    Buka menu <i>Pengaturan Aplikasi Netflix TV</i> &rarr; Pilih <b>Keluar (Sign Out)</b> atau <b>Reset</b>, atau buka <i>Pengaturan TV &rarr; Aplikasi &rarr; Netflix &rarr; Hapus Data & Cache</i>.
+                                    <br><br>
+                                    <b>💻 Laptop / PC Browser:</b><br>
+                                    Buka link <a href="https://www.netflix.com/clearcookies" target="_blank" class="fw-bold text-decoration-underline text-warning">netflix.com/clearcookies</a> atau tekan <b>Ctrl + Shift + Delete</b> untuk hapus cache browser.
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+    <!-- MODAL INSTRUKSI SETELAH GANTI AKUN -->
+    <div class="modal fade" id="replaceInstructionModal" tabindex="-1" aria-labelledby="replaceModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <h5 class="modal-title fw-bold" id="replaceModalLabel">
+                        <i class="fas fa-check-circle me-2"></i> Akun Baru Berhasil Diberikan!
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4" style="font-size: 0.9rem; color: #444; max-height: 80vh; overflow-y: auto;">
+                    <div class="alert alert-success p-2 mb-3 text-center" style="font-weight: 600; font-size: 0.85rem;">
+                        <i class="fas fa-sparkles me-1"></i> Akun pengganti unik baru telah dihubungkan ke Kode Akses Anda.
+                    </div>
+
+                    <h6 class="fw-bold mb-2 text-primary" style="font-size: 0.95rem;">
+                        <i class="fas fa-list-ol me-1"></i> Panduan Akses & Logout / Hapus Cache Perangkat:
+                    </h6>
+
+                    <!-- SMART TV -->
+                    <div class="p-3 mb-2 rounded border" style="background: #fdfdfd;">
+                        <div class="fw-bold text-dark mb-1"><i class="fas fa-tv text-primary me-1"></i> 1. Smart TV / Android TV / STB:</div>
+                        <ul class="mb-1 ps-3 text-muted" style="font-size: 0.82rem;">
+                            <li>Pastikan aplikasi TV Anda sudah menampilkan 8 digit kode angka baru.</li>
+                            <li><b>Cara Logout / Reset TV:</b> Buka menu <i>Pengaturan Aplikasi Netflix TV</i> &rarr; Pilih <b>Keluar (Sign Out)</b> atau <b>Reset</b>. Atau buka <i>Pengaturan TV &rarr; Aplikasi &rarr; Netflix &rarr; Hapus Data & Cache</i>.</li>
+                            <li>Klik <b>"Buka Netflix Sekarang"</b> di bawah untuk memasukkan 8 digit kode TV baru.</li>
+                        </ul>
+                    </div>
+
+                    <!-- HP ANDROID -->
+                    <div class="p-3 mb-2 rounded border" style="background: #fdfdfd;">
+                        <div class="fw-bold text-dark mb-1"><i class="fab fa-android text-success me-1"></i> 2. HP / Tablet Android:</div>
+                        <ul class="mb-1 ps-3 text-muted" style="font-size: 0.82rem;">
+                            <li><b>Cara Hapus Data & Cache:</b> Buka <i>Pengaturan HP &rarr; Aplikasi (Apps) &rarr; Netflix &rarr; Penyimpanan (Storage)</i> &rarr; Klik <b>Hapus Data (Clear Data) & Hapus Cache</b>.</li>
+                            <li>Atau klik opsi <b>Logout / Keluar</b> di profil aplikasi Netflix Anda.</li>
+                            <li>Klik <b>"Buka Netflix Sekarang"</b> di bawah untuk otomatis masuk akun baru.</li>
+                        </ul>
+                    </div>
+
+                    <!-- IPHONE / IPAD -->
+                    <div class="p-3 mb-2 rounded border" style="background: #fdfdfd;">
+                        <div class="fw-bold text-dark mb-1"><i class="fab fa-apple text-dark me-1"></i> 3. iPhone / iPad (iOS):</div>
+                        <ul class="mb-1 ps-3 text-muted" style="font-size: 0.82rem;">
+                            <li><b>Cara Reset Aplikasi:</b> Buka <i>Pengaturan iPhone (Settings) &rarr; Scroll cari Netflix &rarr; Aktifkan tombol Reset</i>, lalu buka kembali aplikasi Netflix.</li>
+                            <li>Atau Logout dari aplikasi Netflix di iPhone Anda.</li>
+                            <li>Klik <b>"Buka Netflix Sekarang"</b> di bawah.</li>
+                        </ul>
+                    </div>
+
+                    <!-- LAPTOP / PC BROWSER -->
+                    <div class="p-3 mb-2 rounded border" style="background: #fdfdfd;">
+                        <div class="fw-bold text-dark mb-1"><i class="fas fa-laptop text-info me-1"></i> 4. Laptop / PC Browser:</div>
+                        <ul class="mb-1 ps-3 text-muted" style="font-size: 0.82rem;">
+                            <li>Buka link <a href="https://www.netflix.com/clearcookies" target="_blank" class="fw-bold text-decoration-underline text-warning">Bersihkan Cookies Netflix</a> ini untuk menghapus sesi lama.</li>
+                            <li>Klik <b>"Buka Netflix Sekarang"</b> di bawah ini.</li>
+                        </ul>
+                    </div>
+
+                    <div class="p-2 rounded border-start border-4 border-info bg-light mt-3" style="font-size: 0.8rem; color: #555;">
+                        <i class="fas fa-sync-alt me-1 text-info"></i> <b>Tips:</b> Jika tampilan web ini belum berubah, silakan <b>Refresh / Muat Ulang Halaman</b> web ini lalu masukkan Kode Akses Anda kembali.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold" data-bs-dismiss="modal" style="font-size: 0.85rem;">Tutup</button>
+                    <a id="modal-btn-open-netflix" href="#" target="_blank" onclick="sendLog('open')" class="btn btn-primary rounded-pill px-4 fw-bold" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); border: none; font-size: 0.85rem;">
+                        <i class="fas fa-play-circle me-1"></i> Buka Netflix Sekarang
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -607,8 +749,35 @@
             }
         }
 
-        async function claimWarranty() {
-            if(!confirm("YAKIN INGIN GANTI AKUN?\n\nPastikan Netflix Anda BENAR-BENAR error (Incorrect Password / Suspend).\n\nSistem kami akan memvalidasi secara LIVE. Jika akun Anda ternyata masih BISA LOGIN, maka permintaan ganti akun akan otomatis DITOLAK oleh server!")) return;
+        function selectReason(reasonVal, cardEl) {
+            document.querySelectorAll('.custom-reason-card').forEach(el => el.classList.remove('selected-reason'));
+            if(cardEl) {
+                cardEl.classList.add('selected-reason');
+            }
+            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : 'reason_logout');
+            const radioEl = document.getElementById(radioId);
+            if(radioEl) radioEl.checked = true;
+        }
+
+        function claimWarrantyWithReason(reasonVal) {
+            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : 'reason_logout');
+            const radioEl = document.getElementById(radioId);
+            const cardEl = radioEl ? radioEl.closest('.custom-reason-card') : null;
+            selectReason(reasonVal, cardEl);
+            claimWarranty(reasonVal);
+        }
+
+        async function claimWarranty(reasonOverride = null) {
+            const selectedReason = reasonOverride || document.querySelector('input[name="replace_reason"]:checked')?.value || 'logout';
+            
+            const reasonLabels = {
+                'logout': 'Ter-logout / Incorrect Password / Suspend',
+                'screen_limit': 'Layar Penuh (Screen Limit)',
+                'location_vpn': 'Lokasi / Household / VPN Error'
+            };
+            const reasonText = reasonLabels[selectedReason] || 'Ganti Akun';
+
+            if(!confirm(`KLAIM GARANSI GANTI AKUN?\n\nAlasan: ${reasonText}\n\nSistem kami akan memberikan akun pengganti baru yang BELUM PERNAH Anda dapatkan sebelumnya.`)) return;
 
             setLoading('btn-replace', 'replace-text', 'replace-spinner', true);
             hideAlert('replace-alert');
@@ -624,24 +793,24 @@
             let progress = 0;
             const progressInterval = setInterval(() => {
                 if (progress < 90) {
-                    progress += Math.floor(Math.random() * 4) + 1;
+                    progress += Math.floor(Math.random() * 8) + 5;
                     if (progress > 90) progress = 90;
                     
                     progressBar.style.width = progress + '%';
                     progressPercent.innerText = progress + '%';
                     
-                    if (progress < 30) progressText.innerText = "Memverifikasi sisa garansi...";
-                    else if (progress < 60) progressText.innerText = "Menyortir stok akun terbaik...";
-                    else if (progress < 85) progressText.innerText = "Memvalidasi akun ke Netflix...";
+                    if (progress < 30) progressText.innerText = "Memverifikasi riwayat garansi...";
+                    else if (progress < 60) progressText.innerText = "Mencari stok akun unik belum pernah didapat...";
+                    else if (progress < 85) progressText.innerText = "Menyiapkan akun pengganti baru...";
                     else progressText.innerText = "Sedikit lagi, sedang finalisasi...";
                 }
-            }, 800);
+            }, 300);
 
             try {
                 const response = await fetch('/api/replace', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ access_code: currentAccessCode })
+                    body: JSON.stringify({ access_code: currentAccessCode, reason: selectedReason })
                 });
                 
                 const data = await response.json();
@@ -651,7 +820,7 @@
                 progressPercent.innerText = '100%';
                 progressText.innerText = "Selesai!";
                 
-                setTimeout(() => { progressContainer.style.display = 'none'; }, 2000);
+                setTimeout(() => { progressContainer.style.display = 'none'; }, 1500);
                 
                 if(data.ok) {
                     showAlert('replace-alert', '✅ <b>BERHASIL:</b> ' + data.message + ' Silakan gunakan Link Aktivasi (Login) yang baru di sebelah kanan.', 'success');
@@ -662,12 +831,26 @@
                         let path = "unsupported"; 
                         if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
                         if (planName.includes("tv")) path = "tv2";
-                        document.getElementById('btn-open-netflix').href = "https://www.netflix.com/" + path + "?nftoken=" + data.nftoken;
+                        let targetLink = "https://www.netflix.com/" + path + "?nftoken=" + data.nftoken;
+                        document.getElementById('btn-open-netflix').href = targetLink;
+                        if(document.getElementById('modal-btn-open-netflix')) {
+                            document.getElementById('modal-btn-open-netflix').href = targetLink;
+                        }
                         
                         document.getElementById('activation-area').style.display = 'block';
                         if(document.getElementById('activation-dead')) document.getElementById('activation-dead').style.display = 'none';
-                        document.getElementById('d_status').innerText = 'Aktif (Garansi)';
+                        document.getElementById('d_status').innerText = 'Aktif (Garansi Baru)';
                         document.getElementById('d_status').className = 'badge-status badge-active';
+                        
+                        // Tampilkan Popup Panduan Langkah Akses
+                        setTimeout(() => {
+                            try {
+                                let instModal = new bootstrap.Modal(document.getElementById('replaceInstructionModal'));
+                                instModal.show();
+                            } catch(e) {
+                                console.log("Modal error:", e);
+                            }
+                        }, 500);
                     }
                 } else {
                     showAlert('replace-alert', '❌ <b>GAGAL:</b> ' + (data.error || 'Gagal klaim garansi.'), 'danger');
