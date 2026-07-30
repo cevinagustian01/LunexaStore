@@ -351,6 +351,11 @@
                 <button class="btn btn-brand w-100 py-2" onclick="confirmTakeCookie()">
                     <i class="fas fa-check-circle me-1"></i> Confirm & Take
                 </button>
+                
+                <!-- Fake Progress Bar -->
+                <div class="progress mt-3" id="takeProgressContainer" style="display: none; height: 10px; border-radius: 5px;">
+                    <div class="progress-bar progress-bar-striped progress-bar-animated" id="takeProgressBar" role="progressbar" style="width: 0%; background-color: var(--brand-color);"></div>
+                </div>
             </div>
 
             <!-- Step 2: Result -->
@@ -567,6 +572,20 @@
         const oldHtml = btn.innerHTML;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
         btn.disabled = true;
+        
+        const progContainer = document.getElementById('takeProgressContainer');
+        const progBar = document.getElementById('takeProgressBar');
+        progContainer.style.display = 'flex';
+        progBar.style.width = '0%';
+        
+        let progress = 0;
+        let progressInterval = setInterval(() => {
+            if(progress < 90) {
+                progress += Math.random() * 15;
+                if(progress > 90) progress = 90;
+                progBar.style.width = progress + '%';
+            }
+        }, 300);
 
         try {
             const res = await fetch('/api/cms/cookies/take', {
@@ -589,15 +608,26 @@
                 
                 document.getElementById('takeSuccessText').innerText = data.message || "Cookie berhasil diambil!";
                 document.getElementById('resultTextarea').value = msg;
-                document.getElementById('takeStep1').style.display = 'none';
-                document.getElementById('takeStep2').style.display = 'block';
+                
+                clearInterval(progressInterval);
+                progBar.style.width = '100%';
+                
+                setTimeout(() => {
+                    document.getElementById('takeStep1').style.display = 'none';
+                    document.getElementById('takeStep2').style.display = 'block';
+                    progContainer.style.display = 'none';
+                }, 400);
             } else {
                 alert("Error: " + data.error);
                 takeModal.hide();
+                progContainer.style.display = 'none';
+                clearInterval(progressInterval);
             }
         } catch(e) { 
             alert("Error: " + e.message);
             takeModal.hide();
+            progContainer.style.display = 'none';
+            clearInterval(progressInterval);
         } finally {
             btn.innerHTML = oldHtml;
             btn.disabled = false;
