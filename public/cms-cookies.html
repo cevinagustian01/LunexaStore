@@ -329,6 +329,50 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Take Cookie Modal -->
+    <div class="modal fade" id="takeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.5); background-color: var(--bg-dark);">
+          <div class="modal-header" style="border-bottom: 1px solid rgba(255, 75, 130, 0.2);">
+            <h5 class="modal-title" style="color: var(--text-light); font-weight: 700;">Take Cookie</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            
+            <!-- Step 1: Confirmation & Device Select -->
+            <div id="takeStep1">
+                <p style="color: var(--text-muted);">Cookie akan dihapus permanen dari pool server. Silakan pilih device target untuk customer:</p>
+                <select id="deviceSelect" class="form-select mb-4" style="background-color: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,75,130,0.3);">
+                    <option value="Mobile">Mobile (HP)</option>
+                    <option value="PC">PC / Laptop</option>
+                    <option value="TV">Smart TV</option>
+                </select>
+                <input type="hidden" id="takeCookieId">
+                <button class="btn btn-brand w-100 py-2" onclick="confirmTakeCookie()">
+                    <i class="fas fa-check-circle me-1"></i> Confirm & Take
+                </button>
+            </div>
+
+            <!-- Step 2: Result -->
+            <div id="takeStep2" style="display: none;">
+                <div class="alert alert-success" style="background-color: rgba(40,167,69,0.1); color: #28a745; border: 1px solid rgba(40,167,69,0.3); border-radius: 10px;">
+                    <i class="fas fa-check-circle me-1"></i> Cookie berhasil diambil!
+                </div>
+                
+                <label class="form-label text-muted" style="font-size: 0.9rem;">Format Pesan Customer:</label>
+                <textarea id="resultTextarea" class="form-control mb-3" rows="8" readonly style="background-color: rgba(0,0,0,0.2); color: white; border: 1px solid rgba(255,75,130,0.2); font-size: 0.85rem; font-family: monospace;"></textarea>
+                
+                <button class="btn btn-brand w-100 py-2 mb-2" onclick="copyResultText()">
+                    <i class="fas fa-copy me-1"></i> Copy Format Pesan
+                </button>
+                <button class="btn btn-outline-light w-100 py-2" data-bs-dismiss="modal">Tutup</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
 <script>
     let currentData = [];
     let currentStatusFilter = 'live'; // Default show active only as requested
@@ -503,9 +547,25 @@
         });
     }
 
-    async function takeCookie(id) {
-        if(!confirm(`Apakah Anda yakin ingin mengambil Cookie ID ${id}? Cookie akan dihapus permanen dari rotasi server dan disalin.`)) return;
+    let takeModal;
+
+    function takeCookie(id) {
+        if(!takeModal) takeModal = new bootstrap.Modal(document.getElementById('takeModal'));
+        document.getElementById('takeCookieId').value = id;
+        document.getElementById('takeStep1').style.display = 'block';
+        document.getElementById('takeStep2').style.display = 'none';
+        takeModal.show();
+    }
+
+    async function confirmTakeCookie() {
+        const id = document.getElementById('takeCookieId').value;
+        const device = document.getElementById('deviceSelect').value;
         
+        const btn = document.querySelector('#takeStep1 .btn-brand');
+        const oldHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+
         try {
             const res = await fetch('/api/cms/cookies/take', {
                 method: 'POST', 
@@ -515,22 +575,40 @@
             const data = await res.json();
             
             if(data.ok) {
-                // Remove from currentData
                 currentData = currentData.filter(x => x.id !== id);
                 renderTable();
                 
-                // Copy to clipboard
-                navigator.clipboard.writeText(data.cookie).then(() => {
-                    alert("✅ Berhasil! Cookie telah disalin ke Clipboard dan dihapus dari database.");
-                }).catch(e => {
-                    prompt("✅ Berhasil diambil dari database! Salin teks cookie di bawah ini secara manual:", data.cookie);
-                });
+                let msg = `✅ *LOGIN VIA LINK*\n\n`;
+                msg += `Device: ${device}\n\n`;
+                if(data.login_link) {
+                    msg += `Link Login (Copy & Paste di Browser):\n${data.login_link}\n\n`;
+                    msg += `Jika error layar hitam:\n1. Buka: netflix.com/clearcookies\n2. Buka ulang link login di atas.\n\n`;
+                }
+                msg += `Cookie Raw (Cadangan):\n${data.cookie}`;
+                
+                document.getElementById('resultTextarea').value = msg;
+                document.getElementById('takeStep1').style.display = 'none';
+                document.getElementById('takeStep2').style.display = 'block';
             } else {
                 alert("Error: " + data.error);
+                takeModal.hide();
             }
         } catch(e) { 
-            alert("Error server connection."); 
+            alert("Error: " + e.message);
+            takeModal.hide();
+        } finally {
+            btn.innerHTML = oldHtml;
+            btn.disabled = false;
         }
+    }
+
+    function copyResultText() {
+        const txt = document.getElementById('resultTextarea').value;
+        navigator.clipboard.writeText(txt).then(() => {
+            alert("✅ Format disalin ke clipboard!");
+        }).catch(() => {
+            alert("Gagal menyalin. Silakan copy manual dari text box.");
+        });
     }
 
     async function scanBatch() {
