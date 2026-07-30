@@ -236,6 +236,9 @@
                 <p class="text-muted mb-0">Kelola dan pantau stok akun Netflix di server.</p>
             </div>
             <div>
+                <button class="btn btn-outline-danger me-2" onclick="deleteDeadCookies()">
+                    <i class="fas fa-trash-alt me-1"></i> Hapus Cookies Mati
+                </button>
                 <button class="btn btn-brand" onclick="scanBatch()">
                     <i class="fas fa-sync-alt me-1"></i> Scan Batch Cookies
                 </button>
@@ -560,6 +563,27 @@
                 alert(`✅ Scan batch dimulai di background server untuk ${idsToScan.length} cookie! Silakan cek kembali beberapa menit lagi.`);
             } else {
                 alert("Error: " + (data.error || "Gagal mengirim request scan."));
+            }
+        } catch(e) {
+            alert("Error server connection.");
+        }
+    }
+
+    async function deleteDeadCookies() {
+        if(!confirm(`PERINGATAN!\n\nApakah Anda yakin ingin menghapus SEMUA cookies yang statusnya "Mati (Dead)" dari database secara permanen?`)) return;
+        
+        try {
+            const res = await fetch('/api/cms/cookies/delete_dead', {
+                method: 'POST', 
+                headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
+                body: JSON.stringify({})
+            });
+            const data = await res.json();
+            if(data.ok) {
+                alert(`✅ Berhasil menghapus ${data.removed || 0} cookie mati dari database!`);
+                fetchData(); // reload data
+            } else {
+                alert("Error: " + (data.error || "Gagal menghapus cookies mati."));
             }
         } catch(e) {
             alert("Error server connection.");
