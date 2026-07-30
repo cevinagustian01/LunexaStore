@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Cookies | LUNEXA CMS</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#ff4b82">
+    <link rel="apple-touch-icon" href="/logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #ff4b82;
+            --primary-grad: linear-gradient(135deg, #ff7eb3, #ff758c);
+            --bg-color: #fff0f5;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --text-main: #4a4a4a;
+            --text-muted: #888888;
+            --border-color: #ffe4e1;
+        }
+        body {
+            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
+            color: var(--text-main);
+            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
+            min-height: 100vh;
+            position: relative;
+            padding-bottom: 50px;
+        }
+        /* Floating background decoration */
+        body::before, body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: var(--primary);
+            filter: blur(100px);
+            opacity: 0.15;
+            border-radius: 50%;
+            z-index: -1;
+            position: fixed;
+        }
+        body::before { top: -100px; left: -100px; }
+        body::after { bottom: -100px; right: -100px; background: #ffb6c1; }
+
+        /* Navbar */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.05);
+        }
+        .brand-header { 
+            font-weight: 900; 
+            letter-spacing: 1.5px;
+            background: var(--primary-grad);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        /* Cards */
+        .custom-card { 
+            background: var(--card-bg); 
+            border: 2px solid var(--border-color); 
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .card-title-custom {
+            color: var(--primary);
+            font-weight: 800;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Buttons */
+        .btn-brand { 
+            background: var(--primary-grad); 
+            color: white; 
+            font-weight: 700; 
+            border: none; 
+            border-radius: 12px; 
+            box-shadow: 0 5px 15px rgba(255, 75, 130, 0.3); 
+            transition: all 0.3s; 
+            padding: 10px 20px;
+        }
+        .btn-brand:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 8px 20px rgba(255, 75, 130, 0.4); 
+            color: white; 
+        }
+
+        .btn-outline-brand {
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            background: white;
+            font-weight: 700;
+            border-radius: 12px;
+            padding: 10px 20px;
+            transition: 0.2s;
+        }
+        .btn-outline-brand:hover {
+            background: #fff0f5;
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            padding: 10px 15px;
+            background: #fffafb;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.25rem rgba(255, 75, 130, 0.25);
+            background: #fff;
+        }
+        
+        /* Stats Pills */
+        .stat-pills {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .stat-pill {
+            padding: 8px 20px;
+            border-radius: 20px;
+            border: 2px solid var(--border-color);
+            background: white;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .stat-pill:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+        .stat-pill.active-pill { 
+            background: var(--primary-grad); 
+            color: white; 
+            border-color: transparent;
+            box-shadow: 0 5px 15px rgba(255, 75, 130, 0.3);
+        }
+
+        /* Table */
+        .table-responsive {
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid var(--border-color);
+        }
+        .table { margin-bottom: 0; background: white; }
+        .table > thead { background-color: #fff0f5; }
+        .table > thead th {
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 0.85rem;
+            border-bottom: 2px solid var(--border-color);
+            padding: 15px;
+            white-space: nowrap;
+        }
+        .table > tbody td {
+            font-size: 0.9rem;
+            color: var(--text-main);
+            vertical-align: middle;
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .badge-status {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .badge-active { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .badge-expired { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .badge-quality { background: #fff0f5; color: var(--primary); border: 1px solid #ffb6c1; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem;}
+
+    </style>
+</head>
+<body>
+
+<!-- Login UI -->
+<div id="login" class="d-flex align-items-center justify-content-center" style="min-height: 100vh; display: none !important;">
+    <div class="custom-card p-4" style="width: 100%; max-width: 400px; margin: 0 auto; text-align: center;">
+        <h3 class="fw-bold mb-3" style="color: var(--primary);"><i class="fas fa-lock me-2"></i>CMS Login</h3>
+        <p class="text-muted mb-4">Enter your admin key to continue</p>
+        <div class="mb-3 text-start">
+            <label class="form-label fw-bold" style="color: var(--text-dark);">Admin Key</label>
+            <input type="password" id="login-key" class="form-control" style="background: #fafafa; border: 1px solid var(--border-color); color: #333;" placeholder="Enter key...">
+        </div>
+        <button class="btn btn-brand w-100" onclick="doLogin()">Login</button>
+        <div id="login-msg" class="text-danger mt-3" style="font-size: 0.85rem; min-height: 20px;"></div>
+    </div>
+</div>
+
+<div id="app" style="display: none;">
+    <!-- Top Navbar -->
+    <div class="navbar-custom">
+        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3>
+        <div class="fw-bold text-muted" style="font-size: 0.9rem;">
+            <i class="fas fa-user-circle me-2"></i> Administrator
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1400px;">
+        
+        <!-- Navigation Tabs -->
+        <div class="d-flex mb-4 gap-2 border-bottom pb-3">
+            <a href="cms.html" class="btn btn-outline-brand" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-shopping-cart me-2"></i>Data Transaksi</a>
+            <a href="cms-cookies.html" class="btn btn-brand" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-cookie-bite me-2"></i>Data Cookies</a>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
+            <div>
+                <h2 class="fw-bold" style="color: var(--primary);">Database Cookies</h2>
+                <p class="text-muted mb-0">Kelola dan pantau stok akun Netflix di server.</p>
+            </div>
+            <div>
+                <button class="btn btn-brand" onclick="scanBatch()">
+                    <i class="fas fa-sync-alt me-1"></i> Scan Batch Cookies
+                </button>
+            </div>
+        </div>
+
+        <!-- Filter Area -->
+        <div class="custom-card mb-4">
+            <div class="card-title-custom">
+                <i class="fas fa-filter"></i> Filter & Pencarian Cookies
+            </div>
+            
+            <div class="row g-3 align-items-center mb-3">
+                <div class="col-md-3">
+                    <select class="form-select" id="searchField">
+                        <option value="email">Email Netflix</option>
+                        <option value="id">Cookie ID</option>
+                        <option value="country">Kode Negara (e.g. US, ID)</option>
+                    </select>
+                </div>
+                <div class="col-md-7">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white" style="border-radius: 10px 0 0 10px; border-color: var(--border-color);"><i class="fas fa-search text-muted"></i></span>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Ketik pencarian..." style="border-radius: 0 10px 10px 0; border-left: none;">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn-brand w-100" onclick="fetchData()"><i class="fas fa-search me-2"></i>Cari</button>
+                </div>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <select class="form-select" id="filterPlan" onchange="renderTable()">
+                        <option value="">Semua Paket (Plan)</option>
+                        <option value="Premium">Premium</option>
+                        <option value="Standard">Standard</option>
+                        <option value="Basic">Basic</option>
+                        <option value="Duplicate">Duplicate</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" id="filterDuration" onchange="renderTable()">
+                        <option value="">Semua Durasi Kapanpun</option>
+                        <option value="7">Dibuat &lt; 7 Hari Lalu</option>
+                        <option value="30">Dibuat &lt; 30 Hari Lalu</option>
+                        <option value="old">Dibuat &gt; 30 Hari Lalu</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats & Table Area -->
+        <div class="custom-card">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div class="stat-pills">
+                    <div class="stat-pill" id="pill-all" onclick="setStatusFilter('')">Semua <span class="badge bg-white text-dark ms-2" id="countAll">0</span></div>
+                    <div class="stat-pill active-pill" id="pill-active" onclick="setStatusFilter('live')">Aktif (Live) <span class="badge bg-light text-success ms-2" id="countActive">0</span></div>
+                    <div class="stat-pill" id="pill-expired" onclick="setStatusFilter('dead')">Mati (Dead) <span class="badge bg-light text-danger ms-2" id="countExpired">0</span></div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th style="width: 40px;" class="text-center">#</th>
+                            <th>Detail Akun</th>
+                            <th>Plan & Kualitas</th>
+                            <th>ID & Negara</th>
+                            <th>Terakhir Dicek</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted fw-bold">Memuat data cookies dari server...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentData = [];
+    let currentStatusFilter = 'live'; // Default show active only as requested
+
+    function setStatusFilter(status) {
+        currentStatusFilter = status;
+        document.getElementById('pill-all').classList.remove('active-pill');
+        document.getElementById('pill-active').classList.remove('active-pill');
+        document.getElementById('pill-expired').classList.remove('active-pill');
+        
+        if(status === '') document.getElementById('pill-all').classList.add('active-pill');
+        if(status === 'live') document.getElementById('pill-active').classList.add('active-pill');
+        if(status === 'dead') document.getElementById('pill-expired').classList.add('active-pill');
+        
+        renderTable();
+    }
+
+    let CMS_KEY = localStorage.getItem('adm_key') || '';
+
+    function showLogin(msg) {
+        document.getElementById('app').style.display = 'none';
+        document.getElementById('login').style.display = 'flex';
+        document.getElementById('login').style.setProperty('display', 'flex', 'important');
+        if(msg) document.getElementById('login-msg').innerHTML = msg;
+    }
+
+    async function checkLogin() {
+        if(!CMS_KEY) return showLogin('');
+        try {
+            const response = await fetch('/api/cms/cookies/list', { 
+                method: 'POST',
+                headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            if(response.status === 401 || response.status === 403) return showLogin('Invalid Admin Key');
+            const data = await response.json();
+            if(data.ok) {
+                document.getElementById('login').style.setProperty('display', 'none', 'important');
+                document.getElementById('app').style.display = 'block';
+                currentData = data.items;
+                renderTable();
+            } else {
+                showLogin('Error: ' + (data.error||''));
+            }
+        } catch(e) {
+            showLogin('Connection error');
+        }
+    }
+
+    async function doLogin() {
+        const k = document.getElementById('login-key').value.trim();
+        if(!k) return;
+        document.getElementById('login-msg').textContent = 'Checking...';
+        CMS_KEY = k;
+        checkLogin();
+    }
+
+    async function fetchData() {
+        try {
+            const response = await fetch('/api/cms/cookies/list', { 
+                method: 'POST', 
+                headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json' },
+                body: JSON.stringify({})
+            });
+            const data = await response.json();
+            
+            if(data.ok) {
+                currentData = data.items;
+                renderTable();
+            } else {
+                alert("Gagal memuat data dari database.");
+            }
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
+    function calculateDaysSince(dateStr) {
+        if(!dateStr) return 999;
+        const target = new Date(dateStr);
+        const now = new Date();
+        const diff = now - target;
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById("tableBody");
+        tbody.innerHTML = "";
+
+        const searchField = document.getElementById("searchField").value;
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        const filterPlan = document.getElementById("filterPlan").value.toLowerCase();
+        const filterDuration = document.getElementById("filterDuration").value;
+        
+        let filtered = currentData;
+
+        // Status filter
+        if(currentStatusFilter) {
+            filtered = filtered.filter(item => item.status === currentStatusFilter);
+        }
+
+        // Search filter
+        if(searchInput) {
+            filtered = filtered.filter(item => {
+                const val = (item[searchField] || "").toLowerCase();
+                return val.includes(searchInput);
+            });
+        }
+
+        // Plan filter
+        if(filterPlan) {
+            filtered = filtered.filter(item => {
+                const val = (item.plan || "").toLowerCase();
+                return val.includes(filterPlan);
+            });
+        }
+
+        // Duration filter
+        if(filterDuration) {
+            filtered = filtered.filter(item => {
+                const days = calculateDaysSince(item.added_at);
+                if(filterDuration === '7') return days <= 7;
+                if(filterDuration === '30') return days <= 30;
+                if(filterDuration === 'old') return days > 30;
+                return true;
+            });
+        }
+
+        // Update stats
+        document.getElementById("countAll").innerText = currentData.length;
+        document.getElementById("countActive").innerText = currentData.filter(i => i.status === 'live').length;
+        document.getElementById("countExpired").innerText = currentData.filter(i => i.status === 'dead').length;
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center py-5 text-muted fw-bold">Tidak ada data cookie yang ditemukan.</td></tr>`;
+            return;
+        }
+
+        // Sort by last checked desc
+        filtered.sort((a,b) => new Date(b.last_checked) - new Date(a.last_checked));
+
+        filtered.forEach((item, index) => {
+            const badgeClass = item.status === 'live' ? 'badge-active' : 'badge-expired';
+            const badgeText = item.status === 'live' ? 'Aktif' : 'Mati';
+            const flag = (item.country === 'UNKNOWN' || !item.country) ? '🏳️' : `https://flagcdn.com/20x15/${item.country.toLowerCase()}.png`;
+            const flagHtml = (item.country === 'UNKNOWN' || !item.country) ? '🏳️' : `<img src="${flag}" style="border-radius:2px; box-shadow:0 0 2px rgba(0,0,0,0.2);">`;
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td class="text-center text-muted">${index + 1}</td>
+                <td>
+                    <div class="fw-bold" style="color: var(--primary);"><i class="fas fa-envelope text-muted me-1"></i> ${item.email || '-'}</div>
+                    <div class="text-muted" style="font-size:0.75rem;"><i class="fas fa-plus-circle me-1"></i> Dibuat: ${item.added_at || '-'}</div>
+                </td>
+                <td>
+                    <div class="fw-bold text-dark" style="font-size:0.9rem;">${item.plan || '-'}</div>
+                    <div><span class="badge-quality"><i class="fas fa-tv me-1"></i> ${item.quality || 'HD'}</span></div>
+                </td>
+                <td>
+                    <div class="fw-bold text-dark" style="font-size:0.85rem;">${item.id}</div>
+                    <div class="text-muted mt-1" style="font-size:0.8rem;">${flagHtml} ${item.country || 'UNKNOWN'}</div>
+                </td>
+                <td class="text-muted" style="font-size:0.85rem;"><i class="fas fa-clock me-1"></i> ${item.last_checked || '-'}</td>
+                <td class="text-center"><span class="badge-status ${badgeClass}"><i class="fas ${item.status === 'live' ? 'fa-check-circle' : 'fa-times-circle'} me-1"></i> ${badgeText}</span></td>
+                <td class="text-center">
+                    <button class="btn btn-sm btn-brand" onclick="takeCookie('${item.id}')" title="Ambil & Hapus Cookie ini dari Database">
+                        <i class="fas fa-hand-holding me-1"></i> Take
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    async function takeCookie(id) {
+        if(!confirm(`Apakah Anda yakin ingin mengambil Cookie ID ${id}? Cookie akan dihapus permanen dari rotasi server dan disalin.`)) return;
+        
+        try {
+            const res = await fetch('/api/cms/cookies/take', {
+                method: 'POST', 
+                headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
+                body: JSON.stringify({id: id})
+            });
+            const data = await res.json();
+            
+            if(data.ok) {
+                // Remove from currentData
+                currentData = currentData.filter(x => x.id !== id);
+                renderTable();
+                
+                // Copy to clipboard
+                navigator.clipboard.writeText(data.cookie).then(() => {
+                    alert("✅ Berhasil! Cookie telah disalin ke Clipboard dan dihapus dari database.");
+                }).catch(e => {
+                    prompt("✅ Berhasil diambil dari database! Salin teks cookie di bawah ini secara manual:", data.cookie);
+                });
+            } else {
+                alert("Error: " + data.error);
+            }
+        } catch(e) { 
+            alert("Error server connection."); 
+        }
+    }
+
+    async function scanBatch() {
+        const filterPlan = document.getElementById("filterPlan").value;
+        const planText = filterPlan ? filterPlan : "Semua Plan";
+        
+        // Collect IDs to scan based on CURRENT filtered display
+        const searchField = document.getElementById("searchField").value;
+        const searchInput = document.getElementById("searchInput").value.toLowerCase();
+        
+        let filtered = currentData;
+        if(currentStatusFilter) filtered = filtered.filter(item => item.status === currentStatusFilter);
+        if(filterPlan) filtered = filtered.filter(item => (item.plan || "").toLowerCase().includes(filterPlan.toLowerCase()));
+        if(searchInput) filtered = filtered.filter(item => (item[searchField] || "").toLowerCase().includes(searchInput));
+        
+        if(filtered.length === 0) return alert("Tidak ada cookie yang cocok untuk discan!");
+        
+        if(!confirm(`Apakah Anda yakin ingin menscan ${filtered.length} cookie (${planText})?\nProses ini akan memakan waktu (2 detik per akun) di background.`)) return;
+        
+        const idsToScan = filtered.map(x => x.id);
+        
+        try {
+            const res = await fetch('/api/cms/cookies/scan_batch', {
+                method: 'POST', 
+                headers: { 'X-Admin-Key': CMS_KEY, 'Content-Type': 'application/json'},
+                body: JSON.stringify({ids: idsToScan})
+            });
+            const data = await res.json();
+            if(data.ok) {
+                alert(`✅ Scan batch dimulai di background server untuk ${idsToScan.length} cookie! Silakan cek kembali beberapa menit lagi.`);
+            } else {
+                alert("Error: " + (data.error || "Gagal mengirim request scan."));
+            }
+        } catch(e) {
+            alert("Error server connection.");
+        }
+    }
+
+    checkLogin();
+</script>
+</body>
+</html>
