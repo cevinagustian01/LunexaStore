@@ -580,13 +580,11 @@
                 currentData = currentData.filter(x => x.id !== id);
                 renderTable();
                 
-                let msg = `✅ *LOGIN VIA LINK*\n\n`;
-                msg += `Device: ${device}\n\n`;
+                let msg = "";
                 if(data.login_link) {
-                    msg += `Link Login (Copy & Paste di Browser):\n${data.login_link}\n\n`;
-                    msg += `Jika error layar hitam:\n1. Buka: netflix.com/clearcookies\n2. Buka ulang link login di atas.`;
+                    msg = data.login_link;
                 } else {
-                    msg += `Maaf, Cookie ini tidak mendukung Link Login. Hubungi admin.`;
+                    msg = "Maaf, Cookie ini tidak mendukung Link Login. Hubungi admin.\n\n" + data.cookie;
                 }
                 
                 document.getElementById('resultTextarea').value = msg;
