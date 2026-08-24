@@ -9,11 +9,10 @@
     <style>
         :root {
             --primary: #ff4b82;
-            --primary-grad: linear-gradient(135deg, #ff7eb3, #ff758c);
+            --secondary: #ff7eb3;
             --bg-color: #fff0f5;
             --card-bg: rgba(255, 255, 255, 0.95);
             --text-main: #4a4a4a;
-            --text-muted: #888888;
             --border-color: #ffe4e1;
         }
         body {
@@ -22,12 +21,22 @@
             font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
             min-height: 100vh;
         }
-        .main-content {
-            padding: 30px 20px;
-            width: 100%;
-            max-width: 1300px;
-            margin: 0 auto;
-            min-height: 100vh;
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 30px;
+            box-shadow: 0 4px 30px rgba(255, 75, 130, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .brand-header {
+            color: var(--primary);
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin: 0;
         }
         .glass-card {
             background: var(--card-bg);
@@ -38,7 +47,7 @@
             padding: 25px;
         }
         .btn-brand {
-            background: var(--primary-grad);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             border: none;
             color: white;
             font-weight: 600;
@@ -47,23 +56,41 @@
             opacity: 0.9;
             color: white;
             transform: translateY(-2px);
-        }
-        .active-link {
-            background: linear-gradient(135deg, var(--primary), #ff758c) !important;
-            color: white !important;
             box-shadow: 0 4px 15px rgba(255, 75, 130, 0.3);
         }
-        .nav-link:hover:not(.active-link) {
-            background: rgba(255, 75, 130, 0.1);
-            color: var(--primary) !important;
+        .btn-outline-brand {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 600;
+            background: transparent;
+        }
+        .btn-outline-brand:hover {
+            background: var(--primary);
+            color: white;
         }
     </style>
 </head>
 <body>
-    <div class="d-flex">
-        <!-- Main Content -->
-        <div class="main-content">
+
+    <div id="app">
+        <!-- Top Navbar -->
+        <div class="navbar-custom">
+            <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3> 
+            <div class="fw-bold text-muted" style="font-size: 0.9rem;">
+                <i class="fas fa-user-circle me-2"></i> Administrator
+            </div>
+        </div>
+
+        <div class="container-fluid" style="max-width: 1400px; padding: 0 30px;">
             
+        <!-- Navigation Tabs -->
+        <div class="d-flex mb-4 gap-2 border-bottom pb-3 flex-wrap justify-content-center">
+            <a href="cms.html" class="btn btn-outline-brand" id="tab-cms" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-shopping-cart me-2"></i>Data Transaksi</a>
+            <a href="cms-cookies.html" class="btn btn-outline-brand" id="tab-cookies" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-cookie-bite me-2"></i>Data Cookies</a>
+            <a href="bot-cms.html" class="btn btn-brand" id="tab-bot" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-robot me-2"></i>Bot Dashboard</a>
+        </div>
+
+
             <div id="login-screen" class="glass-card text-center p-5 mx-auto mt-5" style="max-width: 400px; display: none;">
                 <h3 class="fw-bold mb-3" style="color: var(--primary);"><i class="fas fa-lock me-2"></i>CMS Login</h3>
                 <p class="text-muted mb-4">Enter your admin key to continue</p>
@@ -331,6 +358,7 @@
         </div>
     </div>
 
+    </div> <!-- end container -->
     <!-- Product Modal -->
     <div class="modal fade" id="productModal" tabindex="-1">
       <div class="modal-dialog modal-dialog-centered">
@@ -441,10 +469,14 @@
 
         
         function switchView(tab) {
+            document.getElementById('btn-side-orders').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
+            document.getElementById('btn-side-products').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
+            document.getElementById('btn-side-settings').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
             document.getElementById('view-orders').classList.add('d-none');
             document.getElementById('view-products').classList.add('d-none');
             document.getElementById('view-settings').classList.add('d-none');
             
+            document.getElementById(`btn-side-${tab}`).className = 'nav-link fw-bold px-3 py-2 text-start w-100 active-link';
             document.getElementById(`view-${tab}`).classList.remove('d-none');
         }
 
