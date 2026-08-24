@@ -314,10 +314,10 @@
     </div>
 </div>
 
-<div id="app" style="display: none;">
+<div id="app">
     <!-- Top Navbar -->
     <div class="navbar-custom">
-        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3> <a href="/bot-cms.html" class="btn btn-outline-danger btn-sm ms-4 fw-bold" style="border-radius:20px;">🤖 Bot Dashboard</a>
+        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3> 
         <div class="fw-bold text-muted" style="font-size: 0.9rem;">
             <i class="fas fa-user-circle me-2"></i> Administrator
         </div>
@@ -477,7 +477,7 @@
         // Set Active Tab style
         document.getElementById('tab-bot').className = 'btn btn-brand';
 
-        let CMS_KEY = localStorage.getItem('adm_key') || '';
+        let CMS_KEY = localStorage.getItem('adminKey') || '';
         const API_BASE = '/api/bot';
 
         async function login() {
@@ -488,7 +488,7 @@
             try {
                 const res = await fetch(`${API_BASE}/stats`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 if(res.ok) {
-                    localStorage.setItem('adm_key', CMS_KEY);
+                    localStorage.setItem('adminKey', CMS_KEY);
                     location.reload();
                 } else {
                     document.getElementById('login-msg').textContent = 'Invalid Admin Key';
@@ -500,7 +500,7 @@
         }
 
         function logout() {
-            localStorage.removeItem('adm_key');
+            localStorage.removeItem('adminKey');
             location.reload();
         }
 
@@ -522,7 +522,7 @@
                 loadProducts();
             } catch(e) {
                 document.getElementById('login-msg').textContent = 'Session expired / Bot Offline';
-                localStorage.removeItem('adm_key');
+                localStorage.removeItem('adminKey');
             }
         }
 
