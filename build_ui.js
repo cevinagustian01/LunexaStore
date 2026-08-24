@@ -1,339 +1,21 @@
-﻿<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tracking Order | LUNEXA CMS</title>
-    <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#ff4b82">
-    <link rel="apple-touch-icon" href="/logo.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --primary: #ff4b82;
-            --primary-grad: linear-gradient(135deg, #ff7eb3, #ff758c);
-            --bg-color: #fff0f5;
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --text-main: #4a4a4a;
-            --text-muted: #888888;
-            --border-color: #ffe4e1;
-        }
-        body {
-            background: linear-gradient(135deg, #fff5f8 0%, #ffe4e1 100%);
-            color: var(--text-main);
-            font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
-            min-height: 100vh;
-            position: relative;
-            padding-bottom: 50px;
-        }
-        /* Floating background decoration */
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            width: 300px;
-            height: 300px;
-            background: var(--primary);
-            filter: blur(100px);
-            opacity: 0.15;
-            border-radius: 50%;
-            z-index: -1;
-            position: fixed;
-        }
-        body::before { top: -100px; left: -100px; }
-        body::after { bottom: -100px; right: -100px; background: #ffb6c1; }
+const fs = require('fs');
 
-        /* Navbar */
-        .navbar-custom {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border-color);
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(255, 105, 180, 0.05);
-        }
-        .brand-header { 
-            font-weight: 900; 
-            letter-spacing: 1.5px;
-            background: var(--primary-grad);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin: 0;
-            font-size: 1.5rem;
-        }
+const cmsHtml = fs.readFileSync('public/cms.html', 'utf8');
+const cookiesHtml = fs.readFileSync('public/cms-cookies.html', 'utf8');
 
-        /* Cards */
-        .custom-card { 
-            background: var(--card-bg); 
-            border: 2px solid var(--border-color); 
-            border-radius: 24px;
-            box-shadow: 0 10px 30px rgba(255, 105, 180, 0.1);
-            backdrop-filter: blur(10px);
-            padding: 25px;
-            margin-bottom: 25px;
-        }
-        
-        .card-title-custom {
-            color: var(--primary);
-            font-weight: 800;
-            margin-bottom: 20px;
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+const splitToken = '<!-- Navigation Tabs -->';
+const topPart = cmsHtml.split(splitToken)[0];
 
-        /* Buttons */
-        .btn-brand { 
-            background: var(--primary-grad); 
-            color: white; 
-            font-weight: 700; 
-            border: none; 
-            border-radius: 12px; 
-            box-shadow: 0 5px 15px rgba(255, 75, 130, 0.3); 
-            transition: all 0.3s; 
-            padding: 10px 20px;
-        }
-        .btn-brand:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 8px 20px rgba(255, 75, 130, 0.4); 
-            color: white; 
-        }
-
-        .btn-outline-brand {
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            background: white;
-            font-weight: 700;
-            border-radius: 12px;
-            padding: 10px 20px;
-            transition: 0.2s;
-        }
-        .btn-outline-brand:hover {
-            background: #fff0f5;
-            color: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        /* Form Controls */
-        .form-control, .form-select {
-            border-radius: 10px;
-            border: 2px solid var(--border-color);
-            padding: 10px 15px;
-            background: #fffafb;
-        }
-        .form-control:focus, .form-select:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 0.25rem rgba(255, 75, 130, 0.25);
-            background: #fff;
-        }
-        
-        /* Stats Pills */
-        .stat-pills {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .stat-pill {
-            padding: 8px 20px;
-            border-radius: 20px;
-            border: 2px solid var(--border-color);
-            background: white;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: var(--text-muted);
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .stat-pill:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
-        .stat-pill.active-pill { 
-            background: var(--primary-grad); 
-            color: white; 
-            border-color: transparent;
-            box-shadow: 0 5px 15px rgba(255, 75, 130, 0.3);
-        }
-
-        /* Table */
-        .table-responsive {
-            border-radius: 16px;
-            overflow: hidden;
-            border: 2px solid var(--border-color);
-        }
-        .table { margin-bottom: 0; background: white; }
-        .table > thead { background-color: #fff0f5; }
-        .table > thead th {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 0.85rem;
-            border-bottom: 2px solid var(--border-color);
-            padding: 15px;
-            white-space: nowrap;
-        }
-        .table > tbody td {
-            font-size: 0.9rem;
-            color: var(--text-main);
-            vertical-align: middle;
-            padding: 15px;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .badge-status {
-            padding: 6px 15px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 800;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
-        .badge-active { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .badge-expired { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-
-        /* Mobile Responsiveness */
-        @media (max-width: 768px) {
-            .navbar-custom {
-                flex-direction: column;
-                gap: 15px;
-                text-align: center;
-            }
-            .d-flex.justify-content-between.align-items-end.mb-4 {
-                flex-direction: column;
-                align-items: stretch !important;
-                gap: 15px;
-                text-align: center;
-            }
-            .d-flex.justify-content-between.align-items-end.mb-4 > div {
-                width: 100%;
-            }
-            .d-flex.justify-content-between.align-items-end.mb-4 button {
-                width: 100%;
-            }
-            .stat-pills {
-                justify-content: center;
-            }
-            .d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-3 {
-                flex-direction: column;
-                align-items: stretch !important;
-            }
-            .d-flex.justify-content-between.align-items-center.mb-4.flex-wrap.gap-3 button {
-                width: 100%;
-            }
-            .col-md-6.d-flex.align-items-center.gap-2 {
-                flex-direction: column;
-                align-items: stretch !important;
-            }
-            .text-muted.fw-bold.px-2 {
-                display: none;
-            }
-            .custom-card {
-                padding: 15px;
-            }
-            .brand-header {
-                font-size: 1.25rem;
-            }
-            
-            /* Table to Cards on Mobile */
-            .table-responsive table, .table-responsive thead, .table-responsive tbody, .table-responsive th, .table-responsive td, .table-responsive tr { 
-                display: block; 
-            }
-            .table-responsive thead tr { 
-                position: absolute;
-                top: -9999px;
-                left: -9999px;
-            }
-            .table-responsive tr { 
-                border: 2px solid var(--border-color);
-                margin-bottom: 15px;
-                border-radius: 12px;
-                padding: 10px;
-                background: #fffafb;
-            }
-            .table-responsive td { 
-                border: none;
-                border-bottom: 1px dashed var(--border-color); 
-                position: relative;
-                padding-left: 45% !important; 
-                text-align: right !important; 
-                min-height: 50px;
-            }
-            .table-responsive td:before { 
-                position: absolute;
-                top: 15px;
-                left: 15px;
-                width: 40%; 
-                padding-right: 10px; 
-                white-space: nowrap;
-                text-align: left;
-                font-weight: 800;
-                color: var(--primary);
-                font-size: 0.85rem;
-            }
-            .table-responsive td:nth-of-type(1):before { content: "#"; }
-            .table-responsive td:nth-of-type(2):before { content: "Username"; }
-            .table-responsive td:nth-of-type(3):before { content: "Tanggal Order"; }
-            .table-responsive td:nth-of-type(4):before { content: "Paket Layanan"; }
-            .table-responsive td:nth-of-type(5):before { content: "Kode Akses"; }
-            .table-responsive td:nth-of-type(6):before { content: "Tanggal Berakhir"; }
-            .table-responsive td:nth-of-type(7):before { content: "Status"; }
-            
-            .table-responsive td:nth-of-type(8) {
-                text-align: center !important;
-                padding-left: 15px !important;
-                padding-top: 15px !important;
-                display: flex;
-                justify-content: center;
-                gap: 5px;
-                flex-wrap: wrap;
-            }
-            .table-responsive td:nth-of-type(8):before {
-                display: none;
-            }
-            .table-responsive td:last-child {
-                border-bottom: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-
-<!-- Login UI -->
-<div id="login" class="d-flex align-items-center justify-content-center" style="min-height: 100vh; display: none !important;">
-    <div class="custom-card p-4" style="width: 100%; max-width: 400px; margin: 0 auto; text-align: center;">
-        <h3 class="fw-bold mb-3" style="color: var(--primary);"><i class="fas fa-lock me-2"></i>CMS Login</h3>
-        <p class="text-muted mb-4">Enter your admin key to continue</p>
-        <div class="mb-3 text-start">
-            <label class="form-label fw-bold" style="color: var(--text-dark);">Admin Key</label>
-            <input type="password" id="login-key" class="form-control" style="background: #fafafa; border: 1px solid var(--border-color); color: #333;" placeholder="Enter key...">
-        </div>
-        <button class="btn btn-brand w-100" onclick="doLogin()">Login</button>
-        <div id="login-msg" class="text-danger mt-3" style="font-size: 0.85rem; min-height: 20px;"></div>
-    </div>
-</div>
-
-<div id="app" style="display: none;">
-    <!-- Top Navbar -->
-    <div class="navbar-custom">
-        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3> <a href="/bot-cms.html" class="btn btn-outline-danger btn-sm ms-4 fw-bold" style="border-radius:20px;">🤖 Bot Dashboard</a>
-        <div class="fw-bold text-muted" style="font-size: 0.9rem;">
-            <i class="fas fa-user-circle me-2"></i> Administrator
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="container" style="max-width: 1200px;">
-        
-        
+const newTabs = `
         <!-- Navigation Tabs -->
         <div class="d-flex mb-4 gap-2 border-bottom pb-3 flex-wrap">
             <a href="cms.html" class="btn btn-outline-brand" id="tab-cms" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-shopping-cart me-2"></i>Data Transaksi</a>
             <a href="cms-cookies.html" class="btn btn-outline-brand" id="tab-cookies" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-cookie-bite me-2"></i>Data Cookies</a>
             <a href="bot-cms.html" class="btn btn-outline-brand" id="tab-bot" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-robot me-2"></i>Bot Dashboard</a>
         </div>
+`;
 
+const botBody = `
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <h2 class="fw-bold" style="color: var(--primary);">Bot Dashboard</h2>
@@ -486,7 +168,7 @@
             document.getElementById('login-msg').textContent = 'Checking...';
             CMS_KEY = key;
             try {
-                const res = await fetch(`${API_BASE}/stats`, { headers: { 'X-Admin-Key': CMS_KEY } });
+                const res = await fetch(\`\${API_BASE}/stats\`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 if(res.ok) {
                     localStorage.setItem('adm_key', CMS_KEY);
                     location.reload();
@@ -507,7 +189,7 @@
         async function init() {
             if(!CMS_KEY) return;
             try {
-                const res = await fetch(`${API_BASE}/stats`, { headers: { 'X-Admin-Key': CMS_KEY } });
+                const res = await fetch(\`\${API_BASE}/stats\`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 if(!res.ok) throw new Error('Unauthorized');
                 const data = await res.json();
                 
@@ -532,25 +214,25 @@
             document.getElementById('view-orders').classList.add('d-none');
             document.getElementById('view-products').classList.add('d-none');
             
-            document.getElementById(`btn-tab-${tab}`).className = 'nav-link active btn-brand';
-            document.getElementById(`view-${tab}`).classList.remove('d-none');
+            document.getElementById(\`btn-tab-\${tab}\`).className = 'nav-link active btn-brand';
+            document.getElementById(\`view-\${tab}\`).classList.remove('d-none');
         }
 
         async function loadOrders() {
             try {
-                const res = await fetch(`${API_BASE}/orders`, { headers: { 'X-Admin-Key': CMS_KEY } });
+                const res = await fetch(\`\${API_BASE}/orders\`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 const data = await res.json();
                 const tbody = document.getElementById('orders-tbody');
-                tbody.innerHTML = data.orders.map(o => `
+                tbody.innerHTML = data.orders.map(o => \`
                     <tr>
-                        <td><span class="badge bg-secondary rounded-pill">${o.refId || o.orderId}</span></td>
-                        <td class="fw-bold">${o.userId}</td>
-                        <td class="text-primary fw-bold">${o.productName || 'Deposit'}</td>
-                        <td class="fw-bold text-success">Rp ${(o.totalUser || o.amount || 0).toLocaleString()}</td>
-                        <td><span class="badge rounded-pill ${o.status==='success'?'bg-success':'bg-warning text-dark'}">${o.status}</span></td>
-                        <td class="text-muted small">${o.createdAt}</td>
+                        <td><span class="badge bg-secondary rounded-pill">\${o.refId || o.orderId}</span></td>
+                        <td class="fw-bold">\${o.userId}</td>
+                        <td class="text-primary fw-bold">\${o.productName || 'Deposit'}</td>
+                        <td class="fw-bold text-success">Rp \${(o.totalUser || o.amount || 0).toLocaleString()}</td>
+                        <td><span class="badge rounded-pill \${o.status==='success'?'bg-success':'bg-warning text-dark'}">\${o.status}</span></td>
+                        <td class="text-muted small">\${o.createdAt}</td>
                     </tr>
-                `).join('');
+                \`).join('');
             } catch(e) {}
         }
 
@@ -562,23 +244,23 @@
 
         async function loadProducts() {
             try {
-                const res = await fetch(`${API_BASE}/products`, { headers: { 'X-Admin-Key': CMS_KEY } });
+                const res = await fetch(\`\${API_BASE}/products\`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 const data = await res.json();
                 allProducts = data.items;
                 const tbody = document.getElementById('products-tbody');
-                tbody.innerHTML = Object.values(data.items).map(p => `
+                tbody.innerHTML = Object.values(data.items).map(p => \`
                     <tr>
-                        <td class="text-muted small">${p.id}</td>
-                        <td>${p.catId}</td>
-                        <td class="fw-bold">${p.name}</td>
-                        <td class="fw-bold text-success">Rp ${p.price.toLocaleString()}</td>
-                        <td><span class="badge rounded-pill ${p.sold?'bg-danger':'bg-success'}">${p.sold?'Terjual':'Tersedia'}</span></td>
+                        <td class="text-muted small">\${p.id}</td>
+                        <td>\${p.catId}</td>
+                        <td class="fw-bold">\${p.name}</td>
+                        <td class="fw-bold text-success">Rp \${p.price.toLocaleString()}</td>
+                        <td><span class="badge rounded-pill \${p.sold?'bg-danger':'bg-success'}">\${p.sold?'Terjual':'Tersedia'}</span></td>
                         <td class="text-center">
-                            <button onclick="editProduct('${p.id}')" class="btn btn-sm btn-outline-primary" style="border-radius:10px;"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn btn-sm btn-outline-danger" style="border-radius:10px;"><i class="fas fa-trash"></i></button>
+                            <button onclick="editProduct('\${p.id}')" class="btn btn-sm btn-outline-primary" style="border-radius:10px;"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteProduct('\${p.id}')" class="btn btn-sm btn-outline-danger" style="border-radius:10px;"><i class="fas fa-trash"></i></button>
                         </td>
                     </tr>
-                `).join('');
+                \`).join('');
             } catch(e) {}
         }
 
@@ -651,3 +333,20 @@
     </script>
 </body>
 </html>
+`;
+
+const fullBotCms = topPart + newTabs + botBody;
+fs.writeFileSync('public/bot-cms.html', fullBotCms, 'utf8');
+
+function replaceTabs(filename) {
+    let html = fs.readFileSync(filename, 'utf8');
+    html = html.replace(/<!-- Navigation Tabs -->[\s\S]*?<\/div>/, newTabs.trim());
+    
+    // Remove the old injected Bot Dashboard button near the header if it exists
+    html = html.replace(/<a href="\/bot-cms\.html".*?<\/a>/, '');
+    
+    fs.writeFileSync(filename, html, 'utf8');
+}
+
+replaceTabs('public/cms.html');
+replaceTabs('public/cms-cookies.html');
