@@ -195,20 +195,6 @@
         .badge-quality { background: #fff0f5; color: var(--primary); border: 1px solid #ffb6c1; font-weight: 800; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem;}
 
     </style>
-
-    <style>
-        .active-link {
-            background: linear-gradient(135deg, var(--primary), #ff758c) !important;
-            color: white !important;
-            box-shadow: 0 4px 15px rgba(255, 75, 130, 0.3);
-        }
-        .nav-link:hover:not(.active-link) {
-            background: rgba(255, 75, 130, 0.1);
-            color: var(--primary) !important;
-        }
-        .navbar-custom { display: none !important; } /* Hide old navbar */
-    </style>
-
 </head>
 <body>
 
@@ -227,63 +213,23 @@
 </div>
 
 <div id="app" style="display: none;">
-    
-      <div class="d-flex" style="min-height: 100vh; width: 100%;">
-          <!-- Sidebar -->
-          <div class="sidebar shadow-sm" style="width: 260px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-right: 1px solid var(--border-color); position: fixed; height: 100vh; overflow-y: auto; z-index: 1050; display: flex; flex-direction: column;">
-              <div class="p-4 border-bottom">
-                  <h4 class="fw-bold mb-0" style="color: var(--primary); letter-spacing: 1px;"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h4>
-              </div>
-              
-              <div class="p-3 flex-grow-1">
-                  <div class="text-muted small fw-bold mb-3 ms-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.75rem;">Layanan CMS</div>
-                  <ul class="nav flex-column gap-2 mb-4">
-                      <li class="nav-item">
-                          <a href="cms.html" class="nav-link fw-bold px-3 py-2 ${activeId === 'cms' ? 'active-link' : 'text-secondary'}" style="border-radius: 12px; transition: all 0.3s;">
-                              <i class="fas fa-shopping-cart me-2" style="width: 20px;"></i> Data Transaksi
-                          </a>
-                      </li>
-                      <li class="nav-item">
-                          <a href="cms-cookies.html" class="nav-link fw-bold px-3 py-2 ${activeId === 'cookies' ? 'active-link' : 'text-secondary'}" style="border-radius: 12px; transition: all 0.3s;">
-                              <i class="fas fa-cookie-bite me-2" style="width: 20px;"></i> Data Cookies
-                          </a>
-                      </li>
-                  </ul>
+    <!-- Top Navbar -->
+    <div class="navbar-custom">
+        <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3>
+        <div class="fw-bold text-muted" style="font-size: 0.9rem;">
+            <i class="fas fa-user-circle me-2"></i> Administrator
+        </div>
+    </div>
 
-                  <div class="text-muted small fw-bold mb-3 ms-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.75rem;">Telegram Bot</div>
-                  <ul class="nav flex-column gap-2">
-                      <li class="nav-item">
-                          <a href="bot-transaksi.html" class="nav-link fw-bold px-3 py-2 ${activeId === 'bot-trans' ? 'active-link' : 'text-secondary'}" style="border-radius: 12px; transition: all 0.3s;">
-                              <i class="fas fa-robot me-2" style="width: 20px;"></i> Transaksi Bot
-                          </a>
-                      </li>
-                      <li class="nav-item">
-                          <a href="bot-produk.html" class="nav-link fw-bold px-3 py-2 ${activeId === 'bot-prod' ? 'active-link' : 'text-secondary'}" style="border-radius: 12px; transition: all 0.3s;">
-                              <i class="fas fa-box-open me-2" style="width: 20px;"></i> Produk (Toko 2)
-                          </a>
-                      </li>
-                  </ul>
-              </div>
-              
-              <div class="p-4 border-top text-center">
-                  <div class="d-flex align-items-center justify-content-center mb-3">
-                      <i class="fas fa-user-circle fs-2 text-muted me-2"></i>
-                      <div class="text-start">
-                          <div class="fw-bold text-dark" style="font-size: 0.9rem;">Administrator</div>
-                          <div class="text-success small"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online</div>
-                      </div>
-                  </div>
-                  <button onclick="doLogout ? doLogout() : (typeof logout !== 'undefined' ? logout() : null)" class="btn btn-outline-danger btn-sm w-100" style="border-radius: 12px; font-weight: 600;">
-                      <i class="fas fa-sign-out-alt me-1"></i> Logout
-                  </button>
-              </div>
-          </div>
-
-          <!-- Main Content -->
-          <div class="main-content flex-grow-1" style="margin-left: 260px; padding: 30px; width: calc(100% - 260px); min-height: 100vh;">
-<div class="container" style="max-width: 1400px;">
+    <!-- Main Content -->
+    <div class="container" style="max-width: 1400px;">
         
-        
+        <!-- Navigation Tabs -->
+        <div class="d-flex mb-4 gap-2 border-bottom pb-3 flex-wrap justify-content-center">
+            <a href="cms.html" class="btn btn-outline-brand" id="tab-cms" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-shopping-cart me-2"></i>Data Transaksi</a>
+            <a href="cms-cookies.html" class="btn btn-outline-brand" id="tab-cookies" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-cookie-bite me-2"></i>Data Cookies</a>
+            <a href="bot-cms.html" class="btn btn-outline-brand" id="tab-bot" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-robot me-2"></i>Bot Dashboard</a>
+        </div>
         
         <div class="d-flex justify-content-between align-items-end mb-4 flex-wrap gap-3">
             <div>
@@ -383,8 +329,7 @@
     </div>
 </div>
 
-</div></div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Take Cookie Modal -->
     <div class="modal fade" id="takeModal" tabindex="-1" aria-hidden="true" style="z-index: 9999;">
       <div class="modal-dialog modal-dialog-centered">
