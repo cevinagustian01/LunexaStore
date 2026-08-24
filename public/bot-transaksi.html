@@ -314,7 +314,7 @@
     </div>
 </div>
 
-<div id="app">
+<div id="app" >
     <!-- Top Navbar -->
     <div class="navbar-custom">
         <h3 class="brand-header"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h3> 
@@ -328,21 +328,22 @@
         
         
         <!-- Navigation Tabs -->
-        <div class="d-flex mb-4 gap-2 border-bottom pb-3 flex-wrap">
+        <div class="d-flex mb-4 gap-2 border-bottom pb-3 flex-wrap justify-content-center">
             <a href="cms.html" class="btn btn-outline-brand" id="tab-cms" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-shopping-cart me-2"></i>Data Transaksi</a>
             <a href="cms-cookies.html" class="btn btn-outline-brand" id="tab-cookies" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-cookie-bite me-2"></i>Data Cookies</a>
-            <a href="bot-cms.html" class="btn btn-outline-brand" id="tab-bot" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-robot me-2"></i>Bot Dashboard</a>
+            <a href="bot-transaksi.html" class="btn btn-outline-brand" id="tab-bot-trans" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-robot me-2"></i>Transaksi Bot</a>
+            <a href="bot-produk.html" class="btn btn-outline-brand" id="tab-bot-prod" style="border-radius: 20px; text-decoration: none;"><i class="fas fa-box-open me-2"></i>Produk Bot</a>
         </div>
 
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
-                <h2 class="fw-bold" style="color: var(--primary);">Bot Dashboard</h2>
-                <p class="text-muted mb-0">Kelola pesanan dan produk Telegram Bot (Toko 2).</p>
+                <h2 class="fw-bold" style="color: var(--primary);">Transaksi Bot</h2>
+                <p class="text-muted mb-0">Kelola riwayat pesanan dari Telegram Bot.</p>
             </div>
             <button onclick="logout()" class="btn btn-outline-danger" style="border-radius: 20px; font-weight: 600;"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
         </div>
 
-        <div id="login-screen" class="glass-card text-center p-5 mb-4" style="max-width: 500px; margin: 0 auto;">
+        <div id="login-screen" class="glass-card text-center p-5 mb-4" style="max-width: 500px; margin: 0 auto; display: none;">
             <div class="mb-4">
                 <i class="fas fa-lock text-muted mb-3" style="font-size: 3rem;"></i>
                 <h4 class="fw-bold">Akses Admin</h4>
@@ -376,18 +377,8 @@
                 </div>
             </div>
 
-            <!-- Tabs -->
-            <ul class="nav nav-pills mb-4 gap-2">
-                <li class="nav-item">
-                    <button class="nav-link active btn-brand" id="btn-tab-orders" onclick="switchView('orders')" style="border-radius:20px;">Riwayat Transaksi Bot</button>
-                </li>
-                <li class="nav-item">
-                    <button class="nav-link btn-outline-brand" id="btn-tab-products" onclick="switchView('products')" style="border-radius:20px;">Produk Toko 2</button>
-                </li>
-            </ul>
-
             <!-- Orders View -->
-            <div id="view-orders" class="glass-card">
+            <div class="glass-card">
                 <h5 class="fw-bold mb-3"><i class="fas fa-history me-2"></i>Riwayat Transaksi Bot</h5>
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
@@ -406,76 +397,12 @@
                     </table>
                 </div>
             </div>
-
-            <!-- Products View -->
-            <div id="view-products" class="glass-card d-none">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h5 class="fw-bold mb-0"><i class="fas fa-box-open me-2"></i>Produk Toko 2 (Bot)</h5>
-                    <button class="btn btn-brand btn-sm" style="border-radius:20px;" onclick="showAddModal()"><i class="fas fa-plus me-1"></i> Tambah Produk</button>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead style="background: rgba(255, 75, 130, 0.1);">
-                            <tr>
-                                <th class="border-0">ID</th>
-                                <th class="border-0">Kategori</th>
-                                <th class="border-0">Nama Produk</th>
-                                <th class="border-0">Harga</th>
-                                <th class="border-0">Status</th>
-                                <th class="border-0 text-center">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="products-tbody" class="border-top-0">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div> <!-- end container -->
 
-    <!-- Product Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 20px; border: none; background: var(--bg-color);">
-          <div class="modal-header border-0 pb-0">
-            <h5 class="modal-title fw-bold" id="modal-title">Tambah Produk</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <input type="hidden" id="prod-id">
-            <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Kategori ID</label>
-                <input type="text" class="form-control" id="prod-cat" style="border-radius: 15px;">
-            </div>
-            <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Nama Produk</label>
-                <input type="text" class="form-control" id="prod-name" style="border-radius: 15px;">
-            </div>
-            <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Harga (Rp)</label>
-                <input type="number" class="form-control" id="prod-price" style="border-radius: 15px;">
-            </div>
-            <div class="mb-3">
-                <label class="form-label text-muted small fw-bold">Data (Diberikan ke pembeli)</label>
-                <textarea class="form-control" id="prod-data" rows="3" style="border-radius: 15px;"></textarea>
-            </div>
-            <div class="form-check d-none" id="div-sold">
-              <input class="form-check-input" type="checkbox" id="prod-sold">
-              <label class="form-check-label text-muted small fw-bold">Tandai Terjual (Sold)</label>
-            </div>
-          </div>
-          <div class="modal-footer border-0 pt-0">
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" style="border-radius: 15px;">Batal</button>
-            <button type="button" class="btn btn-brand" onclick="saveProduct()" style="border-radius: 15px;">Simpan</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Set Active Tab style
-        document.getElementById('tab-bot').className = 'btn btn-brand';
+        document.getElementById('tab-bot-trans').className = 'btn btn-brand';
 
         let CMS_KEY = localStorage.getItem('adminKey') || '';
         const API_BASE = '/api/bot';
@@ -495,7 +422,7 @@
                     CMS_KEY = '';
                 }
             } catch(e) {
-                document.getElementById('login-msg').textContent = 'Server Bot Error. Pastikan bot menyala & port dibuka.';
+                document.getElementById('login-msg').textContent = 'Server Bot Error.';
             }
         }
 
@@ -505,13 +432,16 @@
         }
 
         async function init() {
-            if(!CMS_KEY) return;
+            if(!CMS_KEY) {
+                document.getElementById('login-screen').style.display = 'block';
+                return;
+            }
             try {
                 const res = await fetch(`${API_BASE}/stats`, { headers: { 'X-Admin-Key': CMS_KEY } });
                 if(!res.ok) throw new Error('Unauthorized');
                 const data = await res.json();
                 
-                document.getElementById('login-screen').classList.add('d-none');
+                document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('dashboard-content').classList.remove('d-none');
                 
                 document.getElementById('stat-users').textContent = data.stats.users;
@@ -519,21 +449,10 @@
                 document.getElementById('stat-rev').textContent = 'Rp ' + data.stats.revenue.toLocaleString('id-ID');
                 
                 loadOrders();
-                loadProducts();
             } catch(e) {
-                document.getElementById('login-msg').textContent = 'Session expired / Bot Offline';
+                document.getElementById('login-screen').style.display = 'block';
                 localStorage.removeItem('adminKey');
             }
-        }
-
-        function switchView(tab) {
-            document.getElementById('btn-tab-orders').className = 'nav-link btn-outline-brand';
-            document.getElementById('btn-tab-products').className = 'nav-link btn-outline-brand';
-            document.getElementById('view-orders').classList.add('d-none');
-            document.getElementById('view-products').classList.add('d-none');
-            
-            document.getElementById(`btn-tab-${tab}`).className = 'nav-link active btn-brand';
-            document.getElementById(`view-${tab}`).classList.remove('d-none');
         }
 
         async function loadOrders() {
@@ -553,101 +472,7 @@
                 `).join('');
             } catch(e) {}
         }
-
-        let allProducts = {};
-        let productModal;
-        document.addEventListener("DOMContentLoaded", () => {
-            productModal = new bootstrap.Modal(document.getElementById('productModal'));
-        });
-
-        async function loadProducts() {
-            try {
-                const res = await fetch(`${API_BASE}/products`, { headers: { 'X-Admin-Key': CMS_KEY } });
-                const data = await res.json();
-                allProducts = data.items;
-                const tbody = document.getElementById('products-tbody');
-                tbody.innerHTML = Object.values(data.items).map(p => `
-                    <tr>
-                        <td class="text-muted small">${p.id}</td>
-                        <td>${p.catId}</td>
-                        <td class="fw-bold">${p.name}</td>
-                        <td class="fw-bold text-success">Rp ${p.price.toLocaleString()}</td>
-                        <td><span class="badge rounded-pill ${p.sold?'bg-danger':'bg-success'}">${p.sold?'Terjual':'Tersedia'}</span></td>
-                        <td class="text-center">
-                            <button onclick="editProduct('${p.id}')" class="btn btn-sm btn-outline-primary" style="border-radius:10px;"><i class="fas fa-edit"></i></button>
-                            <button onclick="deleteProduct('${p.id}')" class="btn btn-sm btn-outline-danger" style="border-radius:10px;"><i class="fas fa-trash"></i></button>
-                        </td>
-                    </tr>
-                `).join('');
-            } catch(e) {}
-        }
-
-        function showAddModal() {
-            document.getElementById('modal-title').textContent = 'Tambah Produk';
-            document.getElementById('prod-id').value = '';
-            document.getElementById('prod-cat').value = 'CAT1';
-            document.getElementById('prod-name').value = '';
-            document.getElementById('prod-price').value = '';
-            document.getElementById('prod-data').value = '';
-            document.getElementById('div-sold').classList.add('d-none');
-            productModal.show();
-        }
-
-        function editProduct(id) {
-            const p = allProducts[id];
-            if(!p) return;
-            document.getElementById('modal-title').textContent = 'Edit Produk';
-            document.getElementById('prod-id').value = p.id;
-            document.getElementById('prod-cat').value = p.catId;
-            document.getElementById('prod-name').value = p.name;
-            document.getElementById('prod-price').value = p.price;
-            document.getElementById('prod-data').value = p.data;
-            document.getElementById('prod-sold').checked = !!p.sold;
-            document.getElementById('div-sold').classList.remove('d-none');
-            productModal.show();
-        }
-
-        async function saveProduct() {
-            const id = document.getElementById('prod-id').value;
-            const payload = {
-                catId: document.getElementById('prod-cat').value,
-                name: document.getElementById('prod-name').value,
-                price: document.getElementById('prod-price').value,
-                data: document.getElementById('prod-data').value,
-                sold: document.getElementById('prod-sold').checked
-            };
-            
-            const endpoint = id ? '/api/bot/products/edit' : '/api/bot/products/add';
-            if(id) payload.id = id;
-
-            try {
-                await fetch(endpoint, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY },
-                    body: JSON.stringify(payload)
-                });
-                productModal.hide();
-                loadProducts();
-            } catch(e) {
-                alert('Gagal menyimpan produk');
-            }
-        }
-
-        async function deleteProduct(id) {
-            if(!confirm('Yakin hapus produk ini?')) return;
-            try {
-                await fetch('/api/bot/products/delete', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-Admin-Key': CMS_KEY },
-                    body: JSON.stringify({ id })
-                });
-                loadProducts();
-            } catch(e) {
-                alert('Gagal menghapus produk');
-            }
-        }
-
-        if(CMS_KEY) init();
+        init();
     </script>
 </body>
 </html>
