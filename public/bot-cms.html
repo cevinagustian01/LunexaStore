@@ -22,22 +22,11 @@
             font-family: 'Inter', 'Segoe UI', Tahoma, sans-serif;
             min-height: 100vh;
         }
-        .sidebar {
-            width: 260px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1050;
-            display: flex;
-            flex-direction: column;
-        }
         .main-content {
-            margin-left: 260px;
-            padding: 30px;
-            width: calc(100% - 260px);
+            padding: 30px 20px;
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
             min-height: 100vh;
         }
         .glass-card {
@@ -72,50 +61,6 @@
 </head>
 <body>
     <div class="d-flex">
-        <!-- Sidebar -->
-        <div class="sidebar shadow-sm">
-            <div class="p-4 border-bottom">
-                <h4 class="fw-bold mb-0" style="color: var(--primary); letter-spacing: 1px;"><i class="fas fa-chart-line me-2"></i>LUNEXA CMS</h4>
-            </div>
-            
-            <div class="p-3 flex-grow-1">
-                <a href="cms.html" class="btn btn-outline-danger btn-sm w-100 mb-4 fw-bold" style="border-radius: 12px;"><i class="fas fa-arrow-left me-2"></i>Kembali ke CMS Utama</a>
-                
-                <div class="text-muted small fw-bold mb-3 ms-2 text-uppercase" style="letter-spacing: 1px; font-size: 0.75rem;">Menu Bot</div>
-                <ul class="nav flex-column gap-2 mb-4">
-                    <li class="nav-item">
-                        <button onclick="switchView('orders')" id="btn-side-orders" class="nav-link fw-bold px-3 py-2 text-start w-100 active-link" style="border-radius: 12px; transition: all 0.3s; border: none; background: transparent;">
-                            <i class="fas fa-history me-2" style="width: 20px;"></i> Transaksi Bot
-                        </button>
-                    </li>
-                    <li class="nav-item">
-                        <button onclick="switchView('products')" id="btn-side-products" class="nav-link fw-bold px-3 py-2 text-start w-100 text-secondary" style="border-radius: 12px; transition: all 0.3s; border: none; background: transparent;">
-                            <i class="fas fa-box-open me-2" style="width: 20px;"></i> Produk (Toko 2)
-                        </button>
-                    </li>
-                
-                    <li class="nav-item">
-                        <button onclick="switchView('settings')" id="btn-side-settings" class="nav-link fw-bold px-3 py-2 text-start w-100 text-secondary" style="border-radius: 12px; transition: all 0.3s; border: none; background: transparent;">
-                            <i class="fas fa-cog me-2" style="width: 20px;"></i> Setting Netflix
-                        </button>
-                    </li>
-                </ul>
-            </div>
-            
-            <div class="p-4 border-top text-center">
-                <div class="d-flex align-items-center justify-content-center mb-3">
-                    <i class="fas fa-user-circle fs-2 text-muted me-2"></i>
-                    <div class="text-start">
-                        <div class="fw-bold text-dark" style="font-size: 0.9rem;">Administrator</div>
-                        <div class="text-success small"><i class="fas fa-circle me-1" style="font-size: 0.5rem;"></i>Online</div>
-                    </div>
-                </div>
-                <button onclick="logout()" class="btn btn-outline-danger btn-sm w-100" style="border-radius: 12px; font-weight: 600;">
-                    <i class="fas fa-sign-out-alt me-1"></i> Logout
-                </button>
-            </div>
-        </div>
-
         <!-- Main Content -->
         <div class="main-content">
             
