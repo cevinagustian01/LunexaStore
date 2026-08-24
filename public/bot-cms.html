@@ -469,15 +469,11 @@
 
         
         function switchView(tab) {
-            document.getElementById('btn-side-orders').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
-            document.getElementById('btn-side-products').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
-            document.getElementById('btn-side-settings').className = 'nav-link fw-bold px-3 py-2 text-start w-100 text-secondary';
             document.getElementById('view-orders').classList.add('d-none');
             document.getElementById('view-products').classList.add('d-none');
             document.getElementById('view-settings').classList.add('d-none');
             
-            document.getElementById(`btn-side-${tab}`).className = 'nav-link fw-bold px-3 py-2 text-start w-100 active-link';
-            document.getElementById(`view-${tab}`).classList.remove('d-none');
+            document.getElementById('view-' + tab).classList.remove('d-none');
         }
 
         async function loadSettings() {
