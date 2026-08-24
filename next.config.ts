@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
         destination: '/cms.html'
       },
       {
+        source: '/api/bot/:path*',
+        destination: 'http://43.133.43.13:8004/api/bot/:path*'
+      },
+      {
         source: '/api/:path*',
         destination: 'http://43.133.43.13:8002/api/:path*'
       },
