@@ -17,11 +17,11 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/api/:path*',
-        destination: 'http://43.133.43.13:8002/api/:path*'
+        destination: 'http://43.133.43.13:8082/api/:path*'
       },
       {
         source: '/netflix-tool/:path*',
-        destination: 'http://43.133.43.13:8002/:path*'
+        destination: 'http://43.133.43.13:8082/:path*'
       }
     ]
   }
