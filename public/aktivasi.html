@@ -1125,6 +1125,19 @@
             document.getElementById(textId).style.display = isLoading ? 'none' : 'inline';
             document.getElementById(spinnerId).style.display = isLoading ? 'inline-block' : 'none';
         }
+
+        // Auto-login jika URL memiliki parameter ?code=ORD-XXXXX
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeParam = urlParams.get('code');
+            if (codeParam) {
+                const codeInput = document.getElementById('access_code');
+                if (codeInput) {
+                    codeInput.value = codeParam.trim().toUpperCase();
+                    login();
+                }
+            }
+        });
     </script>
 </body>
 </html>
