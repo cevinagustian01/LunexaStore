@@ -351,6 +351,16 @@
                                 <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Peringatan "Not Part of Household" atau kendala lokasi/VPN.</div>
                             </div>
                         </div>
+                        <div class="custom-reason-card" onclick="selectReason('ads_plan', this)">
+                            <div class="form-check m-0">
+                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_ads" value="ads_plan">
+                                <label class="form-check-label fw-bold" for="reason_ads" style="cursor:pointer; font-size: 0.85rem; color: #ff7849;">
+                                    <i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)
+                                </label>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Muncul pesan "Paket yang didukung iklan tidak tersedia di wilayah ini".</div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div style="background-color: #f8f9fa; border-left: 4px solid #4facfe; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 0.85rem; color: #555;">
@@ -528,7 +538,102 @@
     </div>
 
     <!-- MODAL INSTRUKSI SETELAH GANTI AKUN -->
-    <div class="modal fade" id="replaceInstructionModal" tabindex="-1" aria-labelledby="replaceModalLabel" aria-hidden="true">
+    
+    <!-- MODAL DIAGNOSTIK & SCREEN LIMIT PROGRESS BAR -->
+    <div class="modal fade" id="replaceDiagnosticModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-labelledby="diagModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #1f233a 0%, #111424 100%); border-bottom: 1px solid rgba(255,255,255,0.08);">
+                    <h5 class="modal-title fw-bold" id="diagModalLabel" style="font-size: 1.05rem;">
+                        <i class="fas fa-shield-virus text-info me-2"></i> Diagnostik & Penggantian Akun
+                    </h5>
+                </div>
+                <div class="modal-body p-4 text-center" style="font-size: 0.9rem; color: #333;">
+                    
+                    <!-- REASON BADGE -->
+                    <div class="mb-3">
+                        <span class="badge rounded-pill px-3 py-2 fs-6" id="diag-reason-badge" style="background-color: #f0f7ff; color: #0275d8; border: 1px solid #cce5ff;">
+                            <i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)
+                        </span>
+                    </div>
+
+                    <!-- PROGRESS & STATUS VIEW -->
+                    <div id="diag-loading-view">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span class="fw-bold" id="diag-percentage" style="font-size: 1.25rem; color: #0275d8;">0%</span>
+                            <span class="text-muted small" id="diag-status-sub">Memverifikasi sistem...</span>
+                        </div>
+
+                        <div class="progress mb-3" style="height: 10px; border-radius: 10px; background-color: #e9ecef;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated" id="diag-progress-bar" style="width: 0%; background: linear-gradient(90deg, #4facfe, #00f2fe);"></div>
+                        </div>
+
+                        <!-- DIAGNOSTIC STEPS CHECKLIST -->
+                        <div class="p-3 rounded border text-start mb-3" style="background: #fbfcfe; font-size: 0.83rem; line-height: 1.9;">
+                            <div id="step-auth" class="d-flex align-items-center mb-1">
+                                <i class="fas fa-spinner fa-spin text-primary me-2" style="width: 16px;"></i>
+                                <span class="fw-semibold">1. Verifikasi Sesi & Autentikasi Akun...</span>
+                            </div>
+                            <div id="step-screen" class="d-flex align-items-center mb-1 text-muted">
+                                <i class="far fa-circle text-muted me-2" style="width: 16px;"></i>
+                                <span>2. Pengecekan Limit Layar (Screen Limit)...</span>
+                            </div>
+                            <div id="step-ads" class="d-flex align-items-center mb-1 text-muted">
+                                <i class="far fa-circle text-muted me-2" style="width: 16px;"></i>
+                                <span>3. Filter Proteksi Wilayah & Bebas Paket Iklan...</span>
+                            </div>
+                            <div id="step-stok" class="d-flex align-items-center text-muted">
+                                <i class="far fa-circle text-muted me-2" style="width: 16px;"></i>
+                                <span>4. Alokasi Akun Baru yang Belum Pernah Didapat...</span>
+                            </div>
+                        </div>
+
+                        <div class="text-muted small">
+                            <i class="fas fa-info-circle text-primary me-1"></i> Mohon tunggu sebentar, sistem sedang memverifikasi akun pengganti...
+                        </div>
+                    </div>
+
+                    <!-- SUCCESS VIEW (Hidden initially) -->
+                    <div id="diag-success-view" style="display: none;">
+                        <div class="my-3">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; background: #e8f8f0; color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                                <i class="fas fa-check"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold text-success mb-2">Akun Baru Berhasil Diberikan!</h5>
+                        <p class="text-muted small mb-3" id="diag-success-msg">
+                            Akun baru Anda telah diverifikasi aktif, bebas dari screen limit, dan siap digunakan.
+                        </p>
+                        <a id="diag-btn-netflix" href="#" target="_blank" class="btn text-white fw-bold w-100 py-2 mb-2" style="background: linear-gradient(135deg, #e50914, #ff334b); border: none; border-radius: 10px; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);">
+                            <i class="fas fa-play me-2"></i> Buka Netflix Sekarang
+                        </a>
+                        <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold" onclick="closeDiagAndShowGuide()" style="border-radius: 10px; font-size: 0.85rem;">
+                            <i class="fas fa-book-open me-1"></i> Lihat Panduan Akses / Tutup
+                        </button>
+                    </div>
+
+                    <!-- ERROR VIEW (Hidden initially) -->
+                    <div id="diag-error-view" style="display: none;">
+                        <div class="my-3">
+                            <div style="width: 70px; height: 70px; border-radius: 50%; background: #fdf2f2; color: #ef4444; display: inline-flex; align-items: center; justify-content: center; font-size: 36px;">
+                                <i class="fas fa-times"></i>
+                            </div>
+                        </div>
+                        <h5 class="fw-bold text-danger mb-2">Gagal Ganti Akun</h5>
+                        <p class="text-muted small mb-3" id="diag-error-msg">
+                            Terjadi kendala saat memproses penggantian akun.
+                        </p>
+                        <button type="button" class="btn btn-secondary w-100 py-2 fw-semibold" data-bs-dismiss="modal" style="border-radius: 10px; font-size: 0.85rem;">
+                            Tutup
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+<div class="modal fade" id="replaceInstructionModal" tabindex="-1" aria-labelledby="replaceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content border-0 shadow-lg" style="border-radius: 16px; overflow: hidden;">
                 <div class="modal-header text-white" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
@@ -805,6 +910,7 @@
 
         let pendingSelectedReason = 'logout';
         let confirmModalInstance = null;
+        let diagModalInstance = null;
 
         function claimWarranty(reasonOverride = null) {
             pendingSelectedReason = reasonOverride || document.querySelector('input[name="replace_reason"]:checked')?.value || 'logout';
@@ -812,11 +918,14 @@
             const reasonBadges = {
                 'logout': '<i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend',
                 'screen_limit': '<i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)',
-                'location_vpn': '<i class="fas fa-globe me-1"></i> Lokasi / Household / VPN Error'
+                'location_vpn': '<i class="fas fa-globe me-1"></i> Lokasi / Household / VPN Error',
+                'ads_plan': '<i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)'
             };
             const reasonBadgeHtml = reasonBadges[pendingSelectedReason] || '<i class="fas fa-tools me-1"></i> Ganti Akun';
             const badgeEl = document.getElementById('confirm-reason-badge');
             if(badgeEl) badgeEl.innerHTML = reasonBadgeHtml;
+            const diagBadgeEl = document.getElementById('diag-reason-badge');
+            if(diagBadgeEl) diagBadgeEl.innerHTML = reasonBadgeHtml;
 
             try {
                 if(!confirmModalInstance) {
@@ -828,6 +937,18 @@
             }
         }
 
+        function closeDiagAndShowGuide() {
+            if(diagModalInstance) {
+                try { diagModalInstance.hide(); } catch(e) {}
+            }
+            setTimeout(() => {
+                try {
+                    let instModal = new bootstrap.Modal(document.getElementById('replaceInstructionModal'));
+                    instModal.show();
+                } catch(e) {}
+            }, 300);
+        }
+
         async function executeClaimWarranty() {
             if(confirmModalInstance) {
                 try { confirmModalInstance.hide(); } catch(e) {}
@@ -835,32 +956,75 @@
             
             const selectedReason = pendingSelectedReason;
 
+            // Buka Modal Diagnostik & Progress Bar
+            try {
+                if(!diagModalInstance) {
+                    diagModalInstance = new bootstrap.Modal(document.getElementById('replaceDiagnosticModal'));
+                }
+                document.getElementById('diag-loading-view').style.display = 'block';
+                document.getElementById('diag-success-view').style.display = 'none';
+                document.getElementById('diag-error-view').style.display = 'none';
+                diagModalInstance.show();
+            } catch(e) {
+                console.log("Modal diag error:", e);
+            }
+
             setLoading('btn-replace', 'replace-text', 'replace-spinner', true);
             hideAlert('replace-alert');
             
-            const progressContainer = document.getElementById('replace-progress-container');
-            const progressBar = document.getElementById('replace-progress-bar');
-            const progressText = document.getElementById('replace-status-text');
-            const progressPercent = document.getElementById('replace-percentage');
-            progressContainer.style.display = 'block';
+            const progressBar = document.getElementById('diag-progress-bar');
+            const progressPercent = document.getElementById('diag-percentage');
+            const progressSub = document.getElementById('diag-status-sub');
+
+            const stepAuth = document.getElementById('step-auth');
+            const stepScreen = document.getElementById('step-screen');
+            const stepAds = document.getElementById('step-ads');
+            const stepStok = document.getElementById('step-stok');
+
+            // Reset checklist state
+            stepAuth.innerHTML = '<i class="fas fa-spinner fa-spin text-primary me-2" style="width: 16px;"></i> <span class="fw-semibold">1. Verifikasi Sesi & Autentikasi Akun...</span>';
+            stepAuth.className = 'd-flex align-items-center mb-1';
+            
+            stepScreen.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>2. Pengecekan Limit Layar (Screen Limit)...</span>';
+            stepScreen.className = 'd-flex align-items-center mb-1 text-muted';
+            
+            stepAds.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>3. Filter Proteksi Wilayah & Bebas Paket Iklan...</span>';
+            stepAds.className = 'd-flex align-items-center mb-1 text-muted';
+            
+            stepStok.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>4. Alokasi Akun Baru yang Belum Pernah Didapat...</span>';
+            stepStok.className = 'd-flex align-items-center text-muted';
+
             progressBar.style.width = '0%';
             progressPercent.innerText = '0%';
+            progressSub.innerText = "Memverifikasi sesi akun...";
             
             let progress = 0;
             const progressInterval = setInterval(() => {
                 if (progress < 90) {
-                    progress += Math.floor(Math.random() * 8) + 5;
+                    progress += Math.floor(Math.random() * 8) + 6;
                     if (progress > 90) progress = 90;
                     
                     progressBar.style.width = progress + '%';
                     progressPercent.innerText = progress + '%';
                     
-                    if (progress < 30) progressText.innerText = "Memverifikasi riwayat garansi...";
-                    else if (progress < 60) progressText.innerText = "Mencari stok akun unik belum pernah didapat...";
-                    else if (progress < 85) progressText.innerText = "Menyiapkan akun pengganti baru...";
-                    else progressText.innerText = "Sedikit lagi, sedang finalisasi...";
+                    if (progress >= 25 && progress < 50) {
+                        stepAuth.innerHTML = '<i class="fas fa-check-circle text-success me-2" style="width: 16px;"></i> <span class="text-success fw-semibold">1. Sesi & Autentikasi Berhasil Diverifikasi</span>';
+                        stepScreen.innerHTML = '<i class="fas fa-spinner fa-spin text-primary me-2" style="width: 16px;"></i> <span class="fw-semibold text-primary">2. Mendeteksi Batas Layar & Limit Screen...</span>';
+                        stepScreen.className = 'd-flex align-items-center mb-1';
+                        progressSub.innerText = "Mendeteksi pemutaran & limit layar...";
+                    } else if (progress >= 50 && progress < 75) {
+                        stepScreen.innerHTML = '<i class="fas fa-check-circle text-success me-2" style="width: 16px;"></i> <span class="text-success fw-semibold">2. Status Limit Screen Terkonfirmasi</span>';
+                        stepAds.innerHTML = '<i class="fas fa-spinner fa-spin text-primary me-2" style="width: 16px;"></i> <span class="fw-semibold text-primary">3. Memfilter Proteksi Wilayah & Bebas Iklan...</span>';
+                        stepAds.className = 'd-flex align-items-center mb-1';
+                        progressSub.innerText = "Memeriksa proteksi anti-iklan...";
+                    } else if (progress >= 75) {
+                        stepAds.innerHTML = '<i class="fas fa-check-circle text-success me-2" style="width: 16px;"></i> <span class="text-success fw-semibold">3. Terverifikasi Bebas Iklan & Valid Region</span>';
+                        stepStok.innerHTML = '<i class="fas fa-spinner fa-spin text-primary me-2" style="width: 16px;"></i> <span class="fw-semibold text-primary">4. Mengalokasikan Akun Pengganti Baru...</span>';
+                        stepStok.className = 'd-flex align-items-center';
+                        progressSub.innerText = "Mengambil stok akun baru...";
+                    }
                 }
-            }, 300);
+            }, 250);
 
             try {
                 const response = await fetch('/api/replace', {
@@ -874,46 +1038,50 @@
                 clearInterval(progressInterval);
                 progressBar.style.width = '100%';
                 progressPercent.innerText = '100%';
-                progressText.innerText = "Selesai!";
                 
-                setTimeout(() => { progressContainer.style.display = 'none'; }, 1500);
+                stepStok.innerHTML = '<i class="fas fa-check-circle text-success me-2" style="width: 16px;"></i> <span class="text-success fw-semibold">4. Akun Baru Berhasil Dihubungkan</span>';
                 
-                if(data.ok) {
-                    showAlert('replace-alert', '✅ <b>BERHASIL:</b> ' + data.message + ' Silakan gunakan Link Aktivasi (Login) yang baru di sebelah kanan.', 'success');
-                    // Update nftoken silently
-                    if(data.nftoken) {
-                        currentOrderData.nftoken = data.nftoken;
-                        let planName = (currentOrderData.plan || "").toLowerCase();
-                        let path = "unsupported"; 
-                        if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
-                        if (planName.includes("tv")) path = "tv2";
-                        let targetLink = "https://www.netflix.com/" + path + "?nftoken=" + data.nftoken;
-                        document.getElementById('btn-open-netflix').href = targetLink;
-                        if(document.getElementById('modal-btn-open-netflix')) {
-                            document.getElementById('modal-btn-open-netflix').href = targetLink;
-                        }
-                        
-                        document.getElementById('activation-area').style.display = 'block';
-                        if(document.getElementById('activation-dead')) document.getElementById('activation-dead').style.display = 'none';
-                        document.getElementById('d_status').innerText = 'Aktif (Garansi Baru)';
-                        document.getElementById('d_status').className = 'badge-status badge-active';
-                        
-                        // Tampilkan Popup Panduan Langkah Akses
-                        setTimeout(() => {
-                            try {
-                                let instModal = new bootstrap.Modal(document.getElementById('replaceInstructionModal'));
-                                instModal.show();
-                            } catch(e) {
-                                console.log("Modal error:", e);
+                setTimeout(() => {
+                    if(data.ok) {
+                        // Tampilkan Success View di dalam modal
+                        document.getElementById('diag-loading-view').style.display = 'none';
+                        document.getElementById('diag-success-view').style.display = 'block';
+                        document.getElementById('diag-success-msg').innerHTML = '<b>' + (data.message || 'Akun berhasil diganti.') + '</b><br>Akun telah lolos filter anti-screen limit dan bebas iklan.';
+
+                        if(data.nftoken) {
+                            currentOrderData.nftoken = data.nftoken;
+                            let planName = (currentOrderData.plan || "").toLowerCase();
+                            let path = "unsupported"; 
+                            if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
+                            if (planName.includes("tv")) path = "tv2";
+                            let targetLink = "https://www.netflix.com/" + path + "?nftoken=" + data.nftoken;
+                            
+                            document.getElementById('diag-btn-netflix').href = targetLink;
+                            document.getElementById('btn-open-netflix').href = targetLink;
+                            if(document.getElementById('modal-btn-open-netflix')) {
+                                document.getElementById('modal-btn-open-netflix').href = targetLink;
                             }
-                        }, 500);
+                            
+                            document.getElementById('activation-area').style.display = 'block';
+                            if(document.getElementById('activation-dead')) document.getElementById('activation-dead').style.display = 'none';
+                            document.getElementById('d_status').innerText = 'Aktif (Garansi Baru)';
+                            document.getElementById('d_status').className = 'badge-status badge-active';
+                        }
+                        showAlert('replace-alert', '✅ <b>BERHASIL:</b> Akun baru telah diberikan. Silakan gunakan link aktivasi di bawah.', 'success');
+                    } else {
+                        // Tampilkan Error View di dalam modal
+                        document.getElementById('diag-loading-view').style.display = 'none';
+                        document.getElementById('diag-error-view').style.display = 'block';
+                        document.getElementById('diag-error-msg').innerText = data.error || 'Gagal klaim garansi.';
+                        showAlert('replace-alert', '❌ <b>GAGAL:</b> ' + (data.error || 'Gagal klaim garansi.'), 'danger');
                     }
-                } else {
-                    showAlert('replace-alert', '❌ <b>GAGAL:</b> ' + (data.error || 'Gagal klaim garansi.'), 'danger');
-                }
+                }, 600);
+
             } catch (err) {
                 clearInterval(progressInterval);
-                progressContainer.style.display = 'none';
+                document.getElementById('diag-loading-view').style.display = 'none';
+                document.getElementById('diag-error-view').style.display = 'block';
+                document.getElementById('diag-error-msg').innerText = 'Terjadi kesalahan jaringan. Silakan periksa koneksi dan coba lagi.';
                 showAlert('replace-alert', '❌ Terjadi kesalahan jaringan. Silakan coba lagi.', 'danger');
             } finally {
                 setLoading('btn-replace', 'replace-text', 'replace-spinner', false);
