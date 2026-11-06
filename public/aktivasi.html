@@ -598,20 +598,39 @@
 
                     <!-- SUCCESS VIEW (Hidden initially) -->
                     <div id="diag-success-view" style="display: none;">
-                        <div class="my-3">
-                            <div style="width: 70px; height: 70px; border-radius: 50%; background: #e8f8f0; color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2);">
+                        <div class="my-2">
+                            <div style="width: 60px; height: 60px; border-radius: 50%; background: #e8f8f0; color: #10b981; display: inline-flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);">
                                 <i class="fas fa-check"></i>
                             </div>
                         </div>
-                        <h5 class="fw-bold text-success mb-2">Akun Baru Berhasil Diberikan!</h5>
-                        <p class="text-muted small mb-3" id="diag-success-msg">
-                            Akun baru Anda telah diverifikasi aktif, bebas dari screen limit, dan siap digunakan.
+                        <h5 class="fw-bold text-success mb-1">Akun Baru Berhasil Diberikan!</h5>
+                        <p class="text-muted small mb-2" id="diag-success-msg">
+                            Garansi sukses diklaim! Akun baru unik telah aktif dan siap digunakan.
                         </p>
+
+                        <!-- KOTAK DETAIL VERIFIKASI BEBAS LIMIT LAYAR -->
+                        <div class="p-3 mb-2 rounded-3 text-start shadow-sm" style="background: #f0fdf4; border: 1.5px solid #86efac;">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-success me-2 px-2 py-1" style="font-size: 0.72rem; letter-spacing: 0.3px;"><i class="fas fa-shield-alt me-1"></i> TERVERIFIKASI SISTEM</span>
+                                <strong style="color: #15803d; font-size: 0.86rem;">STATUS: AKUN FRESH & BEBAS LIMIT LAYAR</strong>
+                            </div>
+                            <div style="font-size: 0.82rem; color: #14532d; line-height: 1.65;">
+                                <div class="mb-1"><i class="fas fa-tv text-success me-1"></i> <b>Bebas Screen Limit:</b> Kuota tontonan <b>Tersedia (Ready)</b>. Akun telah dipindai bebas dari error <i>"Too Many Devices"</i>.</div>
+                                <div class="mb-1"><i class="fas fa-check-circle text-success me-1"></i> <b>100% Bebas Paket Iklan:</b> Bukan akun Ads. Mendukung streaming lancar di seluruh wilayah Indonesia.</div>
+                                <div><i class="fas fa-fingerprint text-success me-1"></i> <b>Akun Baru Unik:</b> Belum pernah Anda terima pada pesanan ini sebelumnya.</div>
+                            </div>
+                        </div>
+
+                        <!-- NOTICE HAPUS CACHE / LOGOUT -->
+                        <div class="p-2 mb-3 rounded-2 text-start" style="background: #fffbeb; border-left: 3.5px solid #f59e0b; font-size: 0.78rem; color: #92400e; line-height: 1.5;">
+                            <b>⚠️ PENTING:</b> Jika di TV / HP Anda tadi sempat muncul layar penuh, <b>wajib Logout atau Bersihkan Cache</b> aplikasi Netflix lama Anda terlebih dahulu agar sesi lama terlepas sebelum membuka link baru ini.
+                        </div>
+
                         <a id="diag-btn-netflix" href="#" target="_blank" class="btn text-white fw-bold w-100 py-2 mb-2" style="background: linear-gradient(135deg, #e50914, #ff334b); border: none; border-radius: 10px; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.3);">
                             <i class="fas fa-play me-2"></i> Buka Netflix Sekarang
                         </a>
                         <button type="button" class="btn btn-outline-secondary w-100 py-2 fw-semibold" onclick="closeDiagAndShowGuide()" style="border-radius: 10px; font-size: 0.85rem;">
-                            <i class="fas fa-book-open me-1"></i> Lihat Panduan Akses / Tutup
+                            <i class="fas fa-book-open me-1"></i> Panduan Logout & Hapus Cache (TV / HP / PC)
                         </button>
                     </div>
 
