@@ -124,7 +124,6 @@
                 btn.disabled = false;
             }
         }
-        }
 
         async function loadOrders() {
             try {
