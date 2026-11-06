@@ -397,6 +397,7 @@
                     <select class="form-select" id="searchField">
                         <option value="access_code">Berdasarkan Kode Akses</option>
                         <option value="username">Berdasarkan Username</option>
+                        <option value="creator">Berdasarkan Remark / Pembuat (Admin/Reseller)</option>
                     </select>
                 </div>
                 <div class="col-md-7">
@@ -449,6 +450,7 @@
                         <tr>
                             <th style="width: 40px;" class="text-center">#</th>
                             <th>Username</th>
+                            <th>Dibuat Oleh</th>
                             <th>Tanggal Order</th>
                             <th>Paket Layanan</th>
                             <th>Kode Akses</th>
@@ -459,7 +461,7 @@
                     </thead>
                     <tbody id="tableBody">
                         <tr>
-                            <td colspan="8" class="text-center py-5 text-muted fw-bold">Memuat data dari server...</td>
+                            <td colspan="9" class="text-center py-5 text-muted fw-bold">Memuat data dari server...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -589,6 +591,12 @@
             }
         }
 
+        
+        function escapeHtml(str) {
+            if(!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
         function renderTable() {
             const tbody = document.getElementById("tableBody");
             tbody.innerHTML = "";
@@ -639,7 +647,7 @@
             document.getElementById("countExpired").innerText = currentData.filter(i => i.status === 'expired').length;
 
             if(filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="text-center py-5 text-muted fw-bold">Tidak ada data transaksi yang ditemukan.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted fw-bold">Tidak ada data transaksi yang ditemukan.</td></tr>`;
                 return;
             }
 
@@ -648,9 +656,13 @@
                 const badgeText = item.status === 'active' ? 'Aktif' : 'Expired';
                 
                 const tr = document.createElement("tr");
+                const creatorBadge = item.creator_type === 'reseller'
+                    ? `<span class="badge rounded-pill px-2 py-1" style="background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; font-size: 0.78rem;"><i class="fas fa-user-tag me-1 text-success"></i> ${escapeHtml(item.creator || 'Reseller')}</span>`
+                    : `<span class="badge rounded-pill px-2 py-1" style="background: #eef2ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 0.78rem;"><i class="fas fa-crown text-warning me-1"></i> ${escapeHtml(item.creator || 'Admin')}</span>`;
                 tr.innerHTML = `
                     <td class="text-center text-muted">${index + 1}</td>
-                    <td class="fw-bold" style="color: var(--primary);">${item.username || '-'}</td>
+                    <td class="fw-bold" style="color: var(--primary);">${escapeHtml(item.username || '-')}</td>
+                    <td class="text-nowrap">${creatorBadge}</td>
                     <td><i class="fas fa-calendar-alt text-muted me-1"></i> ${item.created_at || '-'}</td>
                     <td>
                         <div class="fw-bold text-dark" style="font-size:0.9rem;">${item.plan}</div>
@@ -673,9 +685,9 @@
         function exportCSV() {
             if(currentData.length === 0) return alert("Tidak ada data untuk di-export.");
             
-            const headers = ["Username", "Tanggal Order", "Nama Paket", "Durasi (Hari)", "Kode Akses", "Tanggal Berakhir", "Status"];
+            const headers = ["Username", "Dibuat Oleh", "Tanggal Order", "Nama Paket", "Durasi (Hari)", "Kode Akses", "Tanggal Berakhir", "Status"];
             const rows = currentData.map(item => [
-                item.username, item.created_at, item.plan, item.duration_days, 
+                item.username, (item.creator || "Admin"), item.created_at, item.plan, item.duration_days, 
                 item.access_code, item.expired_at, item.status
             ]);
             
