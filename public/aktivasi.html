@@ -349,9 +349,9 @@
                             <div class="form-check m-0">
                                 <input class="form-check-input" type="radio" name="replace_reason" id="reason_location" value="location_vpn">
                                 <label class="form-check-label fw-bold" for="reason_location" style="cursor:pointer; font-size: 0.85rem; color: #f0ad4e;">
-                                    <i class="fas fa-globe me-1"></i> Peringatan Lokasi / Household / VPN Error
+                                    <i class="fas fa-globe me-1"></i> Error E114 / Lokasi / Household / VPN
                                 </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Peringatan "Not Part of Household" atau kendala lokasi/VPN.</div>
+                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Muncul "Akun tidak dapat digunakan di wilayah ini" (Error E114) atau Household.</div>
                             </div>
                         </div>
                         <div class="custom-reason-card" onclick="selectReason('ads_plan', this)">
@@ -583,7 +583,7 @@
                             </div>
                             <div id="step-ads" class="d-flex align-items-center mb-1 text-muted">
                                 <i class="far fa-circle text-muted me-2" style="width: 16px;"></i>
-                                <span>3. Filter Proteksi Wilayah & Bebas Paket Iklan...</span>
+                                <span>3. Filter Wilayah (Anti-E114) & Bebas Iklan...</span>
                             </div>
                             <div id="step-stok" class="d-flex align-items-center text-muted">
                                 <i class="far fa-circle text-muted me-2" style="width: 16px;"></i>
@@ -617,6 +617,7 @@
                             <div style="font-size: 0.82rem; color: #14532d; line-height: 1.65;">
                                 <div class="mb-1"><i class="fas fa-tv text-success me-1"></i> <b>Bebas Screen Limit:</b> Kuota tontonan <b>Tersedia (Ready)</b>. Akun telah dipindai bebas dari error <i>"Too Many Devices"</i>.</div>
                                 <div class="mb-1"><i class="fas fa-check-circle text-success me-1"></i> <b>100% Bebas Paket Iklan:</b> Bukan akun Ads. Mendukung streaming lancar di seluruh wilayah Indonesia.</div>
+                                <div class="mb-1"><i class="fas fa-globe-americas text-success me-1"></i> <b>Bebas Error E114 (Geo-Lock):</b> Akun terbebas dari kunci wilayah. Bisa streaming langsung di Indonesia tanpa butuh VPN.</div>
                                 <div><i class="fas fa-fingerprint text-success me-1"></i> <b>Akun Baru Unik:</b> Belum pernah Anda terima pada pesanan ini sebelumnya.</div>
                             </div>
                         </div>
@@ -940,7 +941,7 @@
             const reasonBadges = {
                 'logout': '<i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend',
                 'screen_limit': '<i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)',
-                'location_vpn': '<i class="fas fa-globe me-1"></i> Lokasi / Household / VPN Error',
+                'location_vpn': '<i class="fas fa-globe me-1"></i> Error E114 / Lokasi / Household / VPN',
                 'ads_plan': '<i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)'
             };
             const reasonBadgeHtml = reasonBadges[pendingSelectedReason] || '<i class="fas fa-tools me-1"></i> Ganti Akun';
@@ -1010,7 +1011,7 @@
             stepScreen.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>2. Pengecekan Limit Layar (Screen Limit)...</span>';
             stepScreen.className = 'd-flex align-items-center mb-1 text-muted';
             
-            stepAds.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>3. Filter Proteksi Wilayah & Bebas Paket Iklan...</span>';
+            stepAds.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>3. Filter Wilayah (Anti-E114) & Bebas Iklan...</span>';
             stepAds.className = 'd-flex align-items-center mb-1 text-muted';
             
             stepStok.innerHTML = '<i class="far fa-circle text-muted me-2" style="width: 16px;"></i> <span>4. Alokasi Akun Baru yang Belum Pernah Didapat...</span>';
