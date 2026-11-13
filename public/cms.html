@@ -1239,11 +1239,22 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold text-primary">Ubah Paket Layanan:</label>
                         <select id="modal-edit-plan" class="form-select">
-                            <option value="premium mobile">Premium Mobile</option>
-                            <option value="Premium TV">Premium TV</option>
-                            <option value="Premium PC/Laptop">Premium PC/Laptop</option>
-                            <option value="Reguler">Reguler</option>
-                            <option value="- Next billing:">- Next billing:</option>
+                            <optgroup label="Paket Premium">
+                                <option value="Premium Mobile">Premium Mobile</option>
+                                <option value="Premium TV">Premium TV</option>
+                                <option value="Premium PC/Laptop">Premium PC/Laptop</option>
+                                <option value="Reguler">Premium Reguler</option>
+                            </optgroup>
+                            <optgroup label="Paket Standard">
+                                <option value="Standard Mobile">Standard Mobile</option>
+                                <option value="Standard TV">Standard TV</option>
+                                <option value="Standard PC/Laptop">Standard PC/Laptop</option>
+                                <option value="Standard">Standard (Umum)</option>
+                            </optgroup>
+                            <optgroup label="Lainnya">
+                                <option value="Duplicate">Duplicate</option>
+                                <option value="- Next billing:">- Next billing:</option>
+                            </optgroup>
                         </select>
                     </div>
                     <div class="mb-3">
