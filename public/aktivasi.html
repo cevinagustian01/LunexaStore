@@ -267,6 +267,36 @@
             background: #edf7ff !important;
             box-shadow: 0 2px 8px rgba(79, 172, 254, 0.15);
         }
+
+        /* Device Switcher Styling */
+        .device-btn {
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 8px !important;
+            transition: all 0.2s ease;
+            color: #555;
+            border-color: #dee2e6;
+            background: #fff;
+        }
+        .device-btn:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+        .device-btn.active {
+            background: linear-gradient(135deg, #ff4b82 0%, #ff758c 100%) !important;
+            color: #fff !important;
+            border-color: #ff4b82 !important;
+            box-shadow: 0 2px 8px rgba(255, 75, 130, 0.3);
+        }
+        
+        /* Screen check result box */
+        .screen-result-box {
+            border-radius: 10px;
+            padding: 10px 12px;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            animation: fadeIn 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -318,6 +348,42 @@
                     <div class="info-row">
                         <span class="info-label">Status</span>
                         <span class="info-value"><span id="d_status" class="badge-status badge-active">Aktif</span></span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Perangkat Nonton</span>
+                        <span class="info-value"><span id="d_device_badge" class="badge bg-light text-dark border">📱 HP / Android</span></span>
+                    </div>
+
+                    <!-- GANTI PERANGKAT -->
+                    <div class="mt-3 p-2 rounded" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.06);">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span style="font-size: 0.78rem; font-weight: 700; color: #495057;">
+                                <i class="fas fa-desktop me-1 text-primary"></i> Ganti Perangkat Nonton:
+                            </span>
+                            <span id="device-sync-indicator" style="font-size: 0.7rem; color: #28a745; display: none;">
+                                <i class="fas fa-check"></i> Tersimpan
+                            </span>
+                        </div>
+                        <div class="btn-group w-100 device-switcher" role="group" aria-label="Pilih Perangkat">
+                            <button type="button" id="dev-btn-mobile" class="btn btn-sm device-btn" onclick="switchActiveDevice('mobile')">
+                                <i class="fas fa-mobile-alt me-1"></i> HP/Android
+                            </button>
+                            <button type="button" id="dev-btn-pc" class="btn btn-sm device-btn" onclick="switchActiveDevice('pc')">
+                                <i class="fas fa-laptop me-1"></i> PC/Laptop
+                            </button>
+                            <button type="button" id="dev-btn-tv" class="btn btn-sm device-btn" onclick="switchActiveDevice('tv')">
+                                <i class="fas fa-tv me-1"></i> Smart TV
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CEK SCREEN LIMIT MANUAL -->
+                    <div class="mt-3">
+                        <button id="btn-check-screen" onclick="checkScreenLimitManual()" class="btn btn-outline-primary btn-sm w-100 fw-bold py-2" style="border-radius: 10px; border-width: 1.5px; font-size: 0.82rem;">
+                            <span id="check-screen-text"><i class="fas fa-search me-1"></i> Cek Status Screen Limit (Layar Penuh)</span>
+                            <div id="check-screen-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></div>
+                        </button>
+                        <div id="screen-check-result" class="mt-2" style="display: none;"></div>
                     </div>
 
                     <!-- KLAIM GARANSI -->
@@ -395,6 +461,21 @@
                         </div>
                     </div>
                     
+                    <!-- PILIHAN KUALITAS / PAKET PENGGANTI -->
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size: 0.82rem; color: #444;">
+                            <i class="fas fa-sliders-h me-1 text-primary"></i> Pilihan Kualitas / Paket Pengganti:
+                        </label>
+                        <select id="select-target-plan" class="form-select form-select-sm" style="border-radius: 8px; font-size: 0.82rem;">
+                            <option value="auto">Sesuai Paket Pesanan (Prioritas 4K Ultra HD)</option>
+                            <option value="standard">Beralih ke Standard (Full HD 1080p - Rekomendasi Bebas Antri)</option>
+                            <option value="premium">Tetap Minta 4K Ultra HD (Premium)</option>
+                        </select>
+                        <div class="text-muted mt-1" style="font-size: 0.72rem; line-height: 1.4;">
+                            <i class="fas fa-info-circle me-1"></i> Jika stok 4K kosong, Anda dapat beralih ke paket Standard agar akun langsung aktif tanpa menunggu restock admin.
+                        </div>
+                    </div>
+
                     <button id="btn-replace" onclick="claimWarranty()" class="btn-brand" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); font-size: 0.9rem; padding: 12px;">
                         <span id="replace-text"><i class="fas fa-tools me-2"></i> Ganti Akun Sekarang</span>
                         <div id="replace-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></div>
@@ -734,12 +815,58 @@
         </div>
     </div>
 
+    <!-- MODAL RESTOCK 4K KOSONG & TAWARAN GANTI KE STANDARD -->
+    <div class="modal fade" id="standardFallbackModal" tabindex="-1" aria-labelledby="fallbackModalLabel" aria-hidden="true" data-bs-backdrop="static">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 18px; overflow: hidden;">
+                <div class="modal-header text-white" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+                    <h5 class="modal-title fw-bold" id="fallbackModalLabel" style="font-size: 1.05rem;">
+                        <i class="fas fa-exclamation-circle me-2"></i> Stok Akun 4K Kosong Sementara
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4 text-center" style="font-size: 0.9rem; color: #333;">
+                    <div class="my-2">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 26px;">
+                            <i class="fas fa-film"></i>
+                        </div>
+                    </div>
+                    <h5 class="fw-bold text-dark mt-2 mb-2" style="font-size: 1.1rem;">Beralih ke Akun Standard (Full HD 1080p)?</h5>
+                    <p class="text-muted small mb-3" id="fallback-modal-desc">
+                        Stok akun 4K (Ultra HD) untuk perangkat ini sedang habis sementara dan menunggu antrean restock.
+                    </p>
+
+                    <div class="p-3 mb-3 rounded-3 text-start" style="background: #f0fdf4; border: 1px solid #bbf7d0; font-size: 0.83rem; color: #166534; line-height: 1.6;">
+                        <i class="fas fa-check-circle text-success me-1"></i> <b>Tersedia Stok Akun Standard Ready:</b><br>
+                        • Kualitas tayangan Full HD 1080p jernih & nyaman ditonton.<br>
+                        • <b>Langsung aktif instan</b> tanpa antri & tanpa menunggu restock admin.<br>
+                        • Masa aktif garansi Anda tetap utuh sesuai pesanan awal.
+                    </div>
+                </div>
+                <div class="modal-footer bg-light border-0 justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-3 fw-bold" data-bs-dismiss="modal" style="font-size: 0.85rem;">
+                        Tunggu Stok 4K
+                    </button>
+                    <button type="button" onclick="confirmStandardFallback()" class="btn text-white rounded-pill px-4 fw-bold" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; font-size: 0.85rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);">
+                        <i class="fas fa-bolt me-1"></i> Ya, Ambil Akun Standard Sekarang
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
         let currentOrderData = null;
         let currentAccessCode = "";
+        let currentActiveDevice = "mobile";
+        let suggestedFallbackPlan = "Standard Mobile";
+        let fallbackModalInstance = null;
+        let confirmModalInstance = null;
+        let diagModalInstance = null;
+        let pendingSelectedReason = 'logout';
 
         async function login() {
             const codeInput = document.getElementById('access_code');
@@ -792,48 +919,16 @@
             const activationArea = document.getElementById('activation-area');
             const activationExpired = document.getElementById('activation-expired');
             const activationDead = document.getElementById('activation-dead');
-            const dynInstruction = document.getElementById('dynamic-instruction');
 
-            // Dynamic Instruction based on Plan
-            let planName = (currentOrderData.plan || "").toLowerCase();
-            if(planName.includes("tv")) {
-                dynInstruction.innerHTML = `
-                    <b>Tata cara aktivasi perangkat TV:</b><br>
-                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/g3KldOKKccc" title="Tutorial TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    1. Pastikan TV sudah menampilan 8 digit kode angka<br>
-                    2. Klik "Buka Netflix Sekarang"<br>
-                    3. Masukkan 8 digit kode yang muncul di TV<br>
-                    4. Selamat, akun Netflix anda sudah siap digunakan<br>
-                    5. Enjoy Netflix
-                `;
-            } else if(planName.includes("mobile")) {
-                dynInstruction.innerHTML = `
-                    <b>Tata cara aktivasi perangkat Mobile:</b><br>
-                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <iframe width="100%" height="300" src="https://www.youtube.com/embed/5t8lwHwzpko" title="Tutorial Mobile" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    1. Hapus data/cache aplikasi Netflix, jika perlu reinstall/install ulang<br>
-                    2. Klik "Buka Netflix Sekarang"<br>
-                    3. Akan diarahkan ke web Netflix<br>
-                    4. Klik "Open App"<br>
-                    5. Anda akan diarahkan ke aplikasi Netflix dan proses verifikasi login<br>
-                    6. Selamat, akun Netflix anda sudah siap digunakan<br>
-                    7. Enjoy Netflix
-                `;
-            } else {
-                dynInstruction.innerHTML = `
-                    <b>Tata cara aktivasi perangkat PC/Laptop:</b><br>
-                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-                        <iframe width="100%" height="220" src="https://www.youtube.com/embed/xfCPIX02qCg" title="Tutorial PC" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
-                    </div>
-                    1. Klik "Buka Netflix Sekarang"<br>
-                    2. Anda akan diarahkan ke aplikasi Netflix<br>
-                    3. Selamat, akun Netflix anda sudah siap digunakan<br>
-                    4. Enjoy Netflix
-                `;
+            // Detect initial device from order
+            let initDev = (currentOrderData.active_device || "").toLowerCase();
+            if (!['mobile', 'pc', 'tv'].includes(initDev)) {
+                let p = (currentOrderData.plan || "").toLowerCase();
+                if (p.includes("tv")) initDev = "tv";
+                else if (p.includes("pc") || p.includes("laptop")) initDev = "pc";
+                else initDev = "mobile";
             }
+            switchActiveDevice(initDev, false);
 
             if(currentOrderData.is_expired) {
                 statusBadge.innerText = 'Expired';
@@ -856,18 +951,213 @@
                 activationArea.style.display = 'block';
                 activationExpired.style.display = 'none';
                 if(activationDead) activationDead.style.display = 'none';
-                
-                // Set link dynamically based on plan
-                let path = "unsupported"; // default mobile
-                if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
-                if (planName.includes("tv")) path = "tv2";
-                
-                const loginUrl = "https://www.netflix.com/" + path + "?nftoken=" + currentOrderData.nftoken;
-                document.getElementById('btn-open-netflix').href = loginUrl;
             }
             
-            // Clear replace alerts if any
+            // Clear alerts & previous screen check
             hideAlert('replace-alert');
+            const checkRes = document.getElementById('screen-check-result');
+            if (checkRes) {
+                checkRes.style.display = 'none';
+                checkRes.innerHTML = '';
+            }
+        }
+
+        function switchActiveDevice(dev, saveToBackend = true) {
+            currentActiveDevice = dev;
+
+            // Toggle active class on device buttons
+            ['mobile', 'pc', 'tv'].forEach(d => {
+                const btn = document.getElementById(`dev-btn-${d}`);
+                if (btn) {
+                    if (d === dev) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                }
+            });
+
+            // Update badge in order details
+            const devBadge = document.getElementById('d_device_badge');
+            if (devBadge) {
+                if (dev === 'tv') {
+                    devBadge.innerHTML = '<span class="badge bg-primary text-white"><i class="fas fa-tv me-1"></i> Smart TV</span>';
+                } else if (dev === 'pc') {
+                    devBadge.innerHTML = '<span class="badge bg-info text-white"><i class="fas fa-laptop me-1"></i> PC / Laptop</span>';
+                } else {
+                    devBadge.innerHTML = '<span class="badge bg-secondary text-white"><i class="fas fa-mobile-alt me-1"></i> HP / Android</span>';
+                }
+            }
+
+            // Update tutorial instructions
+            updateInstruction(dev);
+
+            // Update login link targets
+            updateLoginUrls();
+
+            // Sync choice to backend
+            if (saveToBackend && currentAccessCode) {
+                const ind = document.getElementById('device-sync-indicator');
+                if (ind) {
+                    ind.style.display = 'inline';
+                    ind.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan...';
+                    ind.style.color = '#0275d8';
+                }
+                fetch('/api/order/update_device', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ access_code: currentAccessCode, new_device: dev })
+                }).then(r => r.json()).then(res => {
+                    if (res.ok && ind) {
+                        ind.innerHTML = '<i class="fas fa-check"></i> Tersimpan';
+                        ind.style.color = '#28a745';
+                        if (res.plan) {
+                            currentOrderData.plan = res.plan;
+                            document.getElementById('d_plan').innerText = res.plan;
+                        }
+                        setTimeout(() => { if (ind) ind.style.display = 'none'; }, 2000);
+                    }
+                }).catch(() => {
+                    if (ind) ind.style.display = 'none';
+                });
+            }
+        }
+
+        function updateInstruction(dev) {
+            const dynInstruction = document.getElementById('dynamic-instruction');
+            if (!dynInstruction) return;
+
+            if (dev === "tv") {
+                dynInstruction.innerHTML = `
+                    <b>Tata cara aktivasi perangkat Smart TV:</b><br>
+                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <iframe width="100%" height="250" src="https://www.youtube.com/embed/g3KldOKKccc" title="Tutorial TV" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                    1. Pastikan aplikasi Netflix di TV sudah menampilkan 8 digit kode angka<br>
+                    2. Klik <b>"Buka Netflix Sekarang"</b> di bawah<br>
+                    3. Masukkan 8 digit kode yang tampil di layar TV Anda<br>
+                    4. TV Anda akan otomatis login dan langsung siap digunakan<br>
+                    5. Enjoy Netflix di Smart TV Anda!
+                `;
+            } else if (dev === "pc") {
+                dynInstruction.innerHTML = `
+                    <b>Tata cara aktivasi perangkat PC / Laptop:</b><br>
+                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <iframe width="100%" height="220" src="https://www.youtube.com/embed/xfCPIX02qCg" title="Tutorial PC" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                    1. Klik tombol <b>"Buka Netflix Sekarang"</b> di bawah<br>
+                    2. Browser Anda akan langsung diarahkan dan otomatis login<br>
+                    3. Jika muncul layar hitam, klik link <i>Bersihkan Cookies</i> di bawah terlebih dahulu<br>
+                    4. Enjoy Netflix di PC/Laptop Anda!
+                `;
+            } else {
+                dynInstruction.innerHTML = `
+                    <b>Tata cara aktivasi perangkat Mobile (HP / Tablet):</b><br>
+                    <div style="margin-top: 10px; margin-bottom: 15px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                        <iframe width="100%" height="300" src="https://www.youtube.com/embed/5t8lwHwzpko" title="Tutorial Mobile" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                    1. Hapus data/cache aplikasi Netflix HP atau buka ulang aplikasi<br>
+                    2. Klik tombol <b>"Buka Netflix Sekarang"</b> di bawah<br>
+                    3. Pada halaman Netflix web, klik tombol <b>"Open App"</b><br>
+                    4. Aplikasi Netflix akan otomatis terbuka dan langsung login<br>
+                    5. Enjoy Netflix di HP Anda!
+                `;
+            }
+        }
+
+        function updateLoginUrls() {
+            if (!currentOrderData || !currentOrderData.nftoken) return;
+            const path = currentActiveDevice === "tv" ? "tv2" : (currentActiveDevice === "pc" ? "browse" : "unsupported");
+            const loginUrl = "https://www.netflix.com/" + path + "?nftoken=" + currentOrderData.nftoken;
+            
+            const btnOpen = document.getElementById('btn-open-netflix');
+            if (btnOpen) btnOpen.href = loginUrl;
+            const diagBtn = document.getElementById('diag-btn-netflix');
+            if (diagBtn) diagBtn.href = loginUrl;
+            const modalBtn = document.getElementById('modal-btn-open-netflix');
+            if (modalBtn) modalBtn.href = loginUrl;
+        }
+
+        async function checkScreenLimitManual() {
+            if (!currentAccessCode) return;
+            const btn = document.getElementById('btn-check-screen');
+            const txt = document.getElementById('check-screen-text');
+            const sp = document.getElementById('check-screen-spinner');
+            const resEl = document.getElementById('screen-check-result');
+            
+            btn.disabled = true;
+            txt.style.display = 'none';
+            sp.style.display = 'inline-block';
+            resEl.style.display = 'block';
+            resEl.innerHTML = '<div class="screen-result-box text-muted border text-center py-2" style="background:#f8fafc;"><i class="fas fa-spinner fa-spin me-2 text-primary"></i> Menghubungi Netflix PlayAPI untuk mendeteksi limit pemutaran layar...</div>';
+            
+            try {
+                const response = await fetch('/api/order/check_screen', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ access_code: currentAccessCode })
+                });
+                const data = await response.json();
+                
+                if (data.ok) {
+                    if (data.screen_limit) {
+                        resEl.innerHTML = `
+                            <div class="screen-result-box border border-danger-subtle" style="background: #fff5f5; color: #b91c1c;">
+                                <div class="fw-bold mb-1"><i class="fas fa-tv me-1 text-danger"></i> Layar Penuh (Screen Limit) Terdeteksi!</div>
+                                <div style="font-size: 0.76rem; color: #7f1d1d; margin-bottom: 8px;">
+                                    Profil lain sedang menonton di akun ini sehingga memicu batas maksimal layar Netflix (Too Many Devices).
+                                </div>
+                                <button onclick="claimWarrantyWithReason('screen_limit')" class="btn btn-sm btn-danger w-100 fw-bold py-1 shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
+                                    <i class="fas fa-sync-alt me-1"></i> Ganti Akun Bebas Limit Sekarang
+                                </button>
+                            </div>
+                        `;
+                    } else if (data.can_play) {
+                        resEl.innerHTML = `
+                            <div class="screen-result-box border border-success-subtle" style="background: #f0fdf4; color: #166534;">
+                                <div class="fw-bold mb-1"><i class="fas fa-check-circle me-1 text-success"></i> Layar Aman & Bersih!</div>
+                                <div style="font-size: 0.76rem; color: #15803d;">
+                                    Tidak ada limit layar yang terdeteksi. Akun siap dan lancar untuk memutar film sekarang.
+                                </div>
+                            </div>
+                        `;
+                    } else if (data.is_dead) {
+                        resEl.innerHTML = `
+                            <div class="screen-result-box border border-danger-subtle" style="background: #fff5f5; color: #b91c1c;">
+                                <div class="fw-bold mb-1"><i class="fas fa-times-circle me-1 text-danger"></i> Akun Ter-logout / Mati</div>
+                                <div style="font-size: 0.76rem; color: #7f1d1d; margin-bottom: 8px;">
+                                    Sesi akun telah berakhir atau password diperbarui. Silakan klaim garansi akun baru.
+                                </div>
+                                <button onclick="claimWarrantyWithReason('logout')" class="btn btn-sm btn-danger w-100 fw-bold py-1 shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
+                                    <i class="fas fa-sync-alt me-1"></i> Klaim Akun Baru Sekarang
+                                </button>
+                            </div>
+                        `;
+                    } else {
+                        resEl.innerHTML = `
+                            <div class="screen-result-box border border-info-subtle" style="background: #f0f9ff; color: #0369a1;">
+                                <div class="fw-bold"><i class="fas fa-info-circle me-1"></i> ${data.message || 'Status akun normal.'}</div>
+                            </div>
+                        `;
+                    }
+                } else {
+                    resEl.innerHTML = `
+                        <div class="screen-result-box border text-muted py-2" style="background: #fff;">
+                            <i class="fas fa-exclamation-circle text-warning me-1"></i> ${data.error || 'Gagal memeriksa status layar.'}
+                        </div>
+                    `;
+                }
+            } catch (err) {
+                resEl.innerHTML = `
+                    <div class="screen-result-box border border-danger-subtle text-danger py-2" style="background: #fff5f5;">
+                        <i class="fas fa-wifi me-1"></i> Gagal menghubungi server diagnostik. Silakan coba lagi.
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                txt.style.display = 'inline';
+                sp.style.display = 'none';
+            }
         }
 
         function logout() {
@@ -890,11 +1180,7 @@
 
         function copyLink() {
             if(!currentOrderData || !currentOrderData.nftoken) return;
-            let planName = (currentOrderData.plan || "").toLowerCase();
-            let path = "unsupported"; 
-            if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
-            if (planName.includes("tv")) path = "tv2";
-            
+            const path = currentActiveDevice === "tv" ? "tv2" : (currentActiveDevice === "pc" ? "browse" : "unsupported");
             const loginUrl = "https://www.netflix.com/" + path + "?nftoken=" + currentOrderData.nftoken;
             
             if (navigator.clipboard && window.isSecureContext) {
@@ -925,22 +1211,18 @@
             if(cardEl) {
                 cardEl.classList.add('selected-reason');
             }
-            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : 'reason_logout');
+            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : (reasonVal === 'ads_plan' ? 'reason_ads' : (reasonVal === 'pin' ? 'reason_pin' : 'reason_logout')));
             const radioEl = document.getElementById(radioId);
             if(radioEl) radioEl.checked = true;
         }
 
         function claimWarrantyWithReason(reasonVal) {
-            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : 'reason_logout');
+            const radioId = reasonVal === 'screen_limit' ? 'reason_screen' : (reasonVal === 'location_vpn' ? 'reason_location' : (reasonVal === 'ads_plan' ? 'reason_ads' : (reasonVal === 'pin' ? 'reason_pin' : 'reason_logout')));
             const radioEl = document.getElementById(radioId);
             const cardEl = radioEl ? radioEl.closest('.custom-reason-card') : null;
             selectReason(reasonVal, cardEl);
             claimWarranty(reasonVal);
         }
-
-        let pendingSelectedReason = 'logout';
-        let confirmModalInstance = null;
-        let diagModalInstance = null;
 
         function claimWarranty(reasonOverride = null) {
             pendingSelectedReason = reasonOverride || document.querySelector('input[name="replace_reason"]:checked')?.value || 'logout';
@@ -949,7 +1231,8 @@
                 'logout': '<i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend',
                 'screen_limit': '<i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)',
                 'location_vpn': '<i class="fas fa-globe me-1"></i> Error E114 / Lokasi / Household / VPN',
-                'ads_plan': '<i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)'
+                'ads_plan': '<i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)',
+                'pin': '<i class="fas fa-lock me-1"></i> Terkunci PIN Profil (Profile Lock)'
             };
             const reasonBadgeHtml = reasonBadges[pendingSelectedReason] || '<i class="fas fa-tools me-1"></i> Ganti Akun';
             const badgeEl = document.getElementById('confirm-reason-badge');
@@ -979,12 +1262,21 @@
             }, 300);
         }
 
-        async function executeClaimWarranty() {
+        function confirmStandardFallback() {
+            if (fallbackModalInstance) {
+                try { fallbackModalInstance.hide(); } catch(e) {}
+            }
+            executeClaimWarranty(true, suggestedFallbackPlan);
+        }
+
+        async function executeClaimWarranty(forceFallback = false, fallbackPlan = null) {
             if(confirmModalInstance) {
                 try { confirmModalInstance.hide(); } catch(e) {}
             }
             
             const selectedReason = pendingSelectedReason;
+            const targetPlanEl = document.getElementById('select-target-plan');
+            const chosenPlan = fallbackPlan || (targetPlanEl ? targetPlanEl.value : 'auto');
 
             // Buka Modal Diagnostik & Progress Bar
             try {
@@ -1060,15 +1352,37 @@
                 const response = await fetch('/api/replace', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ access_code: currentAccessCode, reason: selectedReason })
+                    body: JSON.stringify({
+                        access_code: currentAccessCode,
+                        reason: selectedReason,
+                        target_device: currentActiveDevice,
+                        target_plan: chosenPlan,
+                        allow_standard_fallback: forceFallback
+                    })
                 });
                 
                 const data = await response.json();
-                
                 clearInterval(progressInterval);
+
+                // CEK JIKA STOK 4K KOSONG DAN TERSEDIA TAWARAN STANDARD:
+                if (!data.ok && data.stok_4k_habis && data.has_standard_stock) {
+                    if (diagModalInstance) {
+                        try { diagModalInstance.hide(); } catch(e) {}
+                    }
+                    suggestedFallbackPlan = data.suggested_plan || ('Standard ' + (currentActiveDevice === 'tv' ? 'TV' : (currentActiveDevice === 'pc' ? 'PC/Laptop' : 'Mobile')));
+                    const descEl = document.getElementById('fallback-modal-desc');
+                    if (descEl && data.message) descEl.innerText = data.message;
+                    
+                    if (!fallbackModalInstance) {
+                        fallbackModalInstance = new bootstrap.Modal(document.getElementById('standardFallbackModal'));
+                    }
+                    fallbackModalInstance.show();
+                    setLoading('btn-replace', 'replace-text', 'replace-spinner', false);
+                    return;
+                }
+                
                 progressBar.style.width = '100%';
                 progressPercent.innerText = '100%';
-                
                 stepStok.innerHTML = '<i class="fas fa-check-circle text-success me-2" style="width: 16px;"></i> <span class="text-success fw-semibold">4. Akun Baru Berhasil Dihubungkan</span>';
                 
                 setTimeout(() => {
@@ -1078,26 +1392,22 @@
                         document.getElementById('diag-success-view').style.display = 'block';
                         document.getElementById('diag-success-msg').innerText = data.message || 'Garansi sukses diklaim! Akun baru telah siap digunakan.';
 
+                        if(data.switched_to_standard) {
+                            currentOrderData.plan = data.plan || ('Standard ' + (currentActiveDevice === 'tv' ? 'TV' : (currentActiveDevice === 'pc' ? 'PC/Laptop' : 'Mobile')));
+                            document.getElementById('d_plan').innerText = currentOrderData.plan;
+                            const targetPlanSel = document.getElementById('select-target-plan');
+                            if (targetPlanSel) targetPlanSel.value = 'standard';
+                        }
+
                         if(data.nftoken) {
                             currentOrderData.nftoken = data.nftoken;
-                            let planName = (currentOrderData.plan || "").toLowerCase();
-                            let path = "unsupported"; 
-                            if (planName.includes("pc") || planName.includes("reguler") || planName.includes("standard")) path = "browse";
-                            if (planName.includes("tv")) path = "tv2";
-                            let targetLink = "https://www.netflix.com/" + path + "?nftoken=" + data.nftoken;
-                            
-                            document.getElementById('diag-btn-netflix').href = targetLink;
-                            document.getElementById('btn-open-netflix').href = targetLink;
-                            if(document.getElementById('modal-btn-open-netflix')) {
-                                document.getElementById('modal-btn-open-netflix').href = targetLink;
-                            }
-                            
+                            updateLoginUrls();
                             document.getElementById('activation-area').style.display = 'block';
                             if(document.getElementById('activation-dead')) document.getElementById('activation-dead').style.display = 'none';
                             document.getElementById('d_status').innerText = 'Aktif (Garansi Baru)';
                             document.getElementById('d_status').className = 'badge-status badge-active';
                         }
-                        showAlert('replace-alert', '✅ <b>BERHASIL:</b> Akun baru telah diberikan. Silakan gunakan link aktivasi di bawah.', 'success');
+                        showAlert('replace-alert', '✅ <b>BERHASIL:</b> ' + (data.message || 'Akun baru telah diberikan. Silakan gunakan link aktivasi di bawah.'), 'success');
                     } else {
                         // Tampilkan Error View di dalam modal
                         document.getElementById('diag-loading-view').style.display = 'none';
@@ -1120,19 +1430,25 @@
 
         function showAlert(elementId, message, type) {
             const el = document.getElementById(elementId);
-            el.className = `alert alert-${type} mt-3`;
-            el.innerHTML = message;
-            el.style.display = 'block';
+            if (el) {
+                el.className = `alert alert-${type} mt-3`;
+                el.innerHTML = message;
+                el.style.display = 'block';
+            }
         }
 
         function hideAlert(elementId) {
-            document.getElementById(elementId).style.display = 'none';
+            const el = document.getElementById(elementId);
+            if (el) el.style.display = 'none';
         }
 
         function setLoading(btnId, textId, spinnerId, isLoading) {
-            document.getElementById(btnId).disabled = isLoading;
-            document.getElementById(textId).style.display = isLoading ? 'none' : 'inline';
-            document.getElementById(spinnerId).style.display = isLoading ? 'inline-block' : 'none';
+            const btn = document.getElementById(btnId);
+            const txt = document.getElementById(textId);
+            const sp = document.getElementById(spinnerId);
+            if (btn) btn.disabled = isLoading;
+            if (txt) txt.style.display = isLoading ? 'none' : 'inline';
+            if (sp) sp.style.display = isLoading ? 'inline-block' : 'none';
         }
 
         // Auto-login jika URL memiliki parameter ?code=ORD-XXXXX
