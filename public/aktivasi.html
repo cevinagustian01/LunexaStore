@@ -1089,7 +1089,7 @@
             txt.style.display = 'none';
             sp.style.display = 'inline-block';
             resEl.style.display = 'block';
-            resEl.innerHTML = '<div class="screen-result-box text-muted border text-center py-2" style="background:#f8fafc;"><i class="fas fa-spinner fa-spin me-2 text-primary"></i> Menghubungi Netflix PlayAPI untuk mendeteksi limit pemutaran layar...</div>';
+            resEl.innerHTML = '<div class="screen-result-box text-muted border text-center py-2" style="background:#f8fafc;"><i class="fas fa-spinner fa-spin me-2 text-primary"></i> Memeriksa status akun & sesi pemutaran layar...</div>';
             
             try {
                 const response = await fetch('/api/order/check_screen', {
@@ -1100,7 +1100,19 @@
                 const data = await response.json();
                 
                 if (data.ok) {
-                    if (data.screen_limit) {
+                    if (data.is_dead) {
+                        resEl.innerHTML = `
+                            <div class="screen-result-box border border-danger-subtle" style="background: #fff5f5; color: #b91c1c;">
+                                <div class="fw-bold mb-1"><i class="fas fa-times-circle me-1 text-danger"></i> Akun Ter-logout / Mati</div>
+                                <div style="font-size: 0.76rem; color: #7f1d1d; margin-bottom: 8px;">
+                                    Sesi akun telah berakhir atau password diperbarui. Silakan klaim garansi untuk menerima akun baru.
+                                </div>
+                                <button onclick="claimWarrantyWithReason('logout')" class="btn btn-sm btn-danger w-100 fw-bold py-1 shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
+                                    <i class="fas fa-sync-alt me-1"></i> Ganti Akun Sekarang
+                                </button>
+                            </div>
+                        `;
+                    } else if (data.screen_limit) {
                         resEl.innerHTML = `
                             <div class="screen-result-box border border-danger-subtle" style="background: #fff5f5; color: #b91c1c;">
                                 <div class="fw-bold mb-1"><i class="fas fa-tv me-1 text-danger"></i> Layar Penuh (Screen Limit) Terdeteksi!</div>
@@ -1112,24 +1124,23 @@
                                 </button>
                             </div>
                         `;
-                    } else if (data.can_play) {
+                    } else if (data.live) {
+                        const maxStr = data.max_streams || (data.plan && data.plan.toLowerCase().includes('premium') ? '4 Layar (4K)' : '2 Layar (1080p)');
                         resEl.innerHTML = `
                             <div class="screen-result-box border border-success-subtle" style="background: #f0fdf4; color: #166534;">
-                                <div class="fw-bold mb-1"><i class="fas fa-check-circle me-1 text-success"></i> Layar Aman & Bersih!</div>
-                                <div style="font-size: 0.76rem; color: #15803d;">
-                                    Tidak ada limit layar yang terdeteksi. Akun siap dan lancar untuk memutar film sekarang.
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="fw-bold"><i class="fas fa-check-circle me-1 text-success"></i> Akun Aktif & Sesi Valid</span>
+                                    <span class="badge bg-success text-white" style="font-size: 0.7rem; font-weight: 600;">${maxStr}</span>
                                 </div>
-                            </div>
-                        `;
-                    } else if (data.is_dead) {
-                        resEl.innerHTML = `
-                            <div class="screen-result-box border border-danger-subtle" style="background: #fff5f5; color: #b91c1c;">
-                                <div class="fw-bold mb-1"><i class="fas fa-times-circle me-1 text-danger"></i> Akun Ter-logout / Mati</div>
-                                <div style="font-size: 0.76rem; color: #7f1d1d; margin-bottom: 8px;">
-                                    Sesi akun telah berakhir atau password diperbarui. Silakan klaim garansi akun baru.
+                                <div style="font-size: 0.76rem; color: #15803d; line-height: 1.4; margin-bottom: 6px;">
+                                    Sesi akun terverifikasi normal dan siap digunakan untuk menonton.
                                 </div>
-                                <button onclick="claimWarrantyWithReason('logout')" class="btn btn-sm btn-danger w-100 fw-bold py-1 shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
-                                    <i class="fas fa-sync-alt me-1"></i> Klaim Akun Baru Sekarang
+                                <div class="p-2 rounded border text-start mb-2" style="background: #ffffff; font-size: 0.73rem; color: #555; line-height: 1.35;">
+                                    <i class="fas fa-info-circle text-primary me-1"></i> <b>Muncul 'Layar Penuh' di TV / HP Anda?</b><br>
+                                    Jika saat memutar film muncul peringatan limit layar karena profil lain sedang menonton, Anda dapat langsung menekan tombol di bawah untuk ganti akun baru bebas limit.
+                                </div>
+                                <button onclick="claimWarrantyWithReason('screen_limit')" class="btn btn-sm btn-outline-primary w-100 fw-bold py-1 shadow-sm" style="font-size: 0.78rem; border-radius: 6px;">
+                                    <i class="fas fa-sync-alt me-1"></i> Ganti ke Akun Bebas Screen Limit
                                 </button>
                             </div>
                         `;
