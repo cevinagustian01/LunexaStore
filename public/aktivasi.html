@@ -235,65 +235,95 @@
                 display: flex;
                 flex-direction: column;
             }
-            .left-col-wrapper {
-                order: 2;
-            }
-            .right-col-wrapper {
+            .left-col-wrapper, .right-col-wrapper {
                 display: contents;
             }
             .link-aktivasi-card {
                 order: 1;
             }
-            .faq-card {
+            .garansi-card {
+                order: 2;
+            }
+            .info-order-card {
                 order: 3;
             }
+            .faq-card {
+                order: 4;
+            }
+        }
+
+        /* Segmented Device Switcher Pills */
+        .device-pills {
+            background: #fff0f5;
+            padding: 5px;
+            border-radius: 14px;
+            border: 1.5px solid #ffe4e1;
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+        }
+        .device-pill {
+            flex: 1;
+            padding: 9px 6px;
+            border: none;
+            background: transparent;
+            border-radius: 10px;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #777;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .device-pill:hover {
+            color: var(--primary);
+            background: rgba(255, 255, 255, 0.7);
+        }
+        .device-pill.active {
+            background: var(--primary-grad);
+            color: white !important;
+            box-shadow: 0 4px 12px rgba(255, 75, 130, 0.28);
         }
         
+        /* Modern Reason Chips */
+        .reason-icon-circle {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
         .custom-reason-card {
             border: 1.5px solid #ffe4e1;
             background: #fff;
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: 12px;
+            padding: 10px 14px;
             margin-bottom: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
         .custom-reason-card:hover {
             border-color: #4facfe;
-            background: #f4f9ff;
+            background: #f7faff;
+            transform: translateY(-1px);
         }
         .custom-reason-card.selected-reason {
             border-color: #4facfe !important;
-            background: #edf7ff !important;
-            box-shadow: 0 2px 8px rgba(79, 172, 254, 0.15);
-        }
-
-        /* Device Switcher Styling */
-        .device-btn {
-            font-size: 0.78rem;
-            font-weight: 600;
-            border-radius: 8px !important;
-            transition: all 0.2s ease;
-            color: #555;
-            border-color: #dee2e6;
-            background: #fff;
-        }
-        .device-btn:hover {
-            background-color: #f1f5f9;
-            color: #1e293b;
-        }
-        .device-btn.active {
-            background: linear-gradient(135deg, #ff4b82 0%, #ff758c 100%) !important;
-            color: #fff !important;
-            border-color: #ff4b82 !important;
-            box-shadow: 0 2px 8px rgba(255, 75, 130, 0.3);
+            background: #eef7ff !important;
+            box-shadow: 0 3px 10px rgba(79, 172, 254, 0.16);
         }
         
         /* Screen check result box */
         .screen-result-box {
-            border-radius: 10px;
-            padding: 10px 12px;
-            font-size: 0.8rem;
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 0.82rem;
             line-height: 1.5;
             animation: fadeIn 0.3s ease;
         }
@@ -328,187 +358,220 @@
         </div>
 
         <div class="row g-4 mobile-grid">
-            <!-- LEFT COLUMN -->
+            <!-- LEFT COLUMN: ORDER INFO & WARRANTY -->
             <div class="col-lg-5 col-md-12 left-col-wrapper">
-                <!-- INFO PESANAN -->
-                <div class="glass-card h-100 mb-0" style="padding: 25px;">
-                    <h5 class="action-title"><i class="fas fa-receipt"></i> Detail Pesanan</h5>
-                    <div class="info-row mt-3">
-                        <span class="info-label">Kode Akses</span>
-                        <span class="info-value" id="d_code">ORD-XXX</span>
+                <!-- DETAIL PESANAN (COMPACT & SLEEK) -->
+                <div class="glass-card info-order-card mb-4" style="padding: 20px 22px;">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="action-title mb-0" style="font-size: 1.05rem;"><i class="fas fa-receipt"></i> Detail Pesanan</h5>
+                        <span id="d_status" class="badge-status badge-active">Aktif</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Paket Layanan</span>
-                        <span class="info-value" id="d_plan">Premium</span>
+                    <div class="info-row" style="padding: 8px 0;">
+                        <span class="info-label" style="font-size: 0.84rem;">Kode Akses</span>
+                        <span class="info-value font-monospace" id="d_code" style="font-size: 0.88rem;">ORD-XXX</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Batas Garansi</span>
-                        <span class="info-value" id="d_expired">01 Jan 2026</span>
+                    <div class="info-row" style="padding: 8px 0;">
+                        <span class="info-label" style="font-size: 0.84rem;">Paket Layanan</span>
+                        <span class="info-value" id="d_plan" style="font-size: 0.88rem;">Premium</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Status</span>
-                        <span class="info-value"><span id="d_status" class="badge-status badge-active">Aktif</span></span>
+                    <div class="info-row" style="padding: 8px 0;">
+                        <span class="info-label" style="font-size: 0.84rem;">Batas Garansi</span>
+                        <span class="info-value" id="d_expired" style="font-size: 0.88rem;">01 Jan 2026</span>
                     </div>
-                    <div class="info-row">
-                        <span class="info-label">Perangkat Nonton</span>
-                        <span class="info-value"><span id="d_device_badge" class="badge bg-light text-dark border">📱 HP / Android</span></span>
+                    <div class="info-row" style="padding: 8px 0; border-bottom: none;">
+                        <span class="info-label" style="font-size: 0.84rem;">Perangkat Terpilih</span>
+                        <span class="info-value" id="d_device_badge"><span class="badge bg-light text-dark border">📱 HP / Android</span></span>
                     </div>
+                </div>
 
-                    <!-- GANTI PERANGKAT -->
-                    <div class="mt-3 p-2 rounded" style="background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(0,0,0,0.06);">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="font-size: 0.78rem; font-weight: 700; color: #495057;">
-                                <i class="fas fa-desktop me-1 text-primary"></i> Ganti Perangkat Nonton:
-                            </span>
-                            <span id="device-sync-indicator" style="font-size: 0.7rem; color: #28a745; display: none;">
-                                <i class="fas fa-check"></i> Tersimpan
-                            </span>
-                        </div>
-                        <div class="btn-group w-100 device-switcher" role="group" aria-label="Pilih Perangkat">
-                            <button type="button" id="dev-btn-mobile" class="btn btn-sm device-btn" onclick="switchActiveDevice('mobile')">
-                                <i class="fas fa-mobile-alt me-1"></i> HP/Android
-                            </button>
-                            <button type="button" id="dev-btn-pc" class="btn btn-sm device-btn" onclick="switchActiveDevice('pc')">
-                                <i class="fas fa-laptop me-1"></i> PC/Laptop
-                            </button>
-                            <button type="button" id="dev-btn-tv" class="btn btn-sm device-btn" onclick="switchActiveDevice('tv')">
-                                <i class="fas fa-tv me-1"></i> Smart TV
-                            </button>
-                        </div>
-                    </div>
+                <!-- KLAIM GARANSI & GANTI AKUN -->
+                <div class="action-card garansi-card mb-4">
+                    <h5 class="action-title mb-2"><i class="fas fa-sync-alt"></i> Klaim Garansi & Ganti Akun</h5>
+                    <p class="tutorial-text mb-3" style="font-size: 0.82rem;">
+                        Pilih kendala yang Anda alami untuk menerima <b>akun baru otomatis</b>:
+                    </p>
 
-                    <!-- CEK SCREEN LIMIT MANUAL -->
-                    <div class="mt-3">
-                        <button id="btn-check-screen" onclick="checkScreenLimitManual()" class="btn btn-outline-primary btn-sm w-100 fw-bold py-2" style="border-radius: 10px; border-width: 1.5px; font-size: 0.82rem;">
-                            <span id="check-screen-text"><i class="fas fa-search me-1"></i> Cek Status Screen Limit (Layar Penuh)</span>
-                            <div id="check-screen-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></div>
-                        </button>
-                        <div id="screen-check-result" class="mt-2" style="display: none;"></div>
-                    </div>
-
-                    <!-- KLAIM GARANSI -->
-                    <hr style="border-color: #ffe4e1; margin: 25px 0;">
-                    <h5 class="action-title"><i class="fas fa-sync-alt"></i> Klaim Garansi (Ganti Akun)</h5>
-                    <p class="tutorial-text mb-2" style="font-size: 0.85rem;">Pilih kendala yang Anda alami untuk menerima <b>akun baru unik</b> yang belum pernah Anda dapatkan:</p>
-                    
-                    <!-- KENDALA SELECTOR -->
+                    <!-- KENDALA SELECTOR CHIPS -->
                     <div class="mb-3">
                         <div class="custom-reason-card selected-reason" onclick="selectReason('logout', this)">
-                            <div class="form-check m-0">
-                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_logout" value="logout" checked>
-                                <label class="form-check-label fw-bold" for="reason_logout" style="cursor:pointer; font-size: 0.85rem; color: #d9534f;">
-                                    <i class="fas fa-key me-1"></i> Ter-logout / Incorrect Password / Suspend
-                                </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Akun ter-logout dan tidak bisa masuk kembali.</div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="reason-icon-circle me-2 text-danger" style="background: #fff0f0;">
+                                        <i class="fas fa-key"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.84rem; color: #333;">Ter-logout / Password Salah</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Sesi login habis atau tidak dapat masuk</div>
+                                    </div>
+                                </div>
+                                <input class="form-check-input ms-2" type="radio" name="replace_reason" id="reason_logout" value="logout" checked>
                             </div>
                         </div>
+
                         <div class="custom-reason-card" onclick="selectReason('screen_limit', this)">
-                            <div class="form-check m-0">
-                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_screen" value="screen_limit">
-                                <label class="form-check-label fw-bold" for="reason_screen" style="cursor:pointer; font-size: 0.85rem; color: #0275d8;">
-                                    <i class="fas fa-tv me-1"></i> Layar Penuh (Screen Limit)
-                                </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Peringatan "Too Many Devices" / Layar penuh saat ingin menonton.</div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="reason-icon-circle me-2 text-primary" style="background: #f0f7ff;">
+                                        <i class="fas fa-tv"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.84rem; color: #333;">Layar Penuh (Screen Limit)</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Muncul pesan 'Too Many Devices'</div>
+                                    </div>
+                                </div>
+                                <input class="form-check-input ms-2" type="radio" name="replace_reason" id="reason_screen" value="screen_limit">
                             </div>
                         </div>
+
                         <div class="custom-reason-card" onclick="selectReason('location_vpn', this)">
-                            <div class="form-check m-0">
-                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_location" value="location_vpn">
-                                <label class="form-check-label fw-bold" for="reason_location" style="cursor:pointer; font-size: 0.85rem; color: #f0ad4e;">
-                                    <i class="fas fa-globe me-1"></i> Error E114 / Lokasi / Household / VPN
-                                </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Muncul "Akun tidak dapat digunakan di wilayah ini" (Error E114) atau Household.</div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="reason-icon-circle me-2 text-warning" style="background: #fffbf0;">
+                                        <i class="fas fa-globe"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.84rem; color: #333;">Household / Lokasi / Error E114</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Rumah Tangga Netflix atau kendala wilayah</div>
+                                    </div>
+                                </div>
+                                <input class="form-check-input ms-2" type="radio" name="replace_reason" id="reason_location" value="location_vpn">
                             </div>
                         </div>
-                        <div class="custom-reason-card" onclick="selectReason('ads_plan', this)">
-                            <div class="form-check m-0">
-                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_ads" value="ads_plan">
-                                <label class="form-check-label fw-bold" for="reason_ads" style="cursor:pointer; font-size: 0.85rem; color: #ff7849;">
-                                    <i class="fas fa-ad me-1"></i> Paket Iklan (Wilayah Tidak Didukung)
-                                </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Muncul pesan "Paket yang didukung iklan tidak tersedia di wilayah ini".</div>
-                            </div>
-                        </div>
+
                         <div class="custom-reason-card" onclick="selectReason('pin', this)">
-                            <div class="form-check m-0">
-                                <input class="form-check-input" type="radio" name="replace_reason" id="reason_pin" value="pin">
-                                <label class="form-check-label fw-bold" for="reason_pin" style="cursor:pointer; font-size: 0.85rem; color: #6f42c1;">
-                                    <i class="fas fa-lock me-1"></i> Terkunci PIN Profil (Profile Lock)
-                                </label>
-                                <div class="text-muted" style="font-size: 0.75rem; margin-left: 24px;">Profil meminta 4 digit PIN / Akun pemilik terkunci PIN.</div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="reason-icon-circle me-2" style="background: #f8f0ff; color: #7952b3;">
+                                        <i class="fas fa-lock"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.84rem; color: #333;">Terkunci PIN Profil</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Profil meminta 4 digit PIN terkunci</div>
+                                    </div>
+                                </div>
+                                <input class="form-check-input ms-2" type="radio" name="replace_reason" id="reason_pin" value="pin">
                             </div>
                         </div>
 
+                        <div class="custom-reason-card" onclick="selectReason('ads_plan', this)">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="reason-icon-circle me-2" style="background: #fff4f0; color: #ff7849;">
+                                        <i class="fas fa-ad"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold" style="font-size: 0.84rem; color: #333;">Paket Iklan (Region Error)</div>
+                                        <div class="text-muted" style="font-size: 0.72rem;">Pesan 'Paket iklan tidak didukung'</div>
+                                    </div>
+                                </div>
+                                <input class="form-check-input ms-2" type="radio" name="replace_reason" id="reason_ads" value="ads_plan">
+                            </div>
+                        </div>
                     </div>
 
-                    <div style="background-color: #f8f9fa; border-left: 4px solid #4facfe; padding: 12px; margin-bottom: 20px; border-radius: 4px; font-size: 0.85rem; color: #555;">
-                        <b style="color: #4facfe;">Tata Cara Ganti Akun:</b><br>
-                        1. Pilih kendala di atas, lalu klik <b>"Ganti Akun Sekarang"</b>.<br>
-                        2. Tunggu proses validasi dan penarikan akun baru (sekitar 3-5 detik).<br>
-                        3. Sistem otomatis memberikan <b>akun baru yang belum pernah Anda dapatkan</b> sebelumnya.<br>
-                        4. <b>Link Aktivasi</b> di sebelah kanan akan otomatis diperbarui.
+                    <!-- PILIHAN KUALITAS -->
+                    <div class="mb-3">
+                        <label class="form-label mb-1" style="font-size: 0.78rem; color: #555;">
+                            <i class="fas fa-sliders-h me-1 text-primary"></i> Pilihan Kualitas / Paket Pengganti:
+                        </label>
+                        <select id="select-target-plan" class="form-select form-select-sm" style="border-radius: 10px; font-size: 0.82rem; border-color: #ffe4e1;">
+                            <option value="auto">Sesuai Pesanan (Prioritas 4K Ultra HD)</option>
+                            <option value="standard">Beralih ke Standard (1080p - Bebas Antri)</option>
+                            <option value="premium">Tetap Minta 4K Ultra HD (Premium)</option>
+                        </select>
+                        <div class="text-muted mt-1" style="font-size: 0.71rem;">
+                            *Beralih ke Standard jika stok 4K kosong agar akun langsung aktif instan.
+                        </div>
                     </div>
-                    
+
                     <div id="replace-alert" class="alert" style="display: none;"></div>
-                    
-                    <div id="replace-progress-container" class="mt-3 mb-3" style="display: none;">
-                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.85rem; font-weight: bold;">
+
+                    <div id="replace-progress-container" class="mt-2 mb-3" style="display: none;">
+                        <div class="d-flex justify-content-between mb-1" style="font-size: 0.82rem; font-weight: bold;">
                             <span id="replace-status-text" style="color: #4facfe;">Memulai proses...</span>
                             <span id="replace-percentage" class="text-muted">0%</span>
                         </div>
-                        <div class="progress" style="height: 10px; border-radius: 5px;">
+                        <div class="progress" style="height: 8px; border-radius: 4px;">
                             <div id="replace-progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
-                    
-                    <!-- PILIHAN KUALITAS / PAKET PENGGANTI -->
-                    <div class="mb-3">
-                        <label class="form-label fw-bold" style="font-size: 0.82rem; color: #444;">
-                            <i class="fas fa-sliders-h me-1 text-primary"></i> Pilihan Kualitas / Paket Pengganti:
-                        </label>
-                        <select id="select-target-plan" class="form-select form-select-sm" style="border-radius: 8px; font-size: 0.82rem;">
-                            <option value="auto">Sesuai Paket Pesanan (Prioritas 4K Ultra HD)</option>
-                            <option value="standard">Beralih ke Standard (Full HD 1080p - Rekomendasi Bebas Antri)</option>
-                            <option value="premium">Tetap Minta 4K Ultra HD (Premium)</option>
-                        </select>
-                        <div class="text-muted mt-1" style="font-size: 0.72rem; line-height: 1.4;">
-                            <i class="fas fa-info-circle me-1"></i> Jika stok 4K kosong, Anda dapat beralih ke paket Standard agar akun langsung aktif tanpa menunggu restock admin.
-                        </div>
-                    </div>
 
-                    <button id="btn-replace" onclick="claimWarranty()" class="btn-brand" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); font-size: 0.9rem; padding: 12px;">
+                    <button id="btn-replace" onclick="claimWarranty()" class="btn-brand" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); font-size: 0.92rem; padding: 12px; margin-top: 5px;">
                         <span id="replace-text"><i class="fas fa-tools me-2"></i> Ganti Akun Sekarang</span>
                         <div id="replace-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></div>
                     </button>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN -->
+            <!-- RIGHT COLUMN: HERO LOGIN & TUTORIAL -->
             <div class="col-lg-7 col-md-12 right-col-wrapper">
-                <!-- AKTIVASI / LOGIN LINK -->
-                <div class="action-card link-aktivasi-card">
-                    <h5 class="action-title"><i class="fas fa-link"></i> Link Aktivasi (Login)</h5>
-                    <div id="dynamic-instruction" class="tutorial-text mb-3">
-                        <!-- Instruksi digenerate lewat JS -->
+                <!-- AKTIVASI / LOGIN LINK (HERO CARD) -->
+                <div class="action-card link-aktivasi-card mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <h5 class="action-title mb-0"><i class="fas fa-play-circle"></i> Aktivasi & Login Netflix</h5>
+                        <span id="device-sync-indicator" style="font-size: 0.72rem; color: #28a745; display: none;">
+                            <i class="fas fa-check"></i> Tersimpan
+                        </span>
                     </div>
-                    
+                    <p class="tutorial-text mb-3" style="font-size: 0.84rem;">
+                        Pilih perangkat yang Anda gunakan saat ini:
+                    </p>
+
+                    <!-- PILIH PERANGKAT SEGMENTED PILLS -->
+                    <div class="device-pills" role="group" aria-label="Pilih Perangkat">
+                        <button type="button" id="dev-btn-mobile" class="device-pill" onclick="switchActiveDevice('mobile')">
+                            <i class="fas fa-mobile-alt"></i> HP / Android
+                        </button>
+                        <button type="button" id="dev-btn-pc" class="device-pill" onclick="switchActiveDevice('pc')">
+                            <i class="fas fa-laptop"></i> PC / Laptop
+                        </button>
+                        <button type="button" id="dev-btn-tv" class="device-pill" onclick="switchActiveDevice('tv')">
+                            <i class="fas fa-tv"></i> Smart TV
+                        </button>
+                    </div>
+
+                    <!-- AREA TOMBOL LOGIN & AKSI -->
                     <div id="activation-area">
-                        <a id="btn-open-netflix" href="#" target="_blank" onclick="sendLog('open')" class="btn-brand d-block text-center text-decoration-none">
+                        <!-- TOMBOL UTAMA -->
+                        <a id="btn-open-netflix" href="#" target="_blank" onclick="sendLog('open')" class="btn-brand d-block text-center text-decoration-none mb-2" style="font-size: 1.05rem; padding: 14px; margin-top: 0; box-shadow: 0 6px 18px rgba(255, 75, 130, 0.35);">
                             <i class="fas fa-play-circle me-2"></i> Buka Netflix Sekarang
                         </a>
-                        <button onclick="copyLink(); sendLog('copy')" class="btn-outline-brand mt-3">
-                            <i class="fas fa-copy me-2"></i> Salin Link Aktivasi
-                        </button>
-                        <div class="mt-3 p-3 rounded" style="background-color: #fffaf0; border: 1px dashed #f39c12; font-size: 0.85rem; color: #d35400;">
-                            <i class="fas fa-info-circle me-1"></i> <b>Mengalami Kendala / Layar Hitam?</b><br>
-                            Jika link tidak terbuka atau error, klik <a href="https://www.netflix.com/clearcookies" target="_blank" style="color: #e67e22; font-weight: bold; text-decoration: underline;">Bersihkan Cookies Netflix</a> ini terlebih dahulu, lalu coba klik <b>Buka Netflix Sekarang</b> lagi.
+
+                        <!-- UTILITY BUTTONS (SIDE BY SIDE) -->
+                        <div class="row g-2 mb-3">
+                            <div class="col-6">
+                                <button onclick="copyLink(); sendLog('copy')" class="btn-outline-brand w-100" style="padding: 10px 8px; font-size: 0.84rem; border-radius: 12px;">
+                                    <i class="fas fa-copy me-1"></i> Salin Link
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button id="btn-check-screen" onclick="checkScreenLimitManual()" class="btn-outline-brand w-100" style="padding: 10px 8px; font-size: 0.84rem; border-radius: 12px;">
+                                    <span id="check-screen-text"><i class="fas fa-search me-1"></i> Cek Status Layar</span>
+                                    <div id="check-screen-spinner" class="spinner-border spinner-border-sm" role="status" style="display: none;"></div>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- HASIL CEK SCREEN LIMIT -->
+                        <div id="screen-check-result" class="mb-3" style="display: none;"></div>
+
+                        <!-- KIAT COOKIES -->
+                        <div class="p-2 px-3 rounded mb-3" style="background-color: #fffaf0; border: 1px dashed #f39c12; font-size: 0.8rem; color: #d35400;">
+                            <i class="fas fa-info-circle me-1"></i> <b>Layar Hitam / Error?</b> Klik <a href="https://www.netflix.com/clearcookies" target="_blank" style="color: #e67e22; font-weight: bold; text-decoration: underline;">Bersihkan Cookies Netflix</a> lalu coba klik <b>Buka Netflix Sekarang</b> lagi.
                         </div>
                     </div>
+
                     <div id="activation-expired" class="alert alert-danger mt-3 mb-0" style="display:none;">
                         <i class="fas fa-times-circle me-2"></i> Masa garansi Anda telah habis. Link tidak tersedia.
                     </div>
                     <div id="activation-dead" class="alert alert-warning mt-3 mb-0" style="display:none;">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Akun ini terdeteksi tidak aktif/berkendala. Silakan klik tombol <b>Ganti Akun / Klaim Garansi</b> di bawah untuk mendapatkan akun baru.
+                        <i class="fas fa-exclamation-triangle me-2"></i> Akun ini terdeteksi tidak aktif/berkendala. Silakan klik tombol <b>Ganti Akun Sekarang</b> di sebelah untuk mendapatkan akun baru.
+                    </div>
+
+                    <!-- PANDUAN AKTIVASI & VIDEO SESUAI PERANGKAT -->
+                    <hr style="border-color: #ffe4e1; margin: 18px 0 14px 0;">
+                    <div id="dynamic-instruction" class="tutorial-text">
+                        <!-- Instruksi digenerate lewat JS -->
                     </div>
                 </div>
 

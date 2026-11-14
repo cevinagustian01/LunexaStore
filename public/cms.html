@@ -415,10 +415,18 @@
                 <div class="col-md-3">
                     <select class="form-select" id="filterPlan" onchange="fetchData()">
                         <option value="">Semua Paket (Plan)</option>
-                        <option value="Premium Mobile">Premium Mobile</option>
-                        <option value="Premium PC">Premium PC</option>
-                        <option value="Premium TV">Premium TV</option>
-                        <option value="Premium">Premium Reguler</option>
+                        <optgroup label="Paket Premium">
+                            <option value="Premium Mobile">Premium Mobile</option>
+                            <option value="Premium PC">Premium PC/Laptop</option>
+                            <option value="Premium TV">Premium TV</option>
+                            <option value="Premium">Premium Reguler</option>
+                        </optgroup>
+                        <optgroup label="Paket Standard">
+                            <option value="Standard Mobile">Standard Mobile</option>
+                            <option value="Standard PC">Standard PC/Laptop</option>
+                            <option value="Standard TV">Standard TV</option>
+                            <option value="Standard">Standard (Umum)</option>
+                        </optgroup>
                     </select>
                 </div>
                 <div class="col-md-6 d-flex align-items-center gap-2">
@@ -1253,7 +1261,6 @@
                             </optgroup>
                             <optgroup label="Lainnya">
                                 <option value="Duplicate">Duplicate</option>
-                                <option value="- Next billing:">- Next billing:</option>
                             </optgroup>
                         </select>
                     </div>
